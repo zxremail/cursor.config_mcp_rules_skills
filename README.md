@@ -1,0 +1,1 @@
+# cursor.config_mcp_rules_skills
