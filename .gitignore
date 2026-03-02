@@ -41,7 +41,3 @@ projects/*/*
 # User-level cursor rules
 !rules/
 !rules/**
-
-/projects
-/skills-cursor
-!.gitignore
