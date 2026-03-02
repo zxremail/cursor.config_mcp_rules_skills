@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "feishu-mcp": {
+      "url": "https://open.feishu.cn/mcp/stream/mcp_HGZRDHBcxKmA4ETKRFaRQ7ZZ2YsScDLpO_vum3XMMY6znnbbpFhxVSUNGzQMGmPvlDanojFsbf4",
+      "headers": {}
+    }
+  }
+}
