@@ -1,4 +1,9 @@
-# Skill: Markdown 文档导出规范
+---
+name: markdown-export
+description: 将回复保存为 markdown 文件时的格式与内容规范，包括文件命名、Mermaid 图表配色、中英文排版等。Use when the user asks to save or export content as a markdown file.
+---
+
+# Markdown 文档导出规范
 
 当用户要求将回复保存为 markdown 文件时，必须遵循以下所有规则。
 
