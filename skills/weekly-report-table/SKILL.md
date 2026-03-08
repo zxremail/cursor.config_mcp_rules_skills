@@ -123,7 +123,7 @@ Bug 定位、客户问题处理和跨项目技术支持，包括但不限于：
 
 **必须使用 HTML `<table>` + `<ul>/<li>` 语法**，这是飞书唯一能正确渲染表格内多行列表的方式。
 
-- 表头使用 `<th>`，并加上 `align="center"` 实现居中对齐。
+- 表头使用 `<th>`，并加上 `align="center"` 实现居中对齐，内容用 `<b>` 加粗。
 - 每个分类行使用 `<tr>`，第一列（任务分类）使用 `<td align="center">` 实现居中对齐，第二三列为任务内容。
 - 单元格内使用 `<ul>/<li>` 嵌套列表实现项目和子条目的层级关系。
 - 项目名称使用 `<b>` 加粗。
@@ -140,9 +140,9 @@ Bug 定位、客户问题处理和跨项目技术支持，包括但不限于：
 ```html
 <table>
 <tr>
-<th align="center">任务分类</th>
-<th align="center">本周任务汇总</th>
-<th align="center">下周任务安排</th>
+<th align="center"><b>任务分类</b></th>
+<th align="center"><b>本周任务汇总</b></th>
+<th align="center"><b>下周任务安排</b></th>
 </tr>
 <tr>
 <td align="center">重点项目开发</td>
