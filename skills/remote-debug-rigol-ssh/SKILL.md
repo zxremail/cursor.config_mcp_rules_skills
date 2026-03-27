@@ -1,37 +1,48 @@
 ---
 name: remote-debug-rigol-ssh
 description: >-
-  Applies default SSH credentials for Rigol remote debugging targets. Use when
-  the user mentions a host IP (or hostname) for remote access, remote debug,
-  SSH, 跳板, 连设备, or similar; infer the connection is SSH as user rigol with
-  the documented password unless the user states otherwise.
+  Default SSH user and identity file for Rigol remote debugging. Use when the
+  user mentions a host IP, hostname, remote debug, SSH, 3399 平台, 跳板, or 连设备.
+  Chooses root vs rigol by whether the target is explicitly the 3399 platform;
+  always uses ~/.ssh/id_rsa on the current machine unless overridden.
 ---
 
-# 远程调试 SSH（Rigol 默认账号）
+# 远程调试 SSH（默认用户与密钥）
 
 ## 何时生效
 
-用户只要**给出或提到用于远程访问/远程调试的 IP 或主机名**（未另行说明用户名或密码时），按本节默认值处理。
+用户**给出或提到**用于远程访问/远程调试的 IP 或主机名，且**未另行说明**用户名、密钥路径或其他认证方式时，按本节处理。
 
-## 默认凭据（不可与仓库共享）
+## 身份文件（两台情况相同）
 
-| 项 | 值 |
-|----|-----|
-| 用户 | `rigol` |
-| 密码 | `123456` |
+一律使用**当前机器环境**下的私钥：
+
+`~/.ssh/id_rsa`
+
+命令中写为：`-i ~/.ssh/id_rsa`（或 `IdentityFile ~/.ssh/id_rsa`）。
+
+## 用户名（按是否 3399 平台分支）
+
+| 条件 | SSH 用户 |
+|------|----------|
+| 用户**明确**说明远程主机是 **3399 平台**（如「3399 平台」「3399平台」、在上下文中明确指该平台设备） | `root` |
+| 其他情况（默认） | `rigol` |
+
+**3399 判定**：须为**明确**表述；仅出现数字「3399」但语义不清时，仍按默认 `rigol`，除非用户补充说明是 3399 平台。
 
 ## 代理行为
 
-1. **SSH 命令**：使用 `ssh rigol@<IP或主机名>`。若用户只写了 IP，补全为 `rigol@该 IP`。
-2. **说明与文档**：在回复中如需写出连接方式，明确用户名 `rigol`；密码仅在用户需要手动输入或配置工具时说明（勿把密码写进会被提交的代码或公开文档，除非用户明确要求）。
-3. **用户覆盖**：若用户指定了其他用户名、密钥路径或密码，以用户当次说明为准，不再套用本默认值。
-4. **非交互场景**：若需在脚本中自动输入密码，可提示使用本机已安装的工具（如 `sshpass`）或改用 SSH 公钥；默认仍优先建议交互式 `ssh` 以减小凭据泄露面。
+1. **SSH 命令模板**：`ssh -i ~/.ssh/id_rsa <用户>@<IP或主机名>`
+2. **scp / rsync 等**：同样加上 `-i ~/.ssh/id_rsa`，用户按上表选取。
+3. **用户覆盖**：若用户指定了其他用户、其他密钥或密码登录，以当次说明为准。
+4. **勿默认密码**：本技能不再假定密码登录；若密钥失败，再请用户说明是否用密码或其他密钥。
 
 ## 示例
 
-- 用户：`调试 192.168.1.100` → 连接：`ssh rigol@192.168.1.100`，密码 `123456`。
-- 用户：`ssh 到 10.0.0.5 抓日志` → 同上，用户 `rigol`。
+- 用户：`3399 平台上 192.168.1.10 远程调试` → `ssh -i ~/.ssh/id_rsa root@192.168.1.10`
+- 用户：`连 10.0.0.5 看日志`（未提 3399 平台）→ `ssh -i ~/.ssh/id_rsa rigol@10.0.0.5`
+- 用户已说 `用 ubuntu 登录` → 以 `ubuntu` 为准，不套用 root/rigol
 
-## 安全提示（给用户）
+## 环境说明
 
-密码保存在个人 Skill 中，仅本机 Cursor 生效；生产或共享环境建议改为 SSH 公钥并轮换密码。
+`~` 指当前执行 SSH 的环境（本机终端/Cursor 集成终端）下的用户主目录；Windows 下若用 Git Bash/WSL，路径仍按该环境的 `~/.ssh/id_rsa` 解析。
