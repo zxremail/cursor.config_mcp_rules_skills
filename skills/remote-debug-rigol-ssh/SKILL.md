@@ -5,7 +5,7 @@ description: >-
   debugging. Use when the user mentions IP, hostname, SSH, RK3399, 3399 平台,
   跳板, or 连设备. Uses root + ssh-rsa compatibility options for RK3399/3399
   platform; rigol + ~/.ssh/id_rsa otherwise; if ~/.ssh/id_rsa is missing, fall
-  back to $SSHHOME/.sshrc.d/env_config/ssh_key/id_rsa_temp; retry with ssh-rsa
+  back to ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp; retry with ssh-rsa
   options if negotiation fails.
 ---
 
@@ -23,12 +23,12 @@ description: >-
 
 若该文件不存在，则回退为：
 
-`$SSHHOME/.sshrc.d/env_config/ssh_key/id_rsa_temp`
+`~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`
 
 命令中写为（按优先级二选一）：
 
 - `-i ~/.ssh/id_rsa`
-- `-i $SSHHOME/.sshrc.d/env_config/ssh_key/id_rsa_temp`
+- `-i ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`
 
 ## 用户名（按是否 RK3399 / 3399 平台）
 
@@ -58,7 +58,7 @@ description: >-
 ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -i ~/.ssh/id_rsa root@<IP或主机名>
 
 # 若 ~/.ssh/id_rsa 不存在，回退
-ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -i $SSHHOME/.sshrc.d/env_config/ssh_key/id_rsa_temp root@<IP或主机名>
+ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -i ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp root@<IP或主机名>
 ```
 
 `scp`、`rsync -e "ssh ..."` 等需在 **ssh 侧**带上相同 `-o`（`scp` 可用 `-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa`）。
@@ -72,7 +72,7 @@ ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -i $SSHHO
 ssh -i ~/.ssh/id_rsa rigol@<IP或主机名>
 
 # 若 ~/.ssh/id_rsa 不存在，回退
-ssh -i $SSHHOME/.sshrc.d/env_config/ssh_key/id_rsa_temp rigol@<IP或主机名>
+ssh -i ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp rigol@<IP或主机名>
 ```
 
 **若仍出现**上述 `ssh-rsa` / `no matching host key` 类错误，再**补加**与 3399 相同的两个 `-o`，不强行假设所有 rigol 主机都需要（多数新主机用 ed25519 等即可直连）。
@@ -80,18 +80,18 @@ ssh -i $SSHHOME/.sshrc.d/env_config/ssh_key/id_rsa_temp rigol@<IP或主机名>
 ## 代理行为小结
 
 1. 先按平台选对用户；**3399 / RK3399 → root + 默认附带 ssh-rsa 两选项**；否则 `rigol`、无额外 `-o`。
-2. 私钥优先级：先试 `~/.ssh/id_rsa`；若不存在，再试 `$SSHHOME/.sshrc.d/env_config/ssh_key/id_rsa_temp`。
+2. 私钥优先级：先试 `~/.ssh/id_rsa`；若不存在，再试 `~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`。
 3. **用户覆盖**：若用户指定其他用户、密钥、或要求不用 `ssh-rsa`，以当次说明为准。
 4. **勿默认密码**：密钥失败时再请用户说明密码或其他密钥。
 
 ## 示例
 
 - 用户：`172.18.x.x 是 RK3399` →  
-  `ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -i ~/.ssh/id_rsa root@172.18.x.x`（若首个密钥不存在则回退到 `-i $SSHHOME/.sshrc.d/env_config/ssh_key/id_rsa_temp`）
+  `ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -i ~/.ssh/id_rsa root@172.18.x.x`（若首个密钥不存在则回退到 `-i ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`）
 - 用户：`3399 平台上抓日志` → 同上（用户 `root`，带两 `-o`）。
-- 用户：`连 10.0.0.5`（未提 3399 / RK3399）→ `ssh -i ~/.ssh/id_rsa rigol@10.0.0.5`（若首个密钥不存在则回退到 `-i $SSHHOME/.sshrc.d/env_config/ssh_key/id_rsa_temp`）
+- 用户：`连 10.0.0.5`（未提 3399 / RK3399）→ `ssh -i ~/.ssh/id_rsa rigol@10.0.0.5`（若首个密钥不存在则回退到 `-i ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`）
 - 用户：`用 ubuntu 登录` → 以 `ubuntu` 为准，不套用 root/rigol；若对方仅支持 ssh-rsa，仍可按需加两 `-o`。
 
 ## 环境说明
 
-`~` 指当前执行 SSH 的环境（本机终端/Cursor 集成终端）下的用户主目录。`$SSHHOME` 需在当前环境可解析；若未设置，请由用户补充或改用显式绝对路径。Windows 下若用 Git Bash/WSL，路径按该环境解析。
+`~` 指当前执行 SSH 的环境（本机终端/Cursor 集成终端）下的用户主目录。Windows 下若用 Git Bash/WSL，路径按该环境解析。
