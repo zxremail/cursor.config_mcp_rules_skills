@@ -1,0 +1,20 @@
+---
+description: 将 Mermaid 图表转换为飞书画板时的注意事项
+alwaysApply: false
+---
+
+# Mermaid → 飞书画板转换规则
+
+将 Markdown 中的 Mermaid 图表转换为飞书画板时，必须完整保留原始 Mermaid 中的 `style` 指令（fill、stroke、color 等颜色属性），不得丢弃。
+
+```mermaid
+# ❌ 丢失颜色
+flowchart LR
+    A["节点A"] --> B["节点B"]
+
+# ✅ 保留完整 style
+flowchart LR
+    A["节点A"] --> B["节点B"]
+    style A fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    style B fill:#A23B72,stroke:#7B2D55,color:#FFFFFF
+```
