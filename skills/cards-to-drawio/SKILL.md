@@ -20,6 +20,31 @@ description: 将"分层彩色卡片布局"架构图（来自 markdown-to-html sk
 - 与源 Markdown / HTML 同目录。
 - 文件名：英文小写连字符，描述图的内容主体。例：`rxie-shmc-service-internal.drawio`。
 - 不要追加 `-cards` / `-drawio` 后缀。
+- 不要追加日期 / 版本号前缀（如 `2026-04-21-xxx.drawio`），这些元信息由源文档承载。
+
+### 2.1 多图拆分原则（强制）
+
+**一份源文档里有多张分层卡片图时，必须拆成多个独立 `.drawio` 文件，不得合并到一个 `mxfile` 的多个 `<diagram>` 页签里。**
+
+理由：
+- 每张架构图承担不同的语义职责（整体视图 / 子系统内部 / 数据流），应可独立引用、独立版本化、独立嵌入其他文档。
+- 合并成多页签后，drawio 默认只渲染首页，VS Code 插件里切页签体验差，导出 PNG/SVG 需要逐页操作。
+- 跨图交叉修改时，独立文件能避免误动其他页签。
+
+命名约定（多图场景）：每份文件名用"主体对象 + 视角"命名，不要加序号前缀。例：
+
+```
+docs/specs/
+  rxie-overall-layered-architecture.drawio      # 整体 6 层视图
+  rxie-shmc-service-internal.drawio             # ShMC Service 内部
+  rxie-hal-service-internal.drawio              # HAL Service 内部
+  rxie-shmc-mcu-firmware-tasks.drawio           # MCU 固件任务
+  rxie-zero-copy-dma-dataflow.drawio            # 零拷贝数据流
+```
+
+每份文件都是一个完整的 `<mxfile>`，内部只含一个 `<diagram>`。
+
+**例外**：只有当用户明确要求"合并为一份 drawio 文件"/"多页签形式"时，才允许输出单 `mxfile` 多 `<diagram>`。默认总是拆分。
 
 ## 3. 画布参数（mxfile 骨架）
 
@@ -214,6 +239,8 @@ drawio 的 `value` 字符串既支持 HTML（需 `html=1`），也是 XML 属性
 - **不要**在 value 里使用 `<div>` `<span>` `<table>`——drawio 渲染会出错；只用 `<b>` `<br>` `<i>` + 内联 `style=`。
 - **不要**改背景色——必须 `#0d1117`，否则浅色卡片在浅背景下完全看不见。
 - **不要**生成后不告诉用户怎么打开——要给出 draw.io Desktop / VS Code Draw.io Integration / app.diagrams.net 的三种打开方式。
+- **不要**把源文档里的多张卡片图合并进同一个 `mxfile` 的多个 `<diagram>` 页签——默认每张图输出一份独立 `.drawio` 文件（详见 §2.1）。只有用户显式要求"合并"时才例外。
+- **不要**在文件名里加日期 / 版本号前缀（如 `2026-04-21-xxx.drawio`）——这些元信息由源文档承载，drawio 文件只保留内容主体名。
 
 ## 11. 与其他 Skill 的协同
 
