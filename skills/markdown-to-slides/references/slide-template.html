@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>演示标题</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  /* ===== 配色变量 ===== */
+  :root {
+    --bg0: #0a0e1a;
+    --bg1: #101529;
+    --bg2: #1a2140;
+    --fg:  #e6edf7;
+    --muted: #8aa0c8;
+    --accent: #35d3ff;
+    --accent2: #7b5cff;
+    --warn: #ffb454;
+    --ok:   #5af0a8;
+    --danger:#ff5f7a;
+    --line: rgba(255,255,255,0.08);
+    --card: rgba(255,255,255,0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Microsoft YaHei", "Noto Sans SC", Helvetica, Arial, sans-serif;
+    background: var(--bg0);
+    color: var(--fg);
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ===== 舞台与幻灯片 ===== */
+  .stage { position: fixed; inset: 0; overflow: hidden; }
+  .slide {
+    position: absolute; inset: 0;
+    padding: 36px 52px 60px;
+    display: flex; flex-direction: column;
+    background:
+      radial-gradient(1200px 700px at 85% -10%, rgba(53,211,255,0.10), transparent 60%),
+      radial-gradient(900px 700px at -10% 110%, rgba(123,92,255,0.12), transparent 60%),
+      linear-gradient(180deg, var(--bg0), var(--bg1));
+    opacity: 0; visibility: hidden; pointer-events: none; z-index: 0;
+    transition: opacity .35s ease;
+  }
+  .slide.active { opacity: 1; visibility: visible; pointer-events: auto; z-index: 2; }
+
+  /* ===== 页眉 ===== */
+  .hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: 1px; }
+  .brand .logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: grid; place-items: center; font-weight: 800; color: #0b1020;
+  }
+  .brand .name { font-size: 13.5px; color: var(--muted); }
+  .brand .name b { color: var(--fg); letter-spacing: 2px; }
+  .page { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+
+  /* ===== 标题 ===== */
+  h1 { font-size: 44px; margin: 0 0 6px; line-height: 1.15; font-weight: 800; letter-spacing: .5px; }
+  h2 { font-size: 26px; margin: 0 0 4px; font-weight: 800; letter-spacing: .3px; }
+  h3 { font-size: 15.5px; margin: 0 0 4px; font-weight: 700; color: var(--accent); letter-spacing: .8px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 10px; }
+  .small { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+
+  /* ===== 页脚与进度条 ===== */
+  .footer {
+    position: absolute; bottom: 14px; left: 52px; right: 52px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--muted); font-size: 12px; letter-spacing: 1px;
+  }
+  .pbar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,0.05); }
+  .pbar > i {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width .3s ease;
+  }
+
+  /* ===== 导航按钮 ===== */
+  .nav { position: fixed; right: 24px; bottom: 24px; display: flex; gap: 8px; z-index: 20; }
+  .nav button {
+    width: 40px; height: 40px; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--fg);
+    backdrop-filter: blur(8px); font-size: 18px;
+  }
+  .nav button:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ===== 内容布局 ===== */
+  .content { flex: 1; display: flex; gap: 16px; min-height: 0; }
+  .col { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
+
+  /* ===== 卡片 ===== */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 6px;
+    min-width: 0; min-height: 0;
+  }
+  .card.tight { padding: 9px 12px; }
+  .card .label { font-size: 10.5px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+
+  /* ===== 网格 ===== */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+  /* ===== KPI ===== */
+  .kpi { text-align: center; padding: 10px 6px; }
+  .kpi .v {
+    font-size: 26px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; color: transparent;
+  }
+  .kpi .l { color: var(--muted); font-size: 11.5px; margin-top: 3px; letter-spacing: 1px; }
+
+  /* ===== Mermaid ===== */
+  .diagram { flex: 1; display: grid; place-items: center; overflow: hidden; padding: 6px; }
+  .diagram .mermaid { width: 100%; height: 100%; display: grid; place-items: center; }
+  .diagram svg { width: 100% !important; height: 100% !important; max-width: 100%; max-height: 100%; }
+  .card .mermaid { width: 100%; overflow: hidden; display: grid; place-items: center; }
+  .card .mermaid svg { width: 100% !important; height: auto !important; max-width: 100% !important; }
+  .mermaid .label, .mermaid .nodeLabel, .mermaid .edgeLabel { color: #e6edf7 !important; }
+  .mermaid .edgeLabel { background-color: rgba(10,14,26,0.85) !important; padding: 2px 6px !important; border-radius: 4px; }
+  .mermaid .cluster rect { fill: rgba(255,255,255,0.03) !important; stroke: rgba(255,255,255,0.15) !important; }
+
+  /* ===== 芯片列表 ===== */
+  ul.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+  ul.chips li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 6px 10px; border-radius: 9px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    font-size: 12.5px; line-height: 1.5;
+  }
+  ul.chips li::before {
+    content: ""; flex: 0 0 auto; width: 6px; height: 6px;
+    border-radius: 50%; margin-top: 7px;
+    background: var(--accent); box-shadow: 0 0 10px var(--accent);
+  }
+  ul.chips li.warn::before { background: var(--warn); box-shadow: 0 0 10px var(--warn); }
+  ul.chips li.ok::before { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+  ul.chips li.purple::before { background: #b9a8ff; box-shadow: 0 0 10px #b9a8ff; }
+  ul.chips li.danger::before { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+
+  /* ===== 封面页 ===== */
+  .cover { display: grid; place-items: center; text-align: center; flex: 1; }
+  .cover h1 {
+    font-size: 56px;
+    background: linear-gradient(90deg, #fff, #7fe0ff 45%, #a89bff);
+    -webkit-background-clip: text; color: transparent;
+  }
+  .cover .tag { margin-top: 10px; color: var(--muted); letter-spacing: 3px; font-size: 13.5px; }
+  .cover .meta { margin-top: 18px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .cover .meta span {
+    padding: 7px 12px; border: 1px solid var(--line);
+    border-radius: 999px; color: var(--muted); font-size: 12.5px;
+  }
+  .cover .formula {
+    margin-top: 18px;
+    font-family: 'JetBrains Mono','Consolas','Menlo',monospace;
+    font-size: 16px; color: var(--fg); letter-spacing: 1px;
+    padding: 10px 18px; border: 1px dashed rgba(255,255,255,0.2);
+    border-radius: 10px; display: inline-block;
+  }
+  .cover .formula b.a { color: var(--accent); }
+  .cover .formula b.b { color: var(--warn); }
+  .cover .formula b.c { color: var(--ok); }
+
+  /* ===== 表格 ===== */
+  table.m { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 11.5px; }
+  table.m th, table.m td {
+    padding: 5px 7px; border-bottom: 1px solid var(--line);
+    text-align: left; vertical-align: top;
+  }
+  table.m th {
+    color: var(--muted); font-weight: 600; font-size: 10.5px; letter-spacing: 1.5px;
+    text-transform: uppercase; border-bottom-color: rgba(255,255,255,0.2);
+  }
+  table.m td b { color: var(--fg); }
+  table.m tr:last-child td { border-bottom: none; }
+  table.m td.sf { color: var(--accent); font-weight: 700; }
+  table.m td.ok { color: var(--ok); }
+  table.m td.warn { color: var(--warn); }
+  table.m td.purple { color: #b9a8ff; }
+
+  /* ===== 行内代码 ===== */
+  code {
+    font-family: 'JetBrains Mono','Consolas','Menlo',monospace;
+    background: rgba(53,211,255,0.08); color: #7fe0ff;
+    padding: 1px 5px; border-radius: 4px; font-size: 11.5px;
+  }
+
+  /* ===== 药丸标签 ===== */
+  .pill-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    padding: 5px 10px; border-radius: 999px; font-size: 11.5px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+    color: var(--muted); letter-spacing: .3px;
+  }
+  .pill b { color: var(--fg); }
+  .pill.ok { background: rgba(90,240,168,0.08); color: var(--ok); border-color: rgba(90,240,168,0.3); }
+  .pill.warn { background: rgba(255,180,84,0.08); color: var(--warn); border-color: rgba(255,180,84,0.3); }
+  .pill.purple { background: rgba(123,92,255,0.08); color: #b9a8ff; border-color: rgba(123,92,255,0.3); }
+  .pill.danger { background: rgba(255,95,122,0.08); color: var(--danger); border-color: rgba(255,95,122,0.3); }
+
+  /* ===== 维度卡片 ===== */
+  .dims { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .dim {
+    padding: 10px 12px; border-radius: 10px;
+    background: rgba(53,211,255,0.06); border: 1px solid rgba(53,211,255,0.25);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .dim .code {
+    font-family: 'JetBrains Mono','Consolas','Menlo',monospace;
+    color: var(--accent); font-weight: 800; font-size: 12px; letter-spacing: 1.5px;
+  }
+  .dim .name { font-weight: 700; font-size: 14px; }
+  .dim .desc { color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+  .dim.ai { background: rgba(123,92,255,0.08); border-color: rgba(123,92,255,0.3); }
+  .dim.ai .code { color: #b9a8ff; }
+
+  /* ===== 演进行 ===== */
+  .evo-row {
+    display: grid; grid-template-columns: 120px 1fr 1fr 1fr 150px;
+    gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line);
+    font-size: 12px; align-items: center;
+  }
+  .evo-row.head {
+    color: var(--muted); font-size: 10.5px; letter-spacing: 1.5px;
+    text-transform: uppercase; border-bottom-color: rgba(255,255,255,0.2);
+  }
+  .evo-row .dimname { font-weight: 700; color: var(--accent); }
+  .evo-row .mag {
+    font-weight: 700; color: var(--ok); text-align: right;
+    font-family: 'JetBrains Mono','Consolas',monospace;
+  }
+  .evo-row.ai .dimname { color: #b9a8ff; }
+  .evo-row.ai .mag { color: #b9a8ff; }
+
+  /* ===== 栈式百分比 ===== */
+  .stack { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .stack .col-stack { border-radius: 10px; padding: 10px 12px; border: 1px solid var(--line); }
+  .stack .col-stack.a { background: rgba(90,240,168,0.08); border-color: rgba(90,240,168,0.3); }
+  .stack .col-stack.b { background: rgba(53,211,255,0.08); border-color: rgba(53,211,255,0.3); }
+  .stack .col-stack.c { background: rgba(123,92,255,0.08); border-color: rgba(123,92,255,0.3); }
+  .stack .col-stack .t { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
+  .stack .col-stack .p { font-size: 22px; font-weight: 800; }
+  .stack .col-stack.a .p { color: var(--ok); }
+  .stack .col-stack.b .p { color: var(--accent); }
+  .stack .col-stack.c .p { color: #b9a8ff; }
+  .stack .col-stack .l { color: var(--muted); font-size: 11.5px; line-height: 1.5; margin-top: 4px; }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 1280px) {
+    h1 { font-size: 36px; }
+    h2 { font-size: 22px; }
+    .slide { padding: 26px 34px 52px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- ===== SLIDE 1 · 封面页示例 ===== -->
+  <section class="slide active">
+    <div class="hdr">
+      <div class="brand">
+        <div class="logo">P</div>
+        <div class="name"><b>PROJECT</b> · 演示主题</div>
+      </div>
+      <div class="page">2026</div>
+    </div>
+    <div class="cover">
+      <div>
+        <div class="tag">副标题 · 关键词</div>
+        <h1>演示文稿主标题</h1>
+        <div class="tag">一句话描述演示的核心论点</div>
+        <div class="meta">
+          <span>标签 1</span>
+          <span>标签 2</span>
+          <span>标签 3</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>脚注信息</span><span>01 / 04</span></div>
+    <div class="pbar"><i style="width:25%"></i></div>
+  </section>
+
+  <!-- ===== SLIDE 2 · 双栏对比页示例 ===== -->
+  <section class="slide">
+    <div class="hdr">
+      <div class="brand"><div class="logo">P</div><div class="name"><b>PROJECT</b> · 对比</div></div>
+      <div class="page">分析</div>
+    </div>
+    <h2>双栏对比布局</h2>
+    <div class="subtitle">左侧展示问题，右侧展示方案</div>
+    <div class="content">
+      <div class="col">
+        <div class="card" style="background: rgba(255,95,122,0.06); border-color: rgba(255,95,122,0.25);">
+          <div class="label" style="color: var(--danger);">问题</div>
+          <h3 style="color: var(--danger);">现有方案的痛点</h3>
+          <ul class="chips">
+            <li class="danger">痛点 1：描述具体问题</li>
+            <li class="danger">痛点 2：描述具体问题</li>
+            <li class="danger">痛点 3：描述具体问题</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="background: rgba(90,240,168,0.06); border-color: rgba(90,240,168,0.3);">
+          <div class="label" style="color: var(--ok);">方案</div>
+          <h3 style="color: var(--ok);">新方案的优势</h3>
+          <ul class="chips">
+            <li class="ok">优势 1：描述具体收益</li>
+            <li class="ok">优势 2：描述具体收益</li>
+            <li class="ok">优势 3：描述具体收益</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>对比分析</span><span>02 / 04</span></div>
+    <div class="pbar"><i style="width:50%"></i></div>
+  </section>
+
+  <!-- ===== SLIDE 3 · 数据表格页示例 ===== -->
+  <section class="slide">
+    <div class="hdr">
+      <div class="brand"><div class="logo">P</div><div class="name"><b>PROJECT</b> · 数据</div></div>
+      <div class="page">数据总览</div>
+    </div>
+    <h2>数据与指标</h2>
+    <div class="subtitle">KPI 概览 + 详细对照表</div>
+    <div class="content">
+      <div class="col">
+        <div class="grid3">
+          <div class="card kpi"><div class="v">99.9%</div><div class="l">可用性</div></div>
+          <div class="card kpi"><div class="v">≤ 5ms</div><div class="l">延迟 P99</div></div>
+          <div class="card kpi"><div class="v">10×</div><div class="l">吞吐提升</div></div>
+        </div>
+        <div class="card" style="flex:1;">
+          <table class="m">
+            <thead><tr><th>维度</th><th>旧方案</th><th>新方案</th><th>提升</th></tr></thead>
+            <tbody>
+              <tr><td><b>带宽</b></td><td>1 GB/s</td><td><b>10 GB/s</b></td><td class="ok">10×</td></tr>
+              <tr><td><b>延迟</b></td><td>50 ms</td><td><b>5 ms</b></td><td class="ok">10×</td></tr>
+              <tr><td><b>功耗</b></td><td>200 W</td><td><b>150 W</b></td><td class="warn">-25%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col" style="max-width: 38%;">
+        <div class="card tight" style="background: rgba(53,211,255,0.06);">
+          <div class="label">关键判断</div>
+          <ul class="chips">
+            <li class="ok"><b>带宽翻倍</b>：满足下一代需求</li>
+            <li class="warn"><b>功耗下降</b>：仍需进一步优化</li>
+            <li class="purple"><b>兼容性</b>：向后完全兼容</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>性能对照</span><span>03 / 04</span></div>
+    <div class="pbar"><i style="width:75%"></i></div>
+  </section>
+
+  <!-- ===== SLIDE 4 · 总结页示例 ===== -->
+  <section class="slide">
+    <div class="hdr">
+      <div class="brand"><div class="logo">P</div><div class="name"><b>PROJECT</b> · 总结</div></div>
+      <div class="page">收束</div>
+    </div>
+    <h2>总结与下一步</h2>
+    <div class="subtitle">核心收获 + 行动计划</div>
+    <div class="content">
+      <div class="col">
+        <div class="card">
+          <div class="label">成果拆分</div>
+          <div class="stack">
+            <div class="col-stack a">
+              <div class="t">已完成</div>
+              <div class="p">60%</div>
+              <div class="l">基础架构、核心模块、API 定义</div>
+            </div>
+            <div class="col-stack b">
+              <div class="t">进行中</div>
+              <div class="p">30%</div>
+              <div class="l">集成测试、性能调优、文档完善</div>
+            </div>
+            <div class="col-stack c">
+              <div class="t">待启动</div>
+              <div class="p">10%</div>
+              <div class="l">生态对接、认证合规</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="background: rgba(53,211,255,0.06); border-color: rgba(53,211,255,0.3);">
+          <h3 style="color: var(--accent); margin: 0 0 2px;">一句话总结</h3>
+          <div class="small" style="color: var(--fg); font-size: 14px; line-height: 1.6;">
+            <b>简洁有力的结论陈述。</b>
+          </div>
+        </div>
+      </div>
+      <div class="col" style="max-width: 34%;">
+        <div class="card tight">
+          <div class="label">下一步行动</div>
+          <ul class="chips">
+            <li class="ok"><b>行动 1</b>：具体描述</li>
+            <li class="ok"><b>行动 2</b>：具体描述</li>
+            <li class="warn"><b>风险项</b>：具体描述</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>感谢聆听</span><span>04 / 04</span></div>
+    <div class="pbar"><i style="width:100%"></i></div>
+  </section>
+
+</div>
+
+<!-- 导航按钮 -->
+<div class="nav">
+  <button id="prev" title="上一页 ←">‹</button>
+  <button id="next" title="下一页 →">›</button>
+</div>
+
+<script>
+  /* ===== Mermaid 初始化（无 Mermaid 时可删除） ===== */
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    themeVariables: {
+      background: '#0a0e1a',
+      primaryColor: '#1a2140',
+      primaryTextColor: '#e6edf7',
+      primaryBorderColor: '#35d3ff',
+      lineColor: '#8aa0c8',
+      secondaryColor: '#101529',
+      tertiaryColor: '#101529',
+      fontSize: '12px',
+      fontFamily: 'inherit'
+    },
+    flowchart: { curve: 'basis', padding: 12, htmlLabels: true, useMaxWidth: false }
+  });
+
+  async function renderMermaid() {
+    try { await mermaid.run({ querySelector: '.mermaid' }); } catch (e) { console.warn(e); }
+    document.querySelectorAll('.mermaid svg').forEach(svg => {
+      svg.removeAttribute('style');
+      svg.removeAttribute('width');
+      svg.removeAttribute('height');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      svg.style.width = '100%';
+      svg.style.maxWidth = '100%';
+      svg.style.height = 'auto';
+    });
+  }
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    renderMermaid();
+  } else {
+    window.addEventListener('DOMContentLoaded', renderMermaid);
+  }
+
+  /* ===== 翻页逻辑 ===== */
+  const slides = document.querySelectorAll('.slide');
+  let cur = 0;
+  function go(i) {
+    cur = (i + slides.length) % slides.length;
+    slides.forEach((s, k) => s.classList.toggle('active', k === cur));
+  }
+  document.getElementById('next').onclick = () => go(cur + 1);
+  document.getElementById('prev').onclick = () => go(cur - 1);
+  window.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') go(cur + 1);
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(cur - 1);
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(slides.length - 1);
+  });
+</script>
+</body>
+</html>
