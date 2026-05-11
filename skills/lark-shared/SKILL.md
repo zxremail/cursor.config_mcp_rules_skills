@@ -1,12 +1,46 @@
 ---
 name: lark-shared
 version: 1.0.0
-description: "飞书/Lark CLI 共享基础：应用配置初始化、认证登录（auth login）、身份切换（--as user/bot）、权限与 scope 管理、Permission denied 错误处理、安全规则。当用户需要第一次配置(`lark-cli config init`)、使用登录授权(`lark-cli auth login`)、遇到权限不足、切换 user/bot 身份、配置 scope、或首次使用 lark-cli 时触发。"
+description: "飞书/Lark CLI 共享基础：lark-cli 可用性检查（未安装则立即中断）、应用配置初始化、认证登录（auth login）、身份切换（--as user/bot）、权限与 scope 管理、Permission denied 错误处理、安全规则。当用户需要第一次配置(`lark-cli config init`)、使用登录授权(`lark-cli auth login`)、遇到权限不足、切换 user/bot 身份、配置 scope、或首次使用 lark-cli 时触发。"
 ---
 
 # lark-cli 共享规则
 
 本技能指导你如何通过lark-cli操作飞书资源, 以及有哪些注意事项。
+
+## lark-cli 可用性检查（最高优先级，强制执行）
+
+**在执行任何飞书相关操作之前，必须先检查 `lark-cli` 是否已安装。如果未安装，立即中断所有操作，不得反复尝试。**
+
+### 检查方式
+
+```bash
+which lark-cli || command -v lark-cli
+```
+
+### 判断规则
+
+- **命令返回非空路径** → `lark-cli` 已安装，继续正常流程。
+- **命令返回空或报错** → `lark-cli` 未安装，**立即中断**。
+
+### 中断时的响应模板
+
+当检测到 `lark-cli` 未安装时，直接向用户返回以下提示，**禁止执行任何后续飞书操作，禁止反复重试**：
+
+> lark-cli 未安装，无法执行飞书相关操作。请先安装 lark-cli：
+>
+> ```bash
+> npm install -g @larksuite/cli
+> ```
+>
+> 安装完成后请重新发起请求。
+
+### 禁止行为
+
+- **禁止**在 `lark-cli` 未安装时尝试执行任何 `lark-cli` 命令。
+- **禁止**反复检查或反复尝试安装（安装是用户侧操作，agent 不应代劳）。
+- **禁止**尝试用其他方式（如 curl 裸调 API）绕过 `lark-cli` 缺失问题。
+- **禁止**在未安装的情况下继续读取 SKILL references 或做任何前置准备工作。
 
 ## 配置初始化
 
