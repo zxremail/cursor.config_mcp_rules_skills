@@ -4,7 +4,8 @@ description: >-
   Teaches agents to use a repository's **designated** Markdown knowledge directory
   (path from project rules, README, AGENTS.md, user message—not a fixed folder
   name): open that directory's index first (often `_INDEX_.md`), use 说明/提要
-  columns to pick docs, then read linked notes. Use when the user names a notes
+  columns to pick docs, then read linked notes. Index: prefer a 3-column table
+  (文档|说明|提要); split 提要 segments with HTML `<br>` inside cells. Use when the user names a notes
   path, asks to maintain a knowledge index, or project docs define a doc root.
 ---
 
@@ -23,8 +24,12 @@ description: >-
 ## 索引表怎么用（存在索引时）
 
 - 索引路径以项目约定为准；常见为 `<根>/_INDEX_.md`。
-- 常见三列：**文档** | **说明** | **提要**（以该索引实际表头为准）。
-- **说明**：短标签（几字到十来字），扫读分类；**提要**：较长说明，含侧重点与检索词；先据此选题，再读正文核对。
+- **展示形式（推荐）**：用 Markdown **三列表格** — **文档** | **说明** | **提要**（表头以项目约定为准，常见即此三列）。
+- **说明**：短标签（几字到十来字），扫读分类。
+- **提要**：较长说明，含侧重点与检索词；可拆成多条「一句一义」，以清晰扫读为目标。
+- **提要如何在表格里换行**：标准 Markdown **表格单元格内不能直接插入换行**；若要把提要写成多段，在 **提要** 列内使用 **HTML `<br>`** 分段（常见预览器 / GitHub 均支持）。可在表上方用 **blockquote** 一行说明「提要多条时用 `<br>`」，方便后续维护者照抄格式。
+- **与分块词条的取舍**：若用户明确要求「仍以表格展示」，则保留表格，**不要**为换行而改成分块标题 + 列表；提要清晰度用 **`<br>` 分段** 解决。
+- 先据此选题，再读正文核对。
 
 ## 与仓库真源的关系
 
@@ -32,7 +37,8 @@ description: >-
 
 ## 维护索引（用户让你改笔记时）
 
-- 在 `<根>` 下新增或重命名 `.md` 时，在索引的合适分类中补一行，**同时**维护 **说明**（短标签）与 **提要**（较长说明），两列分工明确。
+- 在 `<根>` 下新增或重命名 `.md` 时，在索引表格中 **补一行**（或按项目约定插入到合适分类），**同时**维护 **说明**（短标签）与 **提要**（较长说明），两列分工明确。
+- **提要** 若有多条并列信息：在表格中仍以 **一行一格** 呈现，格内用 **`<br>`** 连接各段，保持「一条 `<br>` 前为一条提要」的维护习惯，避免整格挤成一长句。
 
 ## 阅读顺序
 
