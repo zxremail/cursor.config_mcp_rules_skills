@@ -332,11 +332,24 @@ def toc_heading_has_index_link(
     )
 
 
+def index_row_anchor_id(basename: str) -> str:
+    """_INDEX_.md「文档一览」表格行锚点 id（与索引表内 <a id> 一致）。"""
+    return f"idx-{basename}"
+
+
 def resolve_index_href(md_path: Path) -> str | None:
-    """同目录存在 _INDEX_.md 时返回相对链接路径。"""
-    if (md_path.parent / INDEX_FILE).is_file():
+    """同目录存在 _INDEX_.md 时返回相对链接；表内有 idx-<文件名> 行锚点时带上 # 片段。"""
+    index_path = md_path.parent / INDEX_FILE
+    if not index_path.is_file():
+        return None
+    anchor = index_row_anchor_id(md_path.name)
+    try:
+        text = index_path.read_text(encoding="utf-8")
+    except OSError:
         return INDEX_FILE
-    return None
+    if f'id="{anchor}"' in text:
+        return f"{INDEX_FILE}#{anchor}"
+    return INDEX_FILE
 
 
 def upgrade_toc_heading_index_link(
