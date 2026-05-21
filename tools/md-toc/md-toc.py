@@ -43,8 +43,9 @@ BACK_LINK_BLOCK_RE = re.compile(
 BACK_LINK_LEGACY_RE = re.compile(
     r"^\[↑\s*返回目录\]\(#(toc-pos-[^)]+)\)\s*$"
 )
+BACK_LINK_STYLE = "float:right;text-decoration:none;color:#5c6370"
 INLINE_BACK_LINK_RE = re.compile(
-    r'\s*<a href="#(toc-pos-[^"]+)" style="float:right;text-decoration:none">↑</a>\s*'
+    r'\s*<a href="#(toc-pos-[^"]+)" style="[^"]*">↑</a>\s*'
 )
 HEADING_SECTION_ID_RE = re.compile(
     r'\s*<a id="(?!toc-pos-)[^"]+"></a>\s*'
@@ -261,10 +262,7 @@ def build_anchor_map(headings: list[tuple[int, str]]) -> dict[str, str]:
 
 
 def inline_back_link_html(pos_anchor: str) -> str:
-    return (
-        f'<a href="#{pos_anchor}" '
-        f'style="float:right;text-decoration:none">↑</a>'
-    )
+    return f'<a href="#{pos_anchor}" style="{BACK_LINK_STYLE}">↑</a>'
 
 
 def strip_inline_back_link(line: str) -> str:
@@ -299,7 +297,11 @@ def append_back_link_to_heading(
 
 def heading_has_inline_back_link(line: str, pos_anchor: str) -> bool:
     m = INLINE_BACK_LINK_RE.search(line)
-    return m is not None and m.group(1) == pos_anchor
+    return (
+        m is not None
+        and m.group(1) == pos_anchor
+        and BACK_LINK_STYLE in line
+    )
 
 
 def parse_separate_back_link_pos(line: str) -> str | None:
