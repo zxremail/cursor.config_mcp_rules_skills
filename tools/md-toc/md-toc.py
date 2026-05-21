@@ -44,6 +44,11 @@ BACK_LINK_LEGACY_RE = re.compile(
     r"^\[↑\s*返回目录\]\(#(toc-pos-[^)]+)\)\s*$"
 )
 BACK_LINK_CLASS = "md-toc-back"
+INDEX_FILE = "_INDEX_.md"
+INDEX_LINK_CLASS = "md-toc-index"
+INDEX_LINK_RE = re.compile(
+    r'\s*<a href="[^"]*" class="md-toc-index"[^>]*>.*?</a>\s*'
+)
 # 中国字号「五号」= 10.5pt，各级标题统一此尺寸
 BACK_LINK_ICON_SIZE = "10.5pt"
 BACK_LINK_STYLE = "float:right;text-decoration:none;color:#5c6370"
@@ -79,12 +84,17 @@ def toc_pos_anchor(section_anchor: str) -> str:
     return f"toc-pos-{section_anchor}"
 
 
+def is_toc_heading_line(line: str, toc_title: str) -> bool:
+    """匹配「## 目录」标题行（允许行尾索引/回链等 HTML）。"""
+    return bool(re.match(rf"^##\s+{re.escape(toc_title)}\b", line))
+
+
 def _toc_section_pattern(toc_title: str, *, with_separator: bool) -> re.Pattern[str]:
     title = re.escape(toc_title)
     if with_separator:
-        body = rf"^##\s+{title}\s*\n.*?(?:^---\s*\n+)"
+        body = rf"^##\s+{title}\b.*?\n.*?(?:^---\s*\n+)"
     else:
-        body = rf"^##\s+{title}\s*\n.*?(?=\n##\s+|\Z)"
+        body = rf"^##\s+{title}\b.*?\n.*?(?=\n##\s+|\Z)"
     return re.compile(body, re.MULTILINE | re.DOTALL)
 
 
@@ -235,7 +245,7 @@ def extract_headings(
         if in_fence:
             continue
 
-        if re.match(rf"^##\s+{re.escape(toc_title)}\s*$", line):
+        if is_toc_heading_line(line, toc_title):
             skipping_toc = True
             continue
         if skipping_toc:
@@ -283,6 +293,70 @@ def inline_back_link_html(pos_anchor: str) -> str:
         f'<a href="#{pos_anchor}" class="{BACK_LINK_CLASS}" '
         f'style="{BACK_LINK_STYLE}">{inline_back_link_svg()}</a>'
     )
+
+
+def index_link_html(index_href: str = INDEX_FILE) -> str:
+    """目录标题行右侧：指向知识库 _INDEX_.md。"""
+    return (
+        f'<a href="{index_href}" class="{INDEX_LINK_CLASS}" '
+        f'style="{BACK_LINK_STYLE}" title="知识库索引">'
+        f"{inline_back_link_svg()}</a>"
+    )
+
+
+def render_toc_heading_line(
+    toc_title: str, *, link_to_index: bool, index_href: str
+) -> str:
+    line = f"## {toc_title}"
+    if link_to_index:
+        line += " " + index_link_html(index_href)
+    return line
+
+
+def toc_heading_has_index_link(
+    content: str, toc_title: str, index_href: str
+) -> bool:
+    m = re.search(
+        rf"^##\s+{re.escape(toc_title)}\b.*$",
+        content,
+        re.MULTILINE,
+    )
+    if not m:
+        return False
+    line = m.group(0)
+    return (
+        f'href="{index_href}"' in line
+        and f'class="{INDEX_LINK_CLASS}"' in line
+        and f'width="{BACK_LINK_ICON_SIZE}"' in line
+        and "<svg" in line
+    )
+
+
+def resolve_index_href(md_path: Path) -> str | None:
+    """同目录存在 _INDEX_.md 时返回相对链接路径。"""
+    if (md_path.parent / INDEX_FILE).is_file():
+        return INDEX_FILE
+    return None
+
+
+def upgrade_toc_heading_index_link(
+    content: str,
+    toc_title: str,
+    index_href: str,
+) -> tuple[str, bool]:
+    pat = re.compile(
+        rf"^##\s+{re.escape(toc_title)}\b.*$",
+        re.MULTILINE,
+    )
+    m = pat.search(content)
+    if not m:
+        return content, False
+    new_line = render_toc_heading_line(
+        toc_title, link_to_index=True, index_href=index_href
+    )
+    if m.group(0) == new_line:
+        return content, False
+    return content[: m.start()] + new_line + content[m.end() :], True
 
 
 def strip_inline_back_link(line: str) -> str:
@@ -344,12 +418,15 @@ def heading_back_links_need_update(
     title_to_pos: dict[str, str],
     title_to_section: dict[str, str],
     *,
+    toc_title: str,
     min_depth: int,
     max_depth: int,
 ) -> bool:
     if any(is_separate_back_link_line(line) for line in content.splitlines()):
         return True
     for line in content.splitlines():
+        if is_toc_heading_line(line, toc_title):
+            continue
         hm = HEADING_RE.match(line)
         if not hm:
             continue
@@ -377,10 +454,17 @@ def render_toc_block(
     separator: bool,
     min_level: int,
     nav_hint: bool = False,
+    link_to_index: bool = False,
+    index_href: str = INDEX_FILE,
 ) -> str:
     if not entries:
         return ""
-    lines = [f"## {toc_title}", ""]
+    lines = [
+        render_toc_heading_line(
+            toc_title, link_to_index=link_to_index, index_href=index_href
+        ),
+        "",
+    ]
     if nav_hint:
         lines.append("> 点击章节右侧 **↑** 回到目录对应条目。")
         lines.append("")
@@ -458,6 +542,8 @@ def rebuild_toc_section(
     separator: bool,
     min_level: int,
     nav_hint: bool,
+    link_to_index: bool,
+    index_href: str,
 ) -> str:
     section = extract_toc_section(content, toc_title, with_separator=separator)
     if section is None:
@@ -469,6 +555,8 @@ def rebuild_toc_section(
         separator=separator,
         min_level=min_level,
         nav_hint=nav_hint,
+        link_to_index=link_to_index,
+        index_href=index_href,
     )
     return prefix + block + suffix
 
@@ -515,7 +603,7 @@ def inject_back_links(
             i += 1
             continue
 
-        if re.match(rf"^##\s+{re.escape(toc_title)}\s*$", line):
+        if is_toc_heading_line(line, toc_title):
             skipping_toc = True
             out.append(line)
             i += 1
@@ -533,7 +621,11 @@ def inject_back_links(
             title = clean_heading_title(hm.group(2))
             i += 1
 
-            if min_depth <= level <= max_depth and title in title_to_pos:
+            if (
+                min_depth <= level <= max_depth
+                and title in title_to_pos
+                and title != toc_title
+            ):
                 pos_anchor = title_to_pos[title]
                 section_anchor = title_to_section[title]
                 new_line = append_back_link_to_heading(
@@ -576,13 +668,15 @@ def apply_document_toc(
     max_depth: int,
     back_links: bool,
     nav_hint: bool,
-) -> tuple[str, list[TocEntry], bool, int, bool]:
+    index_href: str | None,
+) -> tuple[str, list[TocEntry], bool, int, bool, bool]:
     """
     返回 (新全文, 新增目录条目, 是否新建目录, 新增回链数, 是否升级了目录锚点)。
     """
     if not doc_headings:
-        return content, [], False, 0, False
+        return content, [], False, 0, False, False
 
+    link_to_index = index_href is not None
     min_level = min(level for level, _ in doc_headings)
     anchor_map = build_anchor_map(doc_headings)
     section = extract_toc_section(content, toc_title, with_separator=separator)
@@ -601,6 +695,8 @@ def apply_document_toc(
             separator=separator,
             min_level=min_level,
             nav_hint=nav_hint,
+            link_to_index=link_to_index,
+            index_href=index_href or INDEX_FILE,
         )
         h1 = re.search(r"^#\s+.+$", content, re.MULTILINE)
         if h1:
@@ -635,8 +731,18 @@ def apply_document_toc(
                 separator=separator,
                 min_level=min_level,
                 nav_hint=nav_hint,
+                link_to_index=link_to_index,
+                index_href=index_href or INDEX_FILE,
             )
             toc_upgraded = True
+
+    index_link_upgraded = False
+    if link_to_index and not toc_heading_has_index_link(
+        content, toc_title, index_href or INDEX_FILE
+    ):
+        content, index_link_upgraded = upgrade_toc_heading_index_link(
+            content, toc_title, index_href or INDEX_FILE
+        )
 
     links_added = 0
     if back_links:
@@ -649,7 +755,7 @@ def apply_document_toc(
             max_depth=max_depth,
         )
 
-    return content, added, created, links_added, toc_upgraded
+    return content, added, created, links_added, toc_upgraded, index_link_upgraded
 
 
 def document_needs_update(
@@ -662,12 +768,17 @@ def document_needs_update(
     max_depth: int,
     back_links: bool,
     nav_hint: bool,
+    index_href: str | None,
 ) -> bool:
     min_level = min(level for level, _ in doc_headings)
-    anchor_map = build_anchor_map(doc_headings)
     section = extract_toc_section(content, toc_title, with_separator=separator)
 
     if section is None:
+        return True
+
+    if index_href and not toc_heading_has_index_link(
+        content, toc_title, index_href
+    ):
         return True
 
     _, toc_part, _ = section
@@ -688,6 +799,7 @@ def document_needs_update(
             doc_headings,
             title_to_pos,
             title_to_section,
+            toc_title=toc_title,
             min_depth=min_depth,
             max_depth=max_depth,
         ):
@@ -707,6 +819,7 @@ def process_file(
     separator: bool,
     back_links: bool,
     nav_hint: bool,
+    index_href: str | None,
     dry_run: bool,
     check: bool,
     stdout_mode: bool,
@@ -732,17 +845,21 @@ def process_file(
         max_depth=max_depth,
         back_links=back_links,
         nav_hint=nav_hint,
+        index_href=index_href,
     )
 
-    new_text, added, created, links_added, toc_upgraded = apply_document_toc(
-        text,
-        headings,
-        toc_title=toc_title,
-        separator=separator,
-        min_depth=min_depth,
-        max_depth=max_depth,
-        back_links=back_links,
-        nav_hint=nav_hint,
+    new_text, added, created, links_added, toc_upgraded, index_upgraded = (
+        apply_document_toc(
+            text,
+            headings,
+            toc_title=toc_title,
+            separator=separator,
+            min_depth=min_depth,
+            max_depth=max_depth,
+            back_links=back_links,
+            nav_hint=nav_hint,
+            index_href=index_href,
+        )
     )
 
     changed = new_text != text
@@ -767,6 +884,8 @@ def process_file(
                 print("（将升级目录 toc-pos 锚点）")
             if links_added:
                 print(f"（将更新章节 ↑ 回链 {links_added} 处）")
+            if index_upgraded:
+                print("（将为「目录」添加指向 _INDEX_.md 的箭头）")
         print()
         return 0
 
@@ -788,6 +907,8 @@ def process_file(
         parts.append("升级目录锚点")
     if links_added:
         parts.append(f"↑ 回链 {links_added} 处")
+    if index_upgraded:
+        parts.append("目录→索引")
     print(f"{path}: 已更新（{', '.join(parts)}）")
     return 0
 
@@ -805,6 +926,11 @@ def main(argv: list[str] | None = None) -> int:
         "--no-back-links",
         action="store_true",
         help="不在章节标题下插入 ↑ 回链",
+    )
+    parser.add_argument(
+        "--no-index-link",
+        action="store_true",
+        help="不在「目录」标题添加指向 _INDEX_.md 的箭头",
     )
     parser.add_argument(
         "--nav-hint",
@@ -825,6 +951,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{f}: 文件不存在", file=sys.stderr)
             rc = 1
             continue
+        index_href = None if args.no_index_link else resolve_index_href(f)
         r = process_file(
             f,
             min_depth=args.min_depth,
@@ -833,6 +960,7 @@ def main(argv: list[str] | None = None) -> int:
             separator=not args.no_separator,
             back_links=not args.no_back_links,
             nav_hint=args.nav_hint,
+            index_href=index_href,
             dry_run=args.dry_run,
             check=args.check,
             stdout_mode=args.stdout,
