@@ -9,9 +9,28 @@ description: >-
 
 # Markdown 知识库文档维护
 
+
+
+## 目录
+
+<a id="toc-pos-1-补充文档内目录cli优先于手写"></a>
+- [1. 补充文档内目录（CLI，优先于手写）](#1-补充文档内目录cli优先于手写)
+<a id="toc-pos-2-同步-_index_md"></a>
+- [2. 同步 `_INDEX_.md`](#2-同步-_index_md)
+<a id="toc-pos-3-推荐执行顺序"></a>
+- [3. 推荐执行顺序](#3-推荐执行顺序)
+<a id="toc-pos-4-自动-hook用户级"></a>
+- [4. 自动 Hook（用户级）](#4-自动-hook用户级)
+<a id="toc-pos-5-何时可跳过"></a>
+- [5. 何时可跳过](#5-何时可跳过)
+<a id="toc-pos-工具位置"></a>
+- [工具位置](#工具位置)
+
+---
+
 在**指定知识库目录**内创建或修改任意 `.md` 后，除完成用户任务外，**必须**执行下列维护（无需用户再次提醒）。
 
-## 1. 补充文档内目录（CLI，优先于手写）
+## 1. 补充文档内目录（CLI，优先于手写） <a href="#toc-pos-1-补充文档内目录cli优先于手写" style="float:right;text-decoration:none">↑</a>
 
 ```bash
 python3 ~/.cursor/tools/md-toc/md-toc.py -- "<改动的.md绝对或相对路径>"
@@ -26,9 +45,11 @@ python3 ~/.cursor/tools/md-toc/md-toc.py -- "<改动的.md绝对或相对路径>
 
 可选检查：`--dry-run` 预览将补充的条目；`--check` 用于 CI。
 
+**双向跳转**：CLI 为每条目录加 `toc-pos-*` 锚点；章节标题**同行右侧** **↑**（`float:right`），回到目录**对应条目**。
+
 **禁止**：为省事先读全文手写目录块；与 `github-slugger` 不一致的锚点。
 
-## 2. 同步 `_INDEX_.md`
+## 2. 同步 `_INDEX_.md` <a href="#toc-pos-2-同步-_index_md" style="float:right;text-decoration:none">↑</a>
 
 同一知识库根目录 `<根>` 下若存在 `_INDEX_.md`（或其它项目约定索引名），按 **`designated-knowledge-index`** skill：
 
@@ -36,25 +57,25 @@ python3 ~/.cursor/tools/md-toc/md-toc.py -- "<改动的.md绝对或相对路径>
 - 仅改正文、未改文档定位 → 视情况更新 **提要** 列
 - 先 Read 索引再改，避免漏项或重复行
 
-## 3. 推荐执行顺序
+## 3. 推荐执行顺序 <a href="#toc-pos-3-推荐执行顺序" style="float:right;text-decoration:none">↑</a>
 
 1. 完成用户对正文的修改  
 2. 运行 `md-toc.py` 补充目录  
 3. 更新 `<根>/_INDEX_.md`（若适用）  
 4. 若目录或索引有变，在回复中**一句话**说明（例如「已补充目录 2 条、已更新索引」）
 
-## 4. 自动 Hook（用户级）
+## 4. 自动 Hook（用户级） <a href="#toc-pos-4-自动-hook用户级" style="float:right;text-decoration:none">↑</a>
 
 `~/.cursor/hooks.json` 已在 `afterFileEdit` 注册 `supplement-md-toc.sh`，Agent 写入 `.md` 后会尝试自动跑目录补充。  
 **索引表仍需 Agent 维护**（Hook 不修改 `_INDEX_.md`）。
 
-## 5. 何时可跳过
+## 5. 何时可跳过 <a href="#toc-pos-5-何时可跳过" style="float:right;text-decoration:none">↑</a>
 
 - 仅修改代码块 / 表格数据 / 错别字，且**未增删改** `##`～`###` 标题
 - 用户明确说「不要动目录/索引」
 - 文件不在知识库场景（普通 README 等）：仅当用户要求时再跑 md-toc
 
-## 工具位置
+## 工具位置 <a href="#toc-pos-工具位置" style="float:right;text-decoration:none">↑</a>
 
 | 组件 | 路径 |
 |------|------|
