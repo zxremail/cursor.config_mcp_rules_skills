@@ -59,6 +59,7 @@ HEADING_SECTION_ID_RE = re.compile(
     r'\s*<a id="(?!toc-pos-)[^"]+"></a>\s*'
 )
 TOC_NAV_HINT_RE = re.compile(r"^>\s*章节内点击", re.MULTILINE)
+TOC_NUMBER_PREFIX_RE = re.compile(r"^(\d+(?:\.\d+)*)\.\s+")
 CUSTOM_ID_RE = re.compile(r"\s*\{#[^}]+\}\s*$")
 INLINE_MD_RE = re.compile(r"\[([^\]]+)\]\([^)]+\)")
 
@@ -78,6 +79,41 @@ def clean_heading_title(raw: str) -> str:
     title = CUSTOM_ID_RE.sub("", title.strip())
     title = INLINE_MD_RE.sub(r"\1", title)
     return title.strip()
+
+
+def strip_number_prefix(title: str) -> str:
+    """去掉目录链接文字中的层级序号前缀（如 ``1.2.3. ``）。"""
+    return TOC_NUMBER_PREFIX_RE.sub("", title, count=1)
+
+
+def update_toc_level_counters(counters: dict[int, int], level: int) -> None:
+    for lv in list(counters):
+        if lv > level:
+            del counters[lv]
+    counters[level] = counters.get(level, 0) + 1
+
+
+def format_toc_number_prefix(counters: dict[int, int], level: int, min_level: int) -> str:
+    parts = [str(counters[lv]) for lv in range(min_level, level + 1) if lv in counters]
+    return ".".join(parts) + ". " if parts else ""
+
+
+def entries_need_number_upgrade(
+    entries: list[TocEntry],
+    toc_body: str,
+    *,
+    min_level: int,
+    numbered: bool,
+) -> bool:
+    if not numbered or not entries:
+        return False
+    counters: dict[int, int] = {}
+    for entry in entries:
+        update_toc_level_counters(counters, entry.level)
+        prefix = format_toc_number_prefix(counters, entry.level, min_level)
+        if f"[{prefix}{entry.title}](#{entry.anchor})" not in toc_body:
+            return True
+    return False
 
 
 def toc_pos_anchor(section_anchor: str) -> str:
@@ -116,7 +152,7 @@ def parse_toc_entries(toc_body: str, *, min_level: int) -> list[TocEntry]:
             entries.append(
                 TocEntry(
                     level=level,
-                    title=title,
+                    title=strip_number_prefix(title),
                     anchor=anchor,
                     toc_pos_anchor=pos,
                     raw_line=line,
@@ -141,7 +177,7 @@ def parse_toc_entries(toc_body: str, *, min_level: int) -> list[TocEntry]:
         entries.append(
             TocEntry(
                 level=level,
-                title=title,
+                title=strip_number_prefix(title),
                 anchor=anchor,
                 toc_pos_anchor=pos,
                 raw_line=line,
@@ -152,14 +188,44 @@ def parse_toc_entries(toc_body: str, *, min_level: int) -> list[TocEntry]:
     return entries
 
 
-def render_toc_entry_lines(entry: TocEntry, *, min_level: int) -> list[str]:
+def render_toc_entry_lines(
+    entry: TocEntry,
+    *,
+    min_level: int,
+    numbered: bool,
+    number_prefix: str,
+) -> list[str]:
     """单行列表项：锚点与链接同在 li 内，避免破坏 Markdown 列表。"""
     indent = "  " * (entry.level - min_level)
+    display = (
+        f"{number_prefix}{entry.title}" if numbered and number_prefix else entry.title
+    )
     line = (
         f'{indent}- <a id="{entry.toc_pos_anchor}"></a>'
-        f"[{entry.title}](#{entry.anchor})"
+        f"[{display}](#{entry.anchor})"
     )
     return [line]
+
+
+def render_toc_entries_lines(
+    entries: list[TocEntry], *, min_level: int, numbered: bool
+) -> list[str]:
+    lines: list[str] = []
+    counters: dict[int, int] = {}
+    for entry in entries:
+        prefix = ""
+        if numbered:
+            update_toc_level_counters(counters, entry.level)
+            prefix = format_toc_number_prefix(counters, entry.level, min_level)
+        lines.extend(
+            render_toc_entry_lines(
+                entry,
+                min_level=min_level,
+                numbered=numbered,
+                number_prefix=prefix,
+            )
+        )
+    return lines
 
 
 def make_toc_entry(
@@ -168,17 +234,15 @@ def make_toc_entry(
     anchor: str,
     *,
     min_level: int,
+    numbered: bool = True,
 ) -> TocEntry:
     pos = toc_pos_anchor(anchor)
-    lines = render_toc_entry_lines(
-        TocEntry(level, title, anchor, pos, ""), min_level=min_level
-    )
     return TocEntry(
         level=level,
         title=title,
         anchor=anchor,
         toc_pos_anchor=pos,
-        raw_line=lines[0],
+        raw_line="",
     )
 
 
@@ -453,6 +517,7 @@ def render_toc_block(
     toc_title: str,
     separator: bool,
     min_level: int,
+    numbered: bool,
     nav_hint: bool = False,
     link_to_index: bool = False,
     index_href: str = INDEX_FILE,
@@ -468,8 +533,7 @@ def render_toc_block(
     if nav_hint:
         lines.append("> 点击章节右侧 **↑** 回到目录对应条目。")
         lines.append("")
-    for entry in entries:
-        lines.extend(render_toc_entry_lines(entry, min_level=min_level))
+    lines.extend(render_toc_entries_lines(entries, min_level=min_level, numbered=numbered))
     if separator:
         lines.extend(["", "---", ""])
         return "\n".join(lines).rstrip("\n") + "\n\n"
@@ -507,6 +571,7 @@ def supplement_toc_entries(
     anchor_map: dict[str, str],
     *,
     min_level: int,
+    numbered: bool,
 ) -> tuple[list[TocEntry], list[TocEntry]]:
     existing_titles = {e.title for e in existing}
     missing_indices = [
@@ -523,7 +588,9 @@ def supplement_toc_entries(
     for doc_idx in missing_indices:
         level, title = doc_headings[doc_idx]
         anchor = anchor_map[title]
-        entry = make_toc_entry(level, title, anchor, min_level=min_level)
+        entry = make_toc_entry(
+            level, title, anchor, min_level=min_level, numbered=numbered
+        )
         pos = find_insert_index(
             result, doc_headings, doc_idx, existing_titles
         )
@@ -541,6 +608,7 @@ def rebuild_toc_section(
     toc_title: str,
     separator: bool,
     min_level: int,
+    numbered: bool,
     nav_hint: bool,
     link_to_index: bool,
     index_href: str,
@@ -554,6 +622,7 @@ def rebuild_toc_section(
         toc_title=toc_title,
         separator=separator,
         min_level=min_level,
+        numbered=numbered,
         nav_hint=nav_hint,
         link_to_index=link_to_index,
         index_href=index_href,
@@ -669,6 +738,7 @@ def apply_document_toc(
     back_links: bool,
     nav_hint: bool,
     index_href: str | None,
+    numbered: bool,
 ) -> tuple[str, list[TocEntry], bool, int, bool, bool]:
     """
     返回 (新全文, 新增目录条目, 是否新建目录, 新增回链数, 是否升级了目录锚点)。
@@ -686,7 +756,9 @@ def apply_document_toc(
 
     if section is None:
         entries = [
-            make_toc_entry(level, title, anchor_map[title], min_level=min_level)
+            make_toc_entry(
+                level, title, anchor_map[title], min_level=min_level, numbered=numbered
+            )
             for level, title in doc_headings
         ]
         block = render_toc_block(
@@ -694,6 +766,7 @@ def apply_document_toc(
             toc_title=toc_title,
             separator=separator,
             min_level=min_level,
+            numbered=numbered,
             nav_hint=nav_hint,
             link_to_index=link_to_index,
             index_href=index_href or INDEX_FILE,
@@ -714,13 +787,20 @@ def apply_document_toc(
         body = toc_part[header_end:]
         existing = parse_toc_entries(body, min_level=min_level)
         merged, added = supplement_toc_entries(
-            existing, doc_headings, anchor_map, min_level=min_level
+            existing,
+            doc_headings,
+            anchor_map,
+            min_level=min_level,
+            numbered=numbered,
         )
         all_entries = merged
 
         need_rebuild = (
             added
             or entries_need_nav_upgrade(merged, body)
+            or entries_need_number_upgrade(
+                merged, body, min_level=min_level, numbered=numbered
+            )
             or (not nav_hint and toc_body_has_legacy_hint(body))
         )
         if need_rebuild:
@@ -730,6 +810,7 @@ def apply_document_toc(
                 toc_title=toc_title,
                 separator=separator,
                 min_level=min_level,
+                numbered=numbered,
                 nav_hint=nav_hint,
                 link_to_index=link_to_index,
                 index_href=index_href or INDEX_FILE,
@@ -769,6 +850,7 @@ def document_needs_update(
     back_links: bool,
     nav_hint: bool,
     index_href: str | None,
+    numbered: bool,
 ) -> bool:
     min_level = min(level for level, _ in doc_headings)
     section = extract_toc_section(content, toc_title, with_separator=separator)
@@ -789,6 +871,10 @@ def document_needs_update(
     if any(title not in existing_titles for _, title in doc_headings):
         return True
     if entries_need_nav_upgrade(existing, body):
+        return True
+    if entries_need_number_upgrade(
+        existing, body, min_level=min_level, numbered=numbered
+    ):
         return True
 
     if back_links:
@@ -820,6 +906,7 @@ def process_file(
     back_links: bool,
     nav_hint: bool,
     index_href: str | None,
+    numbered: bool,
     dry_run: bool,
     check: bool,
     stdout_mode: bool,
@@ -846,6 +933,7 @@ def process_file(
         back_links=back_links,
         nav_hint=nav_hint,
         index_href=index_href,
+        numbered=numbered,
     )
 
     new_text, added, created, links_added, toc_upgraded, index_upgraded = (
@@ -859,6 +947,7 @@ def process_file(
             back_links=back_links,
             nav_hint=nav_hint,
             index_href=index_href,
+            numbered=numbered,
         )
     )
 
@@ -881,7 +970,7 @@ def process_file(
             if added:
                 print(f"（将补充目录 {len(added)} 条）")
             if toc_upgraded:
-                print("（将升级目录 toc-pos 锚点）")
+                print("（将升级目录 toc-pos 锚点/序号）")
             if links_added:
                 print(f"（将更新章节 ↑ 回链 {links_added} 处）")
             if index_upgraded:
@@ -904,7 +993,7 @@ def process_file(
     elif added:
         parts.append(f"补充 {len(added)} 条")
     if toc_upgraded and not created:
-        parts.append("升级目录锚点")
+        parts.append("升级目录锚点/序号")
     if links_added:
         parts.append(f"↑ 回链 {links_added} 处")
     if index_upgraded:
@@ -937,6 +1026,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="在目录块顶部插入一行简短用法提示",
     )
+    parser.add_argument(
+        "--no-numbered",
+        action="store_true",
+        help="目录条目不添加层级数字前缀（默认 1. / 1.1. / …）",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--stdout", action="store_true")
@@ -961,6 +1055,7 @@ def main(argv: list[str] | None = None) -> int:
             back_links=not args.no_back_links,
             nav_hint=args.nav_hint,
             index_href=index_href,
+            numbered=not args.no_numbered,
             dry_run=args.dry_run,
             check=args.check,
             stdout_mode=args.stdout,
