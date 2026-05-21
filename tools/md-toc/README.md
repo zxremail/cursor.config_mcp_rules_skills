@@ -43,7 +43,7 @@ python3 ~/.cursor/tools/md-toc/md-toc.py --dry-run doc.md
 
 - 每条目录项前有 `<a id="toc-pos-..."></a>`，标记该链接在目录中的位置
 - 章节标题**同一行右侧**浮动弧形向上箭头（SVG，`md-toc-back`）
-- **`## 目录` 标题行右侧**：同风格箭头指向同目录下的 `_INDEX_.md`；若索引表「文档一览」行含 `<a id="idx-<文件名>"></a>`，则链接为 `_INDEX_.md#idx-<文件名>`（`--no-index-link` 可关闭）
+- **`## 目录` 标题行右侧**：同风格箭头指向同目录下的 `_INDEX_.md`（仅当该文件存在；`--no-index-link` 可关闭）
 - 需要目录块顶部提示时：`--nav-hint`
 - 不需要回链时：`--no-back-links`
 
