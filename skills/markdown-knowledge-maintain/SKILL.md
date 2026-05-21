@@ -33,8 +33,9 @@ description: >-
 ## 1. 补充文档内目录（CLI，优先于手写） <a href="#toc-pos-1-补充文档内目录cli优先于手写" style="float:right;text-decoration:none">↑</a>
 
 ```bash
-python3 ~/.cursor/tools/md-toc/md-toc.py -- "<改动的.md绝对或相对路径>"
-# 或：~/.cursor/tools/md-toc/md-toc -- "<path>"
+~/.cursor/tools/md-toc/md-toc -- "<改动的.md绝对或相对路径>"
+# 入口按 python3 版本自动选择：>=3.7 用 md-toc.py，否则用 md-toc-batch.py
+# 亦可：python3 ~/.cursor/tools/md-toc/md-toc.py -- "<path>"
 ```
 
 | 规则 | 说明 |
@@ -79,6 +80,7 @@ python3 ~/.cursor/tools/md-toc/md-toc.py -- "<改动的.md绝对或相对路径>
 
 | 组件 | 路径 |
 |------|------|
-| CLI | `~/.cursor/tools/md-toc/md-toc.py` |
-| 入口脚本 | `~/.cursor/tools/md-toc/md-toc` |
+| CLI（推荐入口） | `~/.cursor/tools/md-toc/md-toc`（自动选择实现） |
+| 完整实现 | `~/.cursor/tools/md-toc/md-toc.py`（Python >= 3.7） |
+| 兼容实现 | `~/.cursor/tools/md-toc/md-toc-batch.py`（Python 3.5/3.6） |
 | 说明 | `~/.cursor/tools/md-toc/README.md` |

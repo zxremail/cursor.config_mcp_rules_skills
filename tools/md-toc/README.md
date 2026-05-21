@@ -18,8 +18,9 @@
 
 ```
 ~/.cursor/tools/md-toc/
-├── md-toc          # shell 入口（可加 PATH）
-├── md-toc.py
+├── md-toc              # shell 入口（按 Python 版本自动选择实现，推荐）
+├── md-toc.py           # 完整实现（需 Python >= 3.7）
+├── md-toc-batch.py     # 兼容实现（Python 3.5/3.6）
 ├── md_toc_slug.py
 └── github_slugger_regex.pattern
 ```
@@ -27,9 +28,16 @@
 ## 用法 <a id="用法"></a> <a href="#toc-pos-用法" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 ```bash
+# 推荐：统一入口（Python >= 3.7 用 md-toc.py，否则用 md-toc-batch.py）
 ~/.cursor/tools/md-toc/md-toc path/to/doc.md
+cd /path/to/knowledge-dir && ~/.cursor/tools/md-toc/md-toc    # 无参数：处理当前目录 *.md
+
+# 直接调用（高级）
 python3 ~/.cursor/tools/md-toc/md-toc.py --dry-run doc.md
+python3 ~/.cursor/tools/md-toc/md-toc-batch.py doc.md
 ```
+
+**版本选择**：`md-toc` 脚本检测 `python3` 版本；3.7 以下自动走 `md-toc-batch.py`，行为与默认参数下的 `md-toc.py` 对齐（h2–h3、目录补充、↑ 回链、`_INDEX_.md` 链接）。
 
 ## 行为 <a id="行为"></a> <a href="#toc-pos-行为" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
