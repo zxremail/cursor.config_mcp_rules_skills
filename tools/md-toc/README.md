@@ -4,22 +4,17 @@
 
 ## 目录
 
-<a id="toc-pos-安装路径"></a>
-- [安装路径](#安装路径)
-<a id="toc-pos-用法"></a>
-- [用法](#用法)
-<a id="toc-pos-行为"></a>
-- [行为](#行为)
-<a id="toc-pos-双向跳转"></a>
-- [双向跳转（↑）](#双向跳转)
-<a id="toc-pos-可选加入-path"></a>
-- [可选：加入 PATH](#可选加入-path)
+- <a id="toc-pos-安装路径"></a>[安装路径](#安装路径)
+- <a id="toc-pos-用法"></a>[用法](#用法)
+- <a id="toc-pos-行为"></a>[行为](#行为)
+- <a id="toc-pos-双向跳转"></a>[双向跳转（↑）](#双向跳转)
+- <a id="toc-pos-可选加入-path"></a>[可选：加入 PATH](#可选加入-path)
 
 ---
 
 为 `.md` 文档插入或**仅补充**「## 目录」小节（GitHub / VS Code / Cursor 预览锚点兼容）。
 
-## 安装路径 <a href="#toc-pos-安装路径" style="float:right;text-decoration:none">↑</a>
+## 安装路径 <a id="安装路径"></a> <a href="#toc-pos-安装路径" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="1.05em" height="1.05em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.12em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 ```
 ~/.cursor/tools/md-toc/
@@ -29,14 +24,14 @@
 └── github_slugger_regex.pattern
 ```
 
-## 用法 <a href="#toc-pos-用法" style="float:right;text-decoration:none">↑</a>
+## 用法 <a id="用法"></a> <a href="#toc-pos-用法" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="1.05em" height="1.05em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.12em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 ```bash
 ~/.cursor/tools/md-toc/md-toc path/to/doc.md
 python3 ~/.cursor/tools/md-toc/md-toc.py --dry-run doc.md
 ```
 
-## 行为 <a href="#toc-pos-行为" style="float:right;text-decoration:none">↑</a>
+## 行为 <a id="行为"></a> <a href="#toc-pos-行为" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="1.05em" height="1.05em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.12em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 | 情况 | 行为 |
 |------|------|
@@ -44,14 +39,14 @@ python3 ~/.cursor/tools/md-toc/md-toc.py --dry-run doc.md
 | 已有目录 | **保留**现有条目与顺序，只追加正文中未列入的章节 |
 | 目录已齐全 | 不写文件，退出 0 |
 
-## 双向跳转（↑） <a href="#toc-pos-双向跳转" style="float:right;text-decoration:none">↑</a>
+## 双向跳转（↑） <a id="双向跳转"></a> <a href="#toc-pos-双向跳转" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="1.05em" height="1.05em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.12em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 - 每条目录项前有 `<a id="toc-pos-..."></a>`，标记该链接在目录中的位置
-- 章节标题**同一行右侧**浮动 ↑：`<a href="#toc-pos-..." style="float:right">↑</a>`
+- 章节标题**同一行右侧**浮动弧形向上箭头（SVG，`md-toc-back`）
 - 需要目录块顶部提示时：`--nav-hint`
 - 不需要回链时：`--no-back-links`
 
-## 可选：加入 PATH <a href="#toc-pos-可选加入-path" style="float:right;text-decoration:none">↑</a>
+## 可选：加入 PATH <a id="可选加入-path"></a> <a href="#toc-pos-可选加入-path" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="1.05em" height="1.05em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.12em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 ```bash
 ln -sf ~/.cursor/tools/md-toc/md-toc ~/.local/bin/md-toc

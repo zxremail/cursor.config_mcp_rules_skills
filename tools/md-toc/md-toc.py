@@ -43,9 +43,10 @@ BACK_LINK_BLOCK_RE = re.compile(
 BACK_LINK_LEGACY_RE = re.compile(
     r"^\[↑\s*返回目录\]\(#(toc-pos-[^)]+)\)\s*$"
 )
+BACK_LINK_CLASS = "md-toc-back"
 BACK_LINK_STYLE = "float:right;text-decoration:none;color:#5c6370"
 INLINE_BACK_LINK_RE = re.compile(
-    r'\s*<a href="#(toc-pos-[^"]+)" style="[^"]*">↑</a>\s*'
+    r'\s*<a href="#toc-pos-[^"]+"[^>]*>.*?</a>\s*'
 )
 HEADING_SECTION_ID_RE = re.compile(
     r'\s*<a id="(?!toc-pos-)[^"]+"></a>\s*'
@@ -261,8 +262,24 @@ def build_anchor_map(headings: list[tuple[int, str]]) -> dict[str, str]:
     return {title: slugger.slug(title) for _, title in headings}
 
 
+def inline_back_link_svg() -> str:
+    """弧形向上（corner-left-up），stroke 继承 color。"""
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="1.05em" height="1.05em" '
+        'viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '
+        'style="vertical-align:-0.12em" aria-hidden="true">'
+        '<path d="M9 14 4 9l5-5"/>'
+        '<path d="M20 20v-7a4 4 0 0 0-4-4H4"/>'
+        "</svg>"
+    )
+
+
 def inline_back_link_html(pos_anchor: str) -> str:
-    return f'<a href="#{pos_anchor}" style="{BACK_LINK_STYLE}">↑</a>'
+    return (
+        f'<a href="#{pos_anchor}" class="{BACK_LINK_CLASS}" '
+        f'style="{BACK_LINK_STYLE}">{inline_back_link_svg()}</a>'
+    )
 
 
 def strip_inline_back_link(line: str) -> str:
@@ -296,11 +313,11 @@ def append_back_link_to_heading(
 
 
 def heading_has_inline_back_link(line: str, pos_anchor: str) -> bool:
-    m = INLINE_BACK_LINK_RE.search(line)
     return (
-        m is not None
-        and m.group(1) == pos_anchor
+        f'href="#{pos_anchor}"' in line
+        and f'class="{BACK_LINK_CLASS}"' in line
         and BACK_LINK_STYLE in line
+        and "<svg" in line
     )
 
 
