@@ -44,6 +44,8 @@ BACK_LINK_LEGACY_RE = re.compile(
     r"^\[↑\s*返回目录\]\(#(toc-pos-[^)]+)\)\s*$"
 )
 BACK_LINK_CLASS = "md-toc-back"
+# 与 Markdown ### 正文字号对齐（各预览器常见约 1.2em），各级标题统一此尺寸
+BACK_LINK_ICON_SIZE = "1.2em"
 BACK_LINK_STYLE = "float:right;text-decoration:none;color:#5c6370"
 INLINE_BACK_LINK_RE = re.compile(
     r'\s*<a href="#toc-pos-[^"]+"[^>]*>.*?</a>\s*'
@@ -263,12 +265,13 @@ def build_anchor_map(headings: list[tuple[int, str]]) -> dict[str, str]:
 
 
 def inline_back_link_svg() -> str:
-    """弧形向上（corner-left-up），stroke 继承 color。"""
+    """弧形向上（corner-left-up），stroke 继承 color，尺寸固定为 ### 级别。"""
+    size = BACK_LINK_ICON_SIZE
     return (
-        '<svg xmlns="http://www.w3.org/2000/svg" width="1.05em" height="1.05em" '
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
         'viewBox="0 0 24 24" fill="none" stroke="currentColor" '
         'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '
-        'style="vertical-align:-0.12em" aria-hidden="true">'
+        'style="vertical-align:-0.15em" aria-hidden="true">'
         '<path d="M9 14 4 9l5-5"/>'
         '<path d="M20 20v-7a4 4 0 0 0-4-4H4"/>'
         "</svg>"
@@ -317,6 +320,7 @@ def heading_has_inline_back_link(line: str, pos_anchor: str) -> bool:
         f'href="#{pos_anchor}"' in line
         and f'class="{BACK_LINK_CLASS}"' in line
         and BACK_LINK_STYLE in line
+        and f'width="{BACK_LINK_ICON_SIZE}"' in line
         and "<svg" in line
     )
 
