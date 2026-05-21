@@ -44,8 +44,8 @@ BACK_LINK_LEGACY_RE = re.compile(
     r"^\[↑\s*返回目录\]\(#(toc-pos-[^)]+)\)\s*$"
 )
 BACK_LINK_CLASS = "md-toc-back"
-# 与 Markdown ### 正文字号对齐（各预览器常见约 1.2em），各级标题统一此尺寸
-BACK_LINK_ICON_SIZE = "1.2em"
+# 中国字号「五号」= 10.5pt，各级标题统一此尺寸
+BACK_LINK_ICON_SIZE = "10.5pt"
 BACK_LINK_STYLE = "float:right;text-decoration:none;color:#5c6370"
 INLINE_BACK_LINK_RE = re.compile(
     r'\s*<a href="#toc-pos-[^"]+"[^>]*>.*?</a>\s*'
