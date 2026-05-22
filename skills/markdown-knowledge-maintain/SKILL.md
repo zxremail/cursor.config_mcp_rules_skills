@@ -33,7 +33,7 @@ description: >-
 ## 1. 补充文档内目录（CLI，优先于手写） <a href="#toc-pos-1-补充文档内目录cli优先于手写" style="float:right;text-decoration:none">↑</a>
 
 ```bash
-~/.cursor/tools/md-toc/md-toc -- "<改动的.md绝对或相对路径>"
+~/.cursor/tools/md-toc/md-toc --no-numbered -- "<改动的.md绝对或相对路径>"
 # 入口按 python3 版本自动选择：>=3.7 用 md-toc.py，否则用 md-toc-batch.py
 # 亦可：python3 ~/.cursor/tools/md-toc/md-toc.py -- "<path>"
 ```
@@ -67,7 +67,12 @@ description: >-
 
 ## 4. 自动 Hook（用户级） <a href="#toc-pos-4-自动-hook用户级" style="float:right;text-decoration:none">↑</a>
 
-`~/.cursor/hooks.json` 已在 `afterFileEdit` 注册 `supplement-md-toc.sh`，Agent 写入 `.md` 后会尝试自动跑目录补充。  
+若存在 `~/.cursor/hooks.json` 并在 `afterFileEdit` 注册 `supplement-md-toc.sh`，脚本中应使用 **`--no-numbered`**（与手写标题编号一致），例如：
+
+```bash
+~/.cursor/tools/md-toc/md-toc --no-numbered -- "$FILE"
+```
+
 **索引表仍需 Agent 维护**（Hook 不修改 `_INDEX_.md`）。
 
 ## 5. 何时可跳过 <a href="#toc-pos-5-何时可跳过" style="float:right;text-decoration:none">↑</a>

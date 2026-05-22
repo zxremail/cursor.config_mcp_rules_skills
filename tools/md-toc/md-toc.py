@@ -59,7 +59,7 @@ HEADING_SECTION_ID_RE = re.compile(
     r'\s*<a id="(?!toc-pos-)[^"]+"></a>\s*'
 )
 TOC_NAV_HINT_RE = re.compile(r"^>\s*章节内点击", re.MULTILINE)
-TOC_NUMBER_PREFIX_RE = re.compile(r"^(\d+(?:\.\d+)*)\.\s+")
+TOC_NUMBER_PREFIX_RE = re.compile(r"^(\d+(?:\.\d+)*)\.?\s+")
 CUSTOM_ID_RE = re.compile(r"\s*\{#[^}]+\}\s*$")
 INLINE_MD_RE = re.compile(r"\[([^\]]+)\]\([^)]+\)")
 
@@ -82,8 +82,12 @@ def clean_heading_title(raw: str) -> str:
 
 
 def strip_number_prefix(title: str) -> str:
-    """去掉目录链接文字中的层级序号前缀（如 ``1.2.3. ``）。"""
-    return TOC_NUMBER_PREFIX_RE.sub("", title, count=1)
+    """去掉目录链接文字中的层级序号前缀（如 ``1.`` / ``1.2.3. `` / ``2.1 ``）。"""
+    prev = None
+    while prev != title:
+        prev = title
+        title = TOC_NUMBER_PREFIX_RE.sub("", title, count=1)
+    return title
 
 
 def update_toc_level_counters(counters: dict[int, int], level: int) -> None:
@@ -103,9 +107,8 @@ def entries_need_number_upgrade(
     toc_body: str,
     *,
     min_level: int,
-    numbered: bool,
 ) -> bool:
-    if not numbered or not entries:
+    if not entries:
         return False
     counters: dict[int, int] = {}
     for entry in entries:
@@ -114,6 +117,48 @@ def entries_need_number_upgrade(
         if f"[{prefix}{entry.title}](#{entry.anchor})" not in toc_body:
             return True
     return False
+
+
+def entries_need_number_downgrade(
+    entries: list[TocEntry],
+    toc_body: str,
+    *,
+    min_level: int,
+) -> bool:
+    """目录正文仍含自动序号前缀，但当前为 --no-numbered。"""
+    if not entries:
+        return False
+    counters: dict[int, int] = {}
+    for entry in entries:
+        update_toc_level_counters(counters, entry.level)
+        prefix = format_toc_number_prefix(counters, entry.level, min_level)
+        if prefix and f"[{prefix}" in toc_body:
+            return True
+    return False
+
+
+def entries_need_number_sync(
+    entries: list[TocEntry],
+    toc_body: str,
+    *,
+    min_level: int,
+    numbered: bool,
+) -> bool:
+    if numbered:
+        return entries_need_number_upgrade(entries, toc_body, min_level=min_level)
+    return entries_need_number_downgrade(entries, toc_body, min_level=min_level)
+
+
+def sync_entry_titles_from_headings(
+    entries: list[TocEntry],
+    doc_headings: list[tuple[int, str]],
+    anchor_map: dict[str, str],
+) -> None:
+    """--no-numbered 时，目录链接文字与正文标题一致（避免剥号后只剩纯文本）。"""
+    anchor_to_title = {anchor_map[title]: title for _, title in doc_headings}
+    for entry in entries:
+        if entry.anchor in anchor_to_title:
+            entry.title = anchor_to_title[entry.anchor]
 
 
 def toc_pos_anchor(section_anchor: str) -> str:
@@ -786,24 +831,46 @@ def apply_document_toc(
         header_end = toc_part.index("\n") + 1
         body = toc_part[header_end:]
         existing = parse_toc_entries(body, min_level=min_level)
-        merged, added = supplement_toc_entries(
-            existing,
-            doc_headings,
-            anchor_map,
-            min_level=min_level,
-            numbered=numbered,
+        number_downgrade = (
+            not numbered
+            and entries_need_number_downgrade(
+                existing, body, min_level=min_level
+            )
         )
+        if number_downgrade:
+            merged = [
+                make_toc_entry(
+                    level,
+                    title,
+                    anchor_map[title],
+                    min_level=min_level,
+                    numbered=numbered,
+                )
+                for level, title in doc_headings
+            ]
+            added = []
+        else:
+            merged, added = supplement_toc_entries(
+                existing,
+                doc_headings,
+                anchor_map,
+                min_level=min_level,
+                numbered=numbered,
+            )
         all_entries = merged
 
         need_rebuild = (
             added
+            or number_downgrade
             or entries_need_nav_upgrade(merged, body)
-            or entries_need_number_upgrade(
+            or entries_need_number_sync(
                 merged, body, min_level=min_level, numbered=numbered
             )
             or (not nav_hint and toc_body_has_legacy_hint(body))
         )
         if need_rebuild:
+            if not numbered and not number_downgrade:
+                sync_entry_titles_from_headings(merged, doc_headings, anchor_map)
             content = rebuild_toc_section(
                 content,
                 merged,
@@ -872,7 +939,7 @@ def document_needs_update(
         return True
     if entries_need_nav_upgrade(existing, body):
         return True
-    if entries_need_number_upgrade(
+    if entries_need_number_sync(
         existing, body, min_level=min_level, numbered=numbered
     ):
         return True
