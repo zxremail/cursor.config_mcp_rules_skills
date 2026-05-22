@@ -46,7 +46,8 @@ python3 ~/.cursor/tools/md-toc/md-toc-batch.py doc.md
 | 无 `## 目录` | 在 `#` 标题后新建完整目录 |
 | 已有目录 | **保留**现有条目与顺序，只追加正文中未列入的章节 |
 | 目录已齐全 | 不写文件，退出 0 |
-| 标题已手写 `1.` / `2.1` 编号 | 使用 `--no-numbered`，避免目录出现 `2. 2.` 双重编号 |
+| 标题无 `1.` / `2.1` 编号 | **默认**：先给正文 h2–h3 补序号，再生成与标题一致的目录 |
+| 标题已手写编号 | 默认不再叠号；仅目录加号用 `--numbered`；禁止改正文序号用 `--no-heading-numbers` |
 
 ## 双向跳转（↑） <a id="双向跳转"></a> <a href="#toc-pos-双向跳转" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 

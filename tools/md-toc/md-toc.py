@@ -81,6 +81,10 @@ def clean_heading_title(raw: str) -> str:
     return title.strip()
 
 
+def has_number_prefix(title: str) -> bool:
+    return bool(TOC_NUMBER_PREFIX_RE.match(title))
+
+
 def strip_number_prefix(title: str) -> str:
     """去掉目录链接文字中的层级序号前缀（如 ``1.`` / ``1.2.3. `` / ``2.1 ``）。"""
     prev = None
@@ -88,6 +92,30 @@ def strip_number_prefix(title: str) -> str:
         prev = title
         title = TOC_NUMBER_PREFIX_RE.sub("", title, count=1)
     return title
+
+
+def headings_need_number_injection(headings: list[tuple[int, str]]) -> bool:
+    """正文标题中是否存在未带层级序号前缀的章节。"""
+    return any(not has_number_prefix(title) for _, title in headings)
+
+
+def apply_counters_from_numbered_title(
+    counters: dict[int, int], level: int, min_level: int, title: str
+) -> None:
+    """从已有 ``1.`` / ``2.1`` 标题同步层级计数器。"""
+    m = TOC_NUMBER_PREFIX_RE.match(title)
+    if not m:
+        update_toc_level_counters(counters, level)
+        return
+    segments = [int(x) for x in m.group(1).split(".")]
+    for lv in list(counters):
+        if lv > level:
+            del counters[lv]
+    for offset, lv in enumerate(range(min_level, level + 1)):
+        if offset < len(segments):
+            counters[lv] = segments[offset]
+        elif lv in counters:
+            del counters[lv]
 
 
 def update_toc_level_counters(counters: dict[int, int], level: int) -> None:
@@ -98,8 +126,13 @@ def update_toc_level_counters(counters: dict[int, int], level: int) -> None:
 
 
 def format_toc_number_prefix(counters: dict[int, int], level: int, min_level: int) -> str:
+    """h2 为 ``1. ``，h3+ 为 ``1.1 `` / ``1.1.2 ``（末段后空格，无多余句点）。"""
     parts = [str(counters[lv]) for lv in range(min_level, level + 1) if lv in counters]
-    return ".".join(parts) + ". " if parts else ""
+    if not parts:
+        return ""
+    if len(parts) == 1:
+        return f"{parts[0]}. "
+    return ".".join(parts) + " "
 
 
 def entries_need_number_upgrade(
@@ -381,6 +414,95 @@ def extract_headings(
 def build_anchor_map(headings: list[tuple[int, str]]) -> dict[str, str]:
     slugger = Slugger()
     return {title: slugger.slug(title) for _, title in headings}
+
+
+def inject_heading_number_prefixes(
+    content: str,
+    *,
+    min_depth: int,
+    max_depth: int,
+    toc_title: str,
+) -> tuple[str, int]:
+    """
+    为缺少序号前缀的正文标题补上 ``1.`` / ``1.1`` 等，并刷新章节 ``<a id>``。
+    返回 (新文本, 修改标题行数)。
+    """
+    if not content:
+        return content, 0
+
+    min_level = min_depth
+    slugger = Slugger()
+    counters: dict[int, int] = {}
+    lines = content.splitlines()
+    out: list[str] = []
+    in_fence = False
+    fence_marker = ""
+    skipping_toc = False
+    changed = 0
+
+    for line in lines:
+        fence_m = FENCE_RE.match(line)
+        if fence_m:
+            marker = fence_m.group(1)
+            if not in_fence:
+                in_fence = True
+                fence_marker = marker[:3]
+            elif line.startswith(fence_marker):
+                in_fence = False
+                fence_marker = ""
+            out.append(line)
+            continue
+
+        if in_fence:
+            out.append(line)
+            continue
+
+        if is_toc_heading_line(line, toc_title):
+            skipping_toc = True
+            out.append(line)
+            continue
+        if skipping_toc:
+            out.append(line)
+            if line.strip() == "---":
+                skipping_toc = False
+            continue
+
+        hm = HEADING_RE.match(line)
+        if not hm:
+            out.append(line)
+            continue
+
+        level = len(hm.group(1))
+        if level < min_depth or level > max_depth:
+            out.append(line)
+            continue
+
+        title = clean_heading_title(hm.group(2))
+        if not title or title == toc_title:
+            out.append(line)
+            continue
+
+        if has_number_prefix(title):
+            apply_counters_from_numbered_title(counters, level, min_level, title)
+            out.append(line)
+            continue
+
+        update_toc_level_counters(counters, level)
+        prefix = format_toc_number_prefix(counters, level, min_level)
+        new_title = f"{prefix}{title}"
+        section_anchor = slugger.slug(new_title)
+        hashes = hm.group(1)
+        base = f"{hashes} {new_title}"
+        base = strip_heading_section_id(strip_inline_back_link(base))
+        new_line = f"{base} {heading_section_id_html(section_anchor)}"
+        if new_line != line:
+            changed += 1
+        out.append(new_line)
+
+    new_text = "\n".join(out)
+    if content.endswith("\n"):
+        new_text += "\n"
+    return new_text, changed
 
 
 def inline_back_link_svg() -> str:
@@ -918,7 +1040,11 @@ def document_needs_update(
     nav_hint: bool,
     index_href: str | None,
     numbered: bool,
+    inject_heading_numbers: bool,
 ) -> bool:
+    if inject_heading_numbers and headings_need_number_injection(doc_headings):
+        return True
+
     min_level = min(level for level, _ in doc_headings)
     section = extract_toc_section(content, toc_title, with_separator=separator)
 
@@ -974,6 +1100,7 @@ def process_file(
     nav_hint: bool,
     index_href: str | None,
     numbered: bool,
+    inject_heading_numbers: bool,
     dry_run: bool,
     check: bool,
     stdout_mode: bool,
@@ -990,6 +1117,21 @@ def process_file(
         print(f"{path}: 未找到 h{min_depth}-h{max_depth} 标题，跳过", file=sys.stderr)
         return 0
 
+    headings_injected = 0
+    if inject_heading_numbers and headings_need_number_injection(headings):
+        text, headings_injected = inject_heading_number_prefixes(
+            text,
+            min_depth=min_depth,
+            max_depth=max_depth,
+            toc_title=toc_title,
+        )
+        headings = extract_headings(
+            text,
+            min_depth=min_depth,
+            max_depth=max_depth,
+            toc_title=toc_title,
+        )
+
     needs = document_needs_update(
         text,
         headings,
@@ -1001,6 +1143,7 @@ def process_file(
         nav_hint=nav_hint,
         index_href=index_href,
         numbered=numbered,
+        inject_heading_numbers=False,
     )
 
     new_text, added, created, links_added, toc_upgraded, index_upgraded = (
@@ -1018,7 +1161,7 @@ def process_file(
         )
     )
 
-    changed = new_text != text
+    changed = new_text != text or headings_injected > 0
 
     if check:
         if not needs:
@@ -1036,6 +1179,8 @@ def process_file(
                 print("（将新建目录）")
             if added:
                 print(f"（将补充目录 {len(added)} 条）")
+            if headings_injected:
+                print(f"（将为正文标题补序号 {headings_injected} 处）")
             if toc_upgraded:
                 print("（将升级目录 toc-pos 锚点/序号）")
             if links_added:
@@ -1055,6 +1200,8 @@ def process_file(
 
     path.write_text(new_text, encoding="utf-8")
     parts: list[str] = []
+    if headings_injected:
+        parts.append(f"正文标题补序号 {headings_injected} 处")
     if created:
         parts.append(f"新建目录 {len(headings)} 条")
     elif added:
@@ -1094,9 +1241,19 @@ def main(argv: list[str] | None = None) -> int:
         help="在目录块顶部插入一行简短用法提示",
     )
     parser.add_argument(
+        "--numbered",
+        action="store_true",
+        help="仅在目录中加层级序号，不修改正文标题（与默认「先补正文序号」相反）",
+    )
+    parser.add_argument(
         "--no-numbered",
         action="store_true",
-        help="目录条目不添加层级数字前缀（默认 1. / 1.1. / …）",
+        help="目录条目不另加序号（默认：序号写在正文标题中，目录与标题一致）",
+    )
+    parser.add_argument(
+        "--no-heading-numbers",
+        action="store_true",
+        help="不为正文标题补序号（缺号时仅目录加号需配合 --numbered）",
     )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--check", action="store_true")
@@ -1113,6 +1270,10 @@ def main(argv: list[str] | None = None) -> int:
             rc = 1
             continue
         index_href = None if args.no_index_link else resolve_index_href(f)
+        if args.numbered and args.no_numbered:
+            parser.error("--numbered 与 --no-numbered 不能同时使用")
+        toc_numbered = args.numbered
+        inject_heading_numbers = not args.numbered and not args.no_heading_numbers
         r = process_file(
             f,
             min_depth=args.min_depth,
@@ -1122,7 +1283,8 @@ def main(argv: list[str] | None = None) -> int:
             back_links=not args.no_back_links,
             nav_hint=args.nav_hint,
             index_href=index_href,
-            numbered=not args.no_numbered,
+            numbered=toc_numbered,
+            inject_heading_numbers=inject_heading_numbers,
             dry_run=args.dry_run,
             check=args.check,
             stdout_mode=args.stdout,

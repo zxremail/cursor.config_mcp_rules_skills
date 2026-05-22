@@ -33,7 +33,9 @@ description: >-
 ## 1. 补充文档内目录（CLI，优先于手写） <a href="#toc-pos-1-补充文档内目录cli优先于手写" style="float:right;text-decoration:none">↑</a>
 
 ```bash
-~/.cursor/tools/md-toc/md-toc --no-numbered -- "<改动的.md绝对或相对路径>"
+~/.cursor/tools/md-toc/md-toc -- "<改动的.md绝对或相对路径>"
+# 默认：正文标题无 1./2.1 时先补序号再生成目录；标题已有编号则不叠号
+# 仅目录加号、不改正文：加 --numbered；禁止补正文序号：加 --no-heading-numbers
 # 入口按 python3 版本自动选择：>=3.7 用 md-toc.py，否则用 md-toc-batch.py
 # 亦可：python3 ~/.cursor/tools/md-toc/md-toc.py -- "<path>"
 ```
@@ -67,10 +69,10 @@ description: >-
 
 ## 4. 自动 Hook（用户级） <a href="#toc-pos-4-自动-hook用户级" style="float:right;text-decoration:none">↑</a>
 
-若存在 `~/.cursor/hooks.json` 并在 `afterFileEdit` 注册 `supplement-md-toc.sh`，脚本中应使用 **`--no-numbered`**（与手写标题编号一致），例如：
+若存在 `~/.cursor/hooks.json` 并在 `afterFileEdit` 注册 `supplement-md-toc.sh`，直接调用默认入口即可（会自动补正文序号并生成目录）：
 
 ```bash
-~/.cursor/tools/md-toc/md-toc --no-numbered -- "$FILE"
+~/.cursor/tools/md-toc/md-toc -- "$FILE"
 ```
 
 **索引表仍需 Agent 维护**（Hook 不修改 `_INDEX_.md`）。
