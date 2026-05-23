@@ -15,17 +15,12 @@ description: >-
 ## 目录
 
 - <a id="toc-pos-1-补充文档内目录cli优先于手写"></a>[1. 补充文档内目录（CLI，优先于手写）](#1-补充文档内目录cli优先于手写)
-- <a id="toc-pos-1-补充文档内目录cli优先于手写"></a>[2. 1. 补充文档内目录（CLI，优先于手写）](#1-补充文档内目录cli优先于手写)
-  - <a id="toc-pos-目录--文档标题"></a>[2.1. 目录 • 文档标题](#目录--文档标题)
-- <a id="toc-pos-2-同步-_index_md"></a>[3. 2. 同步 `_INDEX_.md`](#2-同步-_index_md)
-- <a id="toc-pos-3-推荐执行顺序"></a>[4. 3. 推荐执行顺序](#3-推荐执行顺序)
-- <a id="toc-pos-4-自动-hook用户级"></a>[5. 4. 自动 Hook（用户级）](#4-自动-hook用户级)
-- <a id="toc-pos-5-何时可跳过"></a>[6. 5. 何时可跳过](#5-何时可跳过)
-- <a id="toc-pos-2-同步-_index_md"></a>[7. 同步 `_INDEX_.md`](#2-同步-_index_md)
-- <a id="toc-pos-3-推荐执行顺序"></a>[8. 推荐执行顺序](#3-推荐执行顺序)
-- <a id="toc-pos-4-自动-hook用户级"></a>[9. 自动 Hook（用户级）](#4-自动-hook用户级)
-- <a id="toc-pos-5-何时可跳过"></a>[10. 何时可跳过](#5-何时可跳过)
-- <a id="toc-pos-工具位置"></a>[11. 工具位置](#工具位置)
+  - <a id="toc-pos-11-目录--文档标题"></a>[1.1 目录 • 文档标题](#11-目录--文档标题)
+- <a id="toc-pos-2-同步-_index_md"></a>[2. 同步 `_INDEX_.md`](#2-同步-_index_md)
+- <a id="toc-pos-3-推荐执行顺序"></a>[3. 推荐执行顺序](#3-推荐执行顺序)
+- <a id="toc-pos-4-自动-hook用户级"></a>[4. 自动 Hook（用户级）](#4-自动-hook用户级)
+- <a id="toc-pos-5-何时可跳过"></a>[5. 何时可跳过](#5-何时可跳过)
+- <a id="toc-pos-6-工具位置"></a>[6. 工具位置](#6-工具位置)
 
 ---
 
@@ -54,7 +49,7 @@ description: >-
 
 **禁止**：为省事先读全文手写目录块；与 `github-slugger` 不一致的锚点。
 
-### 目录 • 文档标题 <a id="目录--文档标题"></a> <a href="#toc-pos-目录--文档标题" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 1.1 目录 • 文档标题 <a id="11-目录--文档标题"></a> <a href="#toc-pos-11-目录--文档标题" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 知识库 `.md` 的目录小节标题行须写为：
 
@@ -103,7 +98,7 @@ description: >-
 - 用户明确说「不要动目录/索引」
 - 文件不在知识库场景（普通 README 等）：仅当用户要求时再跑 md-toc
 
-## 工具位置 <a id="工具位置"></a> <a href="#toc-pos-工具位置" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 6. 工具位置 <a id="6-工具位置"></a> <a href="#toc-pos-6-工具位置" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 | 组件 | 路径 |
 |------|------|
