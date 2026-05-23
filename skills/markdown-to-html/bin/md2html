@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# 无需 pip install 时的便捷入口
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
+exec python3 -m md2html "$@"

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>md2html 示例文档</title>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#21262d; --border:#30363d;
+  --text:#c9d1d9; --muted:#8b949e; --dim:#484f58;
+  --blue:#58a6ff; --bluebg:#0d2137; --bluetxt:#79c0ff;
+  --green:#3fb950; --greenbg:#122117; --greentxt:#7ee787; --greenborder:#238636;
+  --orange:#f0883e; --orangebg:#1a150d; --orangetxt:#ffcc80;
+  --purple:#a371f7; --purplebg:#1a1428; --purpletxt:#d2a8ff; --purpleborder:#6e40c9;
+  --red:#f85149; --redbg:#2d1215; --redtxt:#ffa198; --redborder:#da3633;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
+  font-size:15px;line-height:1.7;}
+#layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+#sidebar{position:sticky;top:0;height:100vh;overflow:auto;
+  background:#0a0d12;border-right:1px solid var(--border);padding:18px 16px;}
+#sidebar h1{font-size:14px;color:var(--purple);margin:0 0 4px;letter-spacing:.5px;line-height:1.4;}
+#sidebar h1 small{color:var(--orange);font-size:11px;display:block;margin-top:4px;letter-spacing:0;font-weight:normal;}
+#sidebar .version{font-size:11px;color:var(--dim);margin-bottom:16px;}
+#sidebar ol{list-style:none;padding:0;margin:0;font-size:13px;}
+#sidebar ol li{margin:2px 0}
+#sidebar a{color:var(--muted);text-decoration:none;display:block;padding:4px 8px;border-radius:4px;}
+#sidebar a:hover,#sidebar a.active{background:#161b22;color:var(--purpletxt);}
+#sidebar a.sub{padding-left:20px;font-size:12px;color:var(--dim);}
+main{padding:40px 48px 100px;max-width:1100px}
+article h1{color:#f0f6fc;border-bottom:2px solid var(--purple);padding-bottom:8px;margin-top:40px;font-size:26px;}
+article h2{color:var(--purple);border-bottom:1px solid var(--border);padding-bottom:6px;margin-top:36px;font-size:21px;}
+article h3{color:var(--orangetxt);margin-top:24px;font-size:17px;}
+article h4{color:var(--greentxt);margin-top:20px;font-size:15px;}
+article p{margin:10px 0}
+article blockquote{border-left:4px solid var(--purple);background:#161b22;margin:12px 0;padding:12px 16px;color:var(--muted);border-radius:0 6px 6px 0;}
+article a{color:var(--purpletxt);}
+article code{background:#161b22;padding:2px 6px;border-radius:4px;color:var(--orangetxt);
+  font-family:"SF Mono","Cascadia Code",Consolas,monospace;font-size:.9em;border:1px solid var(--border);}
+article pre{background:#161b22;border:1px solid var(--border);padding:12px 16px;border-radius:8px;overflow-x:auto;
+  font-family:"SF Mono","Cascadia Code",Consolas,monospace;font-size:13px;}
+article pre code{background:none;border:none;padding:0;color:var(--text);}
+article table{border-collapse:collapse;margin:12px 0;width:100%;font-size:14px;}
+article th,article td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+article th{background:#161b22;color:var(--purpletxt);}
+article tr:nth-child(even){background:#0f141a}
+article ul,article ol{padding-left:22px}
+article strong{color:#f0f6fc}
+article hr{border:none;border-top:1px dashed var(--border);margin:28px 0}
+
+.mermaid{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0;text-align:center;overflow-x:auto;}
+.mermaid svg{max-width:none !important;height:auto !important;}
+
+/* customfig 分层卡片（技能 §3） */
+.customfig{background:#0d1117;border-radius:12px;padding:28px;margin:18px 0;
+  font-family:"SF Mono","Cascadia Code",monospace;font-size:13px;line-height:1.55;
+  color:var(--text);border:1px solid var(--border);}
+.layer{border:2px solid var(--dim);border-radius:8px;padding:12px 14px;margin:0 0 4px;background:#0d1117;}
+.layer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;}
+.layer-label{font-weight:bold;font-size:14px;}
+.layer-sub{color:var(--dim);font-size:11px;}
+.layer-body{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
+.node{padding:6px 12px;border-radius:5px;font-size:12px;display:inline-block;line-height:1.4;}
+.node .note{font-size:10px;opacity:.8;}
+.arrow{text-align:center;color:var(--dim);margin:2px 0;font-size:11px;}
+.layer-split{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.subpanel{flex:1;min-width:140px;border-radius:6px;padding:10px;border:1px solid var(--border);}
+.panel-mgmt{border-color:var(--red);background:var(--redbg);}
+.panel-data{border-color:var(--greenborder);background:var(--greenbg);}
+.panel-header{font-weight:bold;font-size:12px;margin-bottom:8px;}
+.panel-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.panel-tags span{font-size:11px;padding:3px 8px;border-radius:4px;background:var(--panel2);}
+.panel-bridge{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 8px;color:var(--dim);font-size:11px;}
+.layer-body.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.legend{margin-top:14px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;font-size:12px;color:var(--muted);}
+.legend .swatch{width:14px;height:14px;border:2px solid;border-radius:3px;display:inline-block;}
+
+.node.app,.layer-app{border-color:var(--dim);background:var(--panel2);color:var(--muted);}
+.node.lib,.layer-lib{border-color:var(--blue);background:var(--bluebg);color:var(--bluetxt);}
+.node.svc,.layer-svc{border-color:var(--orange);background:var(--orangebg);color:var(--orangetxt);}
+.node.kern,.layer-kern{border-color:var(--purple);background:var(--purplebg);color:var(--purpletxt);}
+.node.hw,.layer-hw{border-color:var(--dim);background:var(--panel);color:var(--muted);}
+
+.missing-figure{color:var(--red);background:var(--redbg);border:1px dashed var(--redborder);
+  padding:12px;border-radius:6px;margin:12px 0;font-size:13px;}
+
+@media (max-width:900px){
+  #layout{grid-template-columns:1fr}
+  #sidebar{position:static;height:auto;}
+  main{padding:20px 16px 60px}
+  .layer-body.grid-4{grid-template-columns:1fr 1fr}
+}
+
+</style>
+</head>
+<body>
+<div id="layout">
+<nav id="sidebar">
+<h1>md2html 示例<small>MVP 演示 · 含 Mermaid 与 customfig</small></h1>
+<div class="version">v0.1 · 2026-05-23</div>
+<ol id="toc"></ol>
+</nav>
+<main>
+<article id="content"></article>
+</main>
+</div>
+
+<!-- ============ 自绘图模板 (sidecar) ============ -->
+
+<template id="demo-stack">
+<div class="customfig">
+  <div class="layer layer-app">
+    <div class="layer-header">
+      <span class="layer-label">应用层</span>
+      <span class="layer-sub">用户态</span>
+    </div>
+    <div class="layer-body">
+      <span class="node app">LabVIEW / Python</span>
+    </div>
+  </div>
+  <div class="arrow">↓ API ↓</div>
+  <div class="layer layer-lib">
+    <div class="layer-header">
+      <span class="layer-label">库 / SDK 层</span>
+      <span class="layer-sub">链接库</span>
+    </div>
+    <div class="layer-body">
+      <span class="node lib">NI-DAQmx</span>
+      <span class="node lib">VISA</span>
+    </div>
+  </div>
+  <div class="arrow">↓ 驱动接口 ↓</div>
+  <div class="layer layer-kern">
+    <div class="layer-header">
+      <span class="layer-label">内核层</span>
+      <span class="layer-sub">驱动 / 模块</span>
+    </div>
+    <div class="layer-body">
+      <span class="node kern">ni.ko</span>
+    </div>
+  </div>
+  <div class="legend">
+    <div><span class="swatch" style="border-color:var(--blue);background:var(--bluebg)"></span> 库层</div>
+    <div><span class="swatch" style="border-color:var(--purple);background:var(--purplebg)"></span> 内核层</div>
+  </div>
+</div>
+</template>
+
+
+<script type="text/markdown" id="md-source">
+# 1. 简介
+
+
+
+## 目录 • 1. 简介
+
+- <a id="toc-pos-11-简单-mermaid"></a>[1.1 简单 Mermaid](#11-简单-mermaid)
+- <a id="toc-pos-12-自定义卡片图"></a>[1.2 自定义卡片图](#12-自定义卡片图)
+
+---
+
+本页由 `md2html build` 生成，符合 [markdown-to-html](../SKILL.md) 技能规范。
+
+## 1.1 简单 Mermaid <a id="11-简单-mermaid"></a> <a href="#toc-pos-11-简单-mermaid" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+```mermaid
+flowchart LR
+  A[Markdown] --> B[md2html CLI]
+  B --> C[独立 HTML]
+```
+
+## 1.2 自定义卡片图 <a id="12-自定义卡片图"></a> <a href="#toc-pos-12-自定义卡片图" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+
+```customfig:demo-stack
+```
+
+
+**图说明** 演示分层彩色卡片布局（sidecar 提供 HTML）。
+
+# 2. 表格示例
+
+| 列 | 说明 |
+|---|---|
+| build | 生成 HTML |
+| analyze | 分析 Mermaid 是否应降级 |
+
+</script>
+
+<script>
+(function(){
+  mermaid.initialize({
+    startOnLoad:false,
+    theme:'dark',
+    themeVariables:{
+      darkMode:true,
+      background:'#0d1117',
+      primaryColor:'#21262d',
+      primaryBorderColor:'#30363d',
+      primaryTextColor:'#c9d1d9',
+      lineColor:'#8b949e',
+      secondaryColor:'#1a1428',
+      tertiaryColor:'#0d2137'
+    },
+    flowchart:{htmlLabels:true,curve:'basis'},
+    sequence:{actorMargin:50,messageFontSize:13}
+  });
+
+  const mdSrc = document.getElementById('md-source').textContent;
+
+  const renderer = new marked.Renderer();
+  const origCode = renderer.code.bind(renderer);
+  renderer.code = function(code, lang){
+    if(lang && lang.startsWith('customfig:')){
+      const id = lang.slice('customfig:'.length).trim();
+      const tpl = document.getElementById(id);
+      if(tpl) return tpl.innerHTML;
+      return '<div class="missing-figure">缺少自绘图模板: <code>'+id+'</code></div>';
+    }
+    if(lang === 'mermaid'){
+      return '<div class="mermaid">'+code+'</div>';
+    }
+    return origCode(code, lang);
+  };
+
+  var __hIdx = 0;
+  renderer.heading = function(text, level){
+    var plain = String(text).replace(/<[^>]*>/g,'').trim();
+    var m = /^(\d+(?:\.\d+)*)/.exec(plain);
+    var id;
+    if(m){ id = 'h-'+m[1].replace(/\./g,'-'); }
+    else {
+      var ap = /^附录\s*([A-Z])/i.exec(plain);
+      id = ap ? 'h-appendix-'+ap[1].toLowerCase() : 'h-misc-'+(++__hIdx);
+    }
+    return '<h'+level+' id="'+id+'">'+text+'</h'+level+'>\n';
+  };
+
+  marked.setOptions({renderer:renderer, gfm:true, breaks:false});
+  document.getElementById('content').innerHTML = marked.parse(mdSrc);
+
+  const toc = document.getElementById('toc');
+  let _idx = 0;
+  document.querySelectorAll('#content h2, #content h3').forEach(function(h){
+    if(h.closest('.customfig')) return;
+    if(!h.id){
+      var m = /^(\d+(?:\.\d+)*)/.exec(h.textContent.trim());
+      h.id = m ? 'h-'+m[1].replace(/\./g,'-') : 'h-'+(++_idx);
+    }
+    var txt = h.textContent.trim();
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#'+h.id;
+    a.textContent = txt;
+    if(h.tagName === 'H3') a.className = 'sub';
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      h.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+    li.appendChild(a);
+    toc.appendChild(li);
+  });
+
+  document.getElementById('content').addEventListener('click', function(e){
+    var a = e.target.closest('a[href^="#"]');
+    if(!a) return;
+    e.preventDefault();
+    var id = decodeURIComponent(a.getAttribute('href').slice(1));
+    var target = document.getElementById(id);
+    if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  mermaid.run({querySelector:'.mermaid'}).catch(function(err){
+    console.warn('mermaid render:', err);
+  });
+})();
+
+</script>
+</body>
+</html>

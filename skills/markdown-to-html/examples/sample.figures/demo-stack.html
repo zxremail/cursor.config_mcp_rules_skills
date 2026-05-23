@@ -1,0 +1,36 @@
+<div class="customfig">
+  <div class="layer layer-app">
+    <div class="layer-header">
+      <span class="layer-label">应用层</span>
+      <span class="layer-sub">用户态</span>
+    </div>
+    <div class="layer-body">
+      <span class="node app">LabVIEW / Python</span>
+    </div>
+  </div>
+  <div class="arrow">↓ API ↓</div>
+  <div class="layer layer-lib">
+    <div class="layer-header">
+      <span class="layer-label">库 / SDK 层</span>
+      <span class="layer-sub">链接库</span>
+    </div>
+    <div class="layer-body">
+      <span class="node lib">NI-DAQmx</span>
+      <span class="node lib">VISA</span>
+    </div>
+  </div>
+  <div class="arrow">↓ 驱动接口 ↓</div>
+  <div class="layer layer-kern">
+    <div class="layer-header">
+      <span class="layer-label">内核层</span>
+      <span class="layer-sub">驱动 / 模块</span>
+    </div>
+    <div class="layer-body">
+      <span class="node kern">ni.ko</span>
+    </div>
+  </div>
+  <div class="legend">
+    <div><span class="swatch" style="border-color:var(--blue);background:var(--bluebg)"></span> 库层</div>
+    <div><span class="swatch" style="border-color:var(--purple);background:var(--purplebg)"></span> 内核层</div>
+  </div>
+</div>

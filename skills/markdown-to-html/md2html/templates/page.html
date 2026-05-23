@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{TITLE}}</title>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<style>
+{{BASE_CSS}}
+</style>
+</head>
+<body>
+<div id="layout">
+<nav id="sidebar">
+<h1>{{SIDEBAR_TITLE}}{{SIDEBAR_SUBTITLE_HTML}}</h1>
+{{VERSION_HTML}}
+<ol id="toc"></ol>
+</nav>
+<main>
+<article id="content"></article>
+</main>
+</div>
+
+{{FIGURES_TEMPLATES}}
+
+<script type="text/markdown" id="md-source">
+{{MD_SOURCE}}
+</script>
+
+<script>
+{{RUNTIME_JS}}
+</script>
+</body>
+</html>
