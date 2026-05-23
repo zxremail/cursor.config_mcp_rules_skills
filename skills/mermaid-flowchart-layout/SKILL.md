@@ -2,7 +2,7 @@
 name: mermaid-flowchart-layout
 description: >-
   Mermaid flowchart 排版与架构图连线优化：多 subgraph 分行、跨域连线避免穿插、
-  语义配色 linkStyle、独立横向图例、箭头说明文字。在生成或编辑含多个 subgraph、
+  语义配色 linkStyle、独立横向图例、箭头说明文字、subgraph 标题防裁切。在生成或编辑含多个 subgraph、
   跨层架构图、协作关系图、图例/连线颜色/线型、或用户抱怨「连线乱/交叉」时应用。
 ---
 
@@ -30,11 +30,15 @@ description: >-
 - <a id="toc-pos-6-连线图例推荐独立迷你-mermaid-块"></a>[6. 连线图例（推荐：独立迷你 Mermaid 块）](#6-连线图例推荐独立迷你-mermaid-块)
 - <a id="toc-pos-7-规则优先级汇总"></a>[7. 规则优先级（汇总）](#7-规则优先级汇总)
 - <a id="toc-pos-8-检查清单编辑后自检"></a>[8. 检查清单（编辑后自检）](#8-检查清单编辑后自检)
-- <a id="toc-pos-9-其他说明"></a>[9. 其他说明](#9-其他说明)
+- <a id="toc-pos-9-避免文字被裁切subgraph-标题与节点"></a>[9. 避免文字被裁切（subgraph 标题与节点）](#9-避免文字被裁切subgraph-标题与节点)
+  - <a id="toc-pos-91-subgraph-标题"></a>[9.1 subgraph 标题](#91-subgraph-标题)
+  - <a id="toc-pos-92-节点内文字"></a>[9.2 节点内文字](#92-节点内文字)
+  - <a id="toc-pos-93-仍偏窄时"></a>[9.3 仍偏窄时](#93-仍偏窄时)
+- <a id="toc-pos-10-其他说明"></a>[10. 其他说明](#10-其他说明)
 
 ---
 
-涵盖：**多 subgraph 换行**、**跨域架构图少交叉**、**语义配色**、**独立图例**、**箭头说明**。
+涵盖：**多 subgraph 换行**、**跨域架构图少交叉**、**语义配色**、**独立图例**、**箭头说明**、**标题/节点防裁切**。
 
 ---
 
@@ -286,10 +290,38 @@ flowchart LR
 - [ ] 跨层边与 `linkStyle` 是否集中在图底部？
 - [ ] 关键边是否有 `|说明|`？
 - [ ] 若需图例：是否独立第二块、横向紧凑，且未破坏主图 linkStyle 序号？
+- [ ] **subgraph 标题**是否用 `<br>` 折行或已缩短，预览时无裁切？
+- [ ] **节点标签**过长时是否已用 `<br>` 分行（勿单行塞满括号说明）？
 
 ---
 
-## 9. 其他说明 <a id="9-其他说明"></a> <a href="#toc-pos-9-其他说明" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 9. 避免文字被裁切（subgraph 标题与节点） <a id="9-避免文字被裁切subgraph-标题与节点"></a> <a href="#toc-pos-9-避免文字被裁切subgraph-标题与节点" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+Mermaid **subgraph 外框宽度由内部节点决定**，标题若比内容更宽，会在框顶**被裁切或压住**（常见于「控制器域（单一 …）」这类长标题 + 窄子图）。
+
+### 9.1 subgraph 标题 <a id="91-subgraph-标题"></a> <a href="#toc-pos-91-subgraph-标题" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+| 做法 | 示例 |
+|------|------|
+| **`<br>` 折成 2 行**（首选） | `subgraph CTRL["控制器域<br/>单一 NI Linux RT / Windows"]` |
+| **缩短标题**，限定语进子图首节点 | `subgraph CTRL["控制器域"]` + 内层 `CAP["单一 NI Linux RT / Windows"]` |
+| **避免**单行超长括号 | ~~`控制器域（单一 NI Linux RT / Windows）`~~ |
+
+折行位置：在**语义断点**（域名称 / 限定语、名词 / 括号说明之间），不要在一串英文中间硬断。
+
+### 9.2 节点内文字 <a id="92-节点内文字"></a> <a href="#toc-pos-92-节点内文字" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+节点标签同样用 `<br>`，例如 `["NI Linux RT<br/>PREEMPT_RT · SMP"]`。边标签 `|说明|` 保持**短句**；过长说明写在图下正文。
+
+### 9.3 仍偏窄时 <a id="93-仍偏窄时"></a> <a href="#toc-pos-93-仍偏窄时" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+- 子图内加**与标题同宽的说明节点**（`classDef info`），或加宽最宽业务节点文案。
+- `init` 中适度增大 `flowchart.padding`（如 `8–12`），**不能**单独解决标题溢出，仅改善边距。
+- 编辑后**预览主图**，重点看 subgraph 顶栏与边标签是否完整。
+
+---
+
+## 10. 其他说明 <a id="10-其他说明"></a> <a href="#toc-pos-10-其他说明" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 - 导出到部分协作平台时，主图与图例可能被渲染为**两个独立画板**，属平台行为，非 Mermaid 语法问题。
 - **Skill 正文保持领域无关**：具体产品名、硬件名、仓库路径应写在**业务文档**的图中，不要写进本 skill。
