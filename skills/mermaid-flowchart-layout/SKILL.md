@@ -199,8 +199,9 @@ CLIENT ==>|公开 API| SVC_B
 | 上层 → 接口 / 库（用户可见 API） | `==>` 粗实线 | `#F59E0B`，`stroke-width:2.5px` |
 | 主数据路径 | `-->` 实线 | `#10B981`，`2–2.5px` |
 | 协调 / 信令 / 配置路径 | `-->` 实线 | `#06B6D4`，`2px` |
-| 硬件或物理信号 | `-.->` 虚线 | `#67E8F9`，`stroke-dasharray:6 4` |
-| 外部扩展 / 远程 / 总线延伸 | `-.->` 点线 | `#94A3B8`，`stroke-dasharray:8 5` |
+| 配置流（慢路径） | `-.->` 短虚线 | `#3B82F6`，`stroke-dasharray:4 4` |
+| 硬件或物理信号 | `-.->` 长虚线 | `#67E8F9`，`stroke-dasharray:12 4`（勿与配置/扩展混用同一 dash） |
+| 外部扩展 / 远程 / 总线延伸 | `-->` **实线** | `#94A3B8`，`stroke-width:2.5px`（**不用** `-.->`，否则与虚线难区分） |
 | 跨边界衔接（可选第三色） | `-->` 实线 | `#22D3EE`，`2px` |
 
 暗色主题 `themeVariables` 与 `classDef` 配色应与**当前项目**文档约定一致（勿在 skill 内写死某一产品色板）。
@@ -243,15 +244,15 @@ flowchart LR
         B2 ~~~ A3
         A3((·)) -->|协调 / 信令| B3((·))
         B3 ~~~ A4
-        A4((·)) -.->|硬件 / 物理信号| B4((·))
+        A4((·)) -.->|背板·长虚线| B4((·))
         B4 ~~~ A5
-        A5((·)) -.->|外部扩展| B5((·))
+        A5((·)) -->|扩展·灰实线| B5((·))
     end
     linkStyle 0 stroke:#F59E0B,stroke-width:2.5px
     linkStyle 1 stroke:#10B981,stroke-width:2px
     linkStyle 2 stroke:#06B6D4,stroke-width:2px
-    linkStyle 3 stroke:#67E8F9,stroke-dasharray:6 4
-    linkStyle 4 stroke:#94A3B8,stroke-dasharray:8 5
+    linkStyle 3 stroke:#67E8F9,stroke-width:2px,stroke-dasharray:12 4
+    linkStyle 4 stroke:#94A3B8,stroke-width:2.5px
 ```
 
 | 方案 | 集成方式 | 真实线型 | 维护 |
