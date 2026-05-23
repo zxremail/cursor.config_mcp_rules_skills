@@ -1,10 +1,10 @@
 ---
 name: markdown-to-html
 description: >-
-  将 Markdown 文档转换为独立 HTML 页面。当 Mermaid 图表过于密集、节点过多导致
-  auto-layout 混乱时，自动改用分层彩色卡片布局（HTML/CSS）替代 Mermaid。
-  Use when the user asks to convert markdown to HTML, or mentions
-  "md 转 html", "生成 html", "导出 html", "markdown to html".
+  将 Markdown 文档转换为独立 HTML 页面。复杂 Mermaid 用 sidecar（.figures/）
+  分层卡片替代；推荐两阶段：先基本 sidecar + md2html build，再按需打磨单张图。
+  Use when the user asks to convert markdown to HTML, md2html, sidecar,
+  customfig, or mentions "md 转 html", "生成 html", "导出 html", "markdown to html".
 ---
 
 # Markdown 转 HTML 规范
@@ -29,8 +29,11 @@ description: >-
 - <a id="toc-pos-7-cli-工具md2html"></a>[7. CLI 工具（md2html）](#7-cli-工具md2html)
   - <a id="toc-pos-71-安装"></a>[7.1 安装](#71-安装)
   - <a id="toc-pos-72-常用命令"></a>[7.2 常用命令](#72-常用命令)
-  - <a id="toc-pos-73-sidecar-目录"></a>[7.3 Sidecar 目录](#73-sidecar-目录)
-  - <a id="toc-pos-74-agent-工作流建议"></a>[7.4 Agent 工作流建议](#74-agent-工作流建议)
+  - <a id="toc-pos-73-sidecar-是什么"></a>[7.3 Sidecar 是什么](#73-sidecar-是什么)
+  - <a id="toc-pos-74-sidecar-目录约定"></a>[7.4 Sidecar 目录约定](#74-sidecar-目录约定)
+  - <a id="toc-pos-75-两阶段工作流推荐"></a>[7.5 两阶段工作流（推荐）](#75-两阶段工作流推荐)
+  - <a id="toc-pos-76-布局模式速查"></a>[7.6 布局模式速查](#76-布局模式速查)
+  - <a id="toc-pos-77-命令速查"></a>[7.7 命令速查](#77-命令速查)
 
 ---
 
@@ -253,26 +256,121 @@ document.querySelectorAll('[data-figure]').forEach(el => {
 
 ```bash
 pip install -e ~/.cursor/skills/markdown-to-html
+# 无 pip：~/.cursor/skills/markdown-to-html/bin/md2html build doc.md
 ```
 
 ### 7.2 常用命令 <a id="72-常用命令"></a> <a href="#toc-pos-72-常用命令" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
-```bash
-md2html build path/to/doc.md
-md2html build doc.md --figures doc.figures/ --strict-figures --open
-md2html analyze doc.md
+见 [§7.7 命令速查](#77-命令速查)。工作流见 [§7.5 两阶段工作流](#75-两阶段工作流推荐)。
+
+### 7.3 Sidecar 是什么 <a id="73-sidecar-是什么"></a> <a href="#toc-pos-73-sidecar-是什么" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+**Sidecar**（边车）：与主 Markdown **配套挂载**、**不写入 `.md` 正文**的 HTML 图稿目录。
+
+```
+doc.md                    ← 主文档
+doc.figures/              ← sidecar 目录
+  mermaid-0.html            ← 替换第 0 个「应降级」的 Mermaid 块
+  mermaid-1.html
+  extra.css                 ← 可选，追加页面样式
 ```
 
-### 7.3 Sidecar 目录 <a id="73-sidecar-目录"></a> <a href="#toc-pos-73-sidecar-目录" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+`md2html build` 将 sidecar 合并进单页 HTML 的 `<template>`，正文通过 `customfig:mermaid-N` 或 `<!-- FIGURE: id -->` 引用。
 
-- 默认：与 `doc.md` 同级的 `doc.figures/`
-- 每个 `fig-id.html` → `<template id="fig-id">`
-- 应降级的 Mermaid 块可命名为 `mermaid-0.html`、`mermaid-1.html` …
+### 7.4 Sidecar 目录约定 <a id="74-sidecar-目录约定"></a> <a href="#toc-pos-74-sidecar-目录约定" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
-### 7.4 Agent 工作流建议 <a id="74-agent-工作流建议"></a> <a href="#toc-pos-74-agent-工作流建议" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+| 规则 | 说明 |
+|------|------|
+| 默认路径 | 与 `doc.md` 同级：`doc.figures/` |
+| Mermaid 替换 | 第 N 个应降级块 → `mermaid-N.html`（从 0 起） |
+| 自定义图 | 任意 `fig-id.html`，Markdown 用 `<!-- FIGURE: fig-id -->` |
+| 文件内容 | 片段 HTML（`.customfig` 根元素）；可含 scoped `<style>` |
+| 输出 HTML | 与 `doc.md` 同目录、`doc.html` |
 
-1. 简单文档：直接 `md2html build`
-2. 复杂图：先编写 `*.figures/*.html`，Markdown 用 `<!-- FIGURE: id -->` 或 ` ```customfig:id ` 引用
-3. 不确定 Mermaid 是否过重：先 `md2html analyze`，再决定是否写 sidecar
+### 7.5 两阶段工作流（推荐） <a id="75-两阶段工作流推荐"></a> <a href="#toc-pos-75-两阶段工作流推荐" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
-详见 [README.md](./README.md)。
+**原则：先批量铺基本 sidecar，再按需精修单张图。** 不要一上来就把每张图都打磨到出版级。
+
+#### 阶段 A — 基本 sidecar + 构建（铺底）
+
+适用于：知识库整批转 HTML、新文档首次导出。
+
+1. **分析**（单篇或批量）  
+   ```bash
+   md2html analyze path/to/doc.md
+   ```
+   记录：块编号 N、是否建议降级、对应 `doc.figures/mermaid-N.html` 路径。
+
+2. **为每个「建议降级」的块写基本 sidecar**  
+   - 覆盖原 Mermaid 的**节点与层次**，结构正确即可。  
+   - 使用 §3 配色 + §7.6 布局模式之一。  
+   - 复杂连线用底部 **deps** 文字概括，不必画全箭头。  
+   - **暂不**追求与旧 Mermaid 像素级一致。
+
+3. **无 Mermaid 或 analyze 未触发降级**  
+   - 直接 `md2html build`，保留客户端 Mermaid 渲染。
+
+4. **构建并预览**  
+   ```bash
+   md2html build path/to/doc.md
+   # 或批量：md2html build docs/*.md
+   ```
+   提醒用户在浏览器打开 `.html` 通读；列出仍缺 sidecar 的块（若有警告）。
+
+5. **阶段 A 完成标准**  
+   - 应降级的块均有 `mermaid-N.html`，构建无「缺少 sidecar」警告。  
+   - 版面可读、无严重重叠；允许文案略简、版式略糙。
+
+#### 阶段 B — 针对性打磨（按需）
+
+适用于：用户点名某节、某张图「惨不忍睹」或要对外汇报的「推荐图」。
+
+1. **只改一个文件**：`doc.figures/mermaid-N.html`（或具名 `fig-id.html`）。  
+2. **对照**同文档中该 Mermaid 代码块 + 相邻正文表格/说明。  
+3. **可参考**同库已打磨范例（如 `01-platform-overview.figures/mermaid-1.html`、`01-platform-framework-diagram.figures/mermaid-0.html`）。  
+4. **重建单篇**：`md2html build path/to/doc.md`，浏览器只复查该节。  
+5. **不要**为打磨一张图而批量重绘全库 sidecar。
+
+```mermaid
+flowchart LR
+  A[analyze] --> B{应降级?}
+  B -->|否| C[build 保留 Mermaid]
+  B -->|是| D[写基本 mermaid-N.html]
+  D --> E[build + 预览]
+  E --> F{用户要精修?}
+  F -->|否| G[完成]
+  F -->|是| H[只改该 mermaid-N.html]
+  H --> E
+```
+
+> Agent 执行 md 转 html 任务时：**默认走阶段 A**；仅当用户明确要求或预览反馈某图不合格时，进入阶段 B。
+
+### 7.6 布局模式速查 <a id="76-布局模式速查"></a> <a href="#toc-pos-76-布局模式速查" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+阶段 A 优先选用下表，避免每张图从零设计：
+
+| 模式 | 适用场景 | 结构要点 |
+|------|----------|----------|
+| **platform-stack** | L5→L1 软件分层、PPS 职责 | `.layer` 纵叠 + `.arrow` + 可选 `.deps` |
+| **phys-map** | 物理实体 ↔ 软件栈 对照 | 三列：物理 \| 映射 \| 软件 |
+| **cfg-data-flow** | 配置流 / 数据流 / 同步 并列 | 三列 `.lane` 纵链 + 跨路 deps |
+| **multi-stack** | 控制器 + 机箱双列 + 分布式 | 见 `09`/`10` 计算单元图 |
+| **link-legend** | 仅线型图例 | 五色横条，无架构节点 |
+| **seq-flow** | 简化的时序/步骤 | 水平步骤条（非 Mermaid sequence） |
+
+### 7.7 命令速查 <a id="77-命令速查"></a> <a href="#toc-pos-77-命令速查" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+```bash
+# 安装（有 pip）
+pip install -e ~/.cursor/skills/markdown-to-html
+
+# 无 pip
+~/.cursor/skills/markdown-to-html/bin/md2html build doc.md
+
+md2html analyze doc.md              # 阶段 A：清单
+md2html build doc.md                # 合并 sidecar → HTML
+md2html build doc.md --open         # 构建并打开浏览器
+md2html build doc.md --strict-figures   # CI：缺 sidecar 即失败
+```
+
+更多示例见 [README.md](./README.md)。

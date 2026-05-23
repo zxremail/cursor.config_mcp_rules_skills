@@ -10,6 +10,8 @@
 - <a id="toc-pos-4-frontmatter可选"></a>[4. Frontmatter（可选）](#4-frontmatter可选)
 - <a id="toc-pos-5-示例"></a>[5. 示例](#5-示例)
 - <a id="toc-pos-6-与-agent-工作流"></a>[6. 与 Agent 工作流](#6-与-agent-工作流)
+  - <a id="toc-pos-61-阶段-a--基本-sidecar默认"></a>[6.1 阶段 A — 基本 sidecar（默认）](#61-阶段-a--基本-sidecar默认)
+  - <a id="toc-pos-62-阶段-b--按需打磨用户点名时"></a>[6.2 阶段 B — 按需打磨（用户点名时）](#62-阶段-b--按需打磨用户点名时)
 
 ---
 
@@ -93,6 +95,19 @@ md2html build examples/sample.md --open
 
 ## 6. 与 Agent 工作流 <a id="6-与-agent-工作流"></a> <a href="#toc-pos-6-与-agent-工作流" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
-1. **简单文档**：直接 `md2html build foo.md`
-2. **复杂架构图**：Agent 编写 `foo.figures/*.html` sidecar，Markdown 用 `<!-- FIGURE: id -->` 引用
-3. **Mermaid 过重**：`md2html analyze` 查看建议，再补充 `mermaid-N.html` sidecar
+完整规范见 [SKILL.md](./SKILL.md) §7.5。摘要：
+
+### 6.1 阶段 A — 基本 sidecar（默认） <a id="61-阶段-a--基本-sidecar默认"></a> <a href="#toc-pos-61-阶段-a--基本-sidecar默认" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+1. `md2html analyze doc.md` → 列出需降级的 `mermaid-N`
+2. 为每个 N 写**可读即可**的 `doc.figures/mermaid-N.html`（不必一次打磨完美）
+3. `md2html build doc.md` → 浏览器通读
+4. 无降级块的文档直接 build，保留 Mermaid
+
+### 6.2 阶段 B — 按需打磨（用户点名时） <a id="62-阶段-b--按需打磨用户点名时"></a> <a href="#toc-pos-62-阶段-b--按需打磨用户点名时" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+1. **只改** `doc.figures/mermaid-N.html` 一个文件
+2. 对照原 Mermaid 源码与同节正文
+3. `md2html build doc.md` → 只复查该图
+
+**不要**在未要求时把全库 sidecar 都做到出版级。
