@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from dataclasses import dataclass
@@ -45,6 +46,7 @@ BACK_LINK_LEGACY_RE = re.compile(
 )
 BACK_LINK_CLASS = "md-toc-back"
 INDEX_FILE = "_INDEX_.md"
+TOC_DOC_TITLE_SEP = " • "
 INDEX_LINK_CLASS = "md-toc-index"
 INDEX_LINK_RE = re.compile(
     r'\s*<a href="[^"]*" class="md-toc-index"[^>]*>.*?</a>\s*'
@@ -147,7 +149,12 @@ def entries_need_number_upgrade(
     for entry in entries:
         update_toc_level_counters(counters, entry.level)
         prefix = format_toc_number_prefix(counters, entry.level, min_level)
-        if f"[{prefix}{entry.title}](#{entry.anchor})" not in toc_body:
+        base = (
+            strip_number_prefix(entry.title)
+            if has_number_prefix(entry.title)
+            else entry.title
+        )
+        if f"[{prefix}{base}](#{entry.anchor})" not in toc_body:
             return True
     return False
 
@@ -266,6 +273,21 @@ def parse_toc_entries(toc_body: str, *, min_level: int) -> list[TocEntry]:
     return entries
 
 
+def extract_h1_title(content: str) -> str | None:
+    m = re.search(r"^#\s+(.+?)\s*$", content, re.MULTILINE)
+    if not m:
+        return None
+    return clean_heading_title(m.group(1))
+
+
+def resolve_toc_section_title(content: str, toc_base: str) -> str:
+    """知识库目录行：`目录 • <# 文档标题>`。"""
+    h1 = extract_h1_title(content)
+    if h1:
+        return f"{toc_base}{TOC_DOC_TITLE_SEP}{h1}"
+    return toc_base
+
+
 def render_toc_entry_lines(
     entry: TocEntry,
     *,
@@ -275,9 +297,15 @@ def render_toc_entry_lines(
 ) -> list[str]:
     """单行列表项：锚点与链接同在 li 内，避免破坏 Markdown 列表。"""
     indent = "  " * (entry.level - min_level)
-    display = (
-        f"{number_prefix}{entry.title}" if numbered and number_prefix else entry.title
-    )
+    if numbered and number_prefix:
+        base = (
+            strip_number_prefix(entry.title)
+            if has_number_prefix(entry.title)
+            else entry.title
+        )
+        display = f"{number_prefix}{base}"
+    else:
+        display = entry.title
     line = (
         f'{indent}- <a id="{entry.toc_pos_anchor}"></a>'
         f"[{display}](#{entry.anchor})"
@@ -564,9 +592,11 @@ def toc_heading_has_index_link(
 
 
 def resolve_index_href(md_path: Path) -> str | None:
-    """同目录存在 _INDEX_.md 时返回相对链接路径。"""
-    if (md_path.parent / INDEX_FILE).is_file():
-        return INDEX_FILE
+    """向上查找知识库根目录下的 _INDEX_.md，返回相对链接路径。"""
+    for parent in (md_path.parent, *md_path.parents):
+        if (parent / INDEX_FILE).is_file():
+            rel = Path(os.path.relpath(parent / INDEX_FILE, md_path.parent))
+            return rel.as_posix()
     return None
 
 
@@ -582,8 +612,9 @@ def upgrade_toc_heading_index_link(
     m = pat.search(content)
     if not m:
         return content, False
+    section_title = resolve_toc_section_title(content, toc_title)
     new_line = render_toc_heading_line(
-        toc_title, link_to_index=True, index_href=index_href
+        section_title, link_to_index=True, index_href=index_href
     )
     if m.group(0) == new_line:
         return content, False
@@ -682,6 +713,7 @@ def render_toc_block(
     entries: list[TocEntry],
     *,
     toc_title: str,
+    content: str,
     separator: bool,
     min_level: int,
     numbered: bool,
@@ -691,9 +723,10 @@ def render_toc_block(
 ) -> str:
     if not entries:
         return ""
+    section_title = resolve_toc_section_title(content, toc_title)
     lines = [
         render_toc_heading_line(
-            toc_title, link_to_index=link_to_index, index_href=index_href
+            section_title, link_to_index=link_to_index, index_href=index_href
         ),
         "",
     ]
@@ -787,6 +820,7 @@ def rebuild_toc_section(
     block = render_toc_block(
         entries,
         toc_title=toc_title,
+        content=content,
         separator=separator,
         min_level=min_level,
         numbered=numbered,
@@ -931,6 +965,7 @@ def apply_document_toc(
         block = render_toc_block(
             entries,
             toc_title=toc_title,
+            content=content,
             separator=separator,
             min_level=min_level,
             numbered=numbered,
