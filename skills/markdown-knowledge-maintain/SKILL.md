@@ -83,7 +83,7 @@ description: >-
 ## 3. 推荐执行顺序 <a id="3-推荐执行顺序"></a> <a href="#toc-pos-3-推荐执行顺序" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 1. 完成用户对正文的修改  
-2. 运行 `md-toc.py` 补充目录  
+2. 运行 `md-toc.py` 补充目录，并确认目录标题为 `目录 • <# 标题>`  
 3. 更新 `<根>/_INDEX_.md`（若适用）  
 4. 若目录或索引有变，在回复中**一句话**说明（例如「已补充目录 2 条、已更新索引」）
 
