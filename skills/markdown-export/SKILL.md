@@ -5,16 +5,31 @@ description: 将回复保存为 markdown 文件时的格式与内容规范，包
 
 # Markdown 文档导出规范
 
+
+
+## 目录 • Markdown 文档导出规范
+
+- <a id="toc-pos-1-文件命名"></a>[1. 文件命名](#1-文件命名)
+- <a id="toc-pos-2-内容要求"></a>[2. 内容要求](#2-内容要求)
+- <a id="toc-pos-3-图表语法"></a>[3. 图表语法](#3-图表语法)
+- <a id="toc-pos-4-图表密度控制"></a>[4. 图表密度控制](#4-图表密度控制)
+- <a id="toc-pos-5-mermaid-配色方案"></a>[5. Mermaid 配色方案](#5-mermaid-配色方案)
+- <a id="toc-pos-6-中英文排版"></a>[6. 中英文排版](#6-中英文排版)
+- <a id="toc-pos-7-实时保存"></a>[7. 实时保存](#7-实时保存)
+- <a id="toc-pos-8-引脚颜色标记"></a>[8. 引脚颜色标记](#8-引脚颜色标记)
+
+---
+
 当用户要求将回复保存为 markdown 文件时，必须遵循以下所有规则。
 
 ---
 
-## 1. 文件命名
+## 1. 文件命名 <a id="1-文件命名"></a> <a href="#toc-pos-1-文件命名" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 - 文件名必须使用**英文**，全小写，单词之间用连字符 `-` 分隔。
 - 例如：`rk3588-device-tree-guide.md`、`touch-driver-debug-flow.md`
 
-## 2. 内容要求
+## 2. 内容要求 <a id="2-内容要求"></a> <a href="#toc-pos-2-内容要求" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 - 内容必须**详实丰富，不厌其烦**，深入展开每个知识点。
 - 必须包含丰富的图表来辅助说明，包括但不限于：
@@ -25,7 +40,7 @@ description: 将回复保存为 markdown 文件时的格式与内容规范，包
   - 状态图（State Diagram）
   - 甘特图（Gantt Chart，适用时）
 
-## 3. 图表语法
+## 3. 图表语法 <a id="3-图表语法"></a> <a href="#toc-pos-3-图表语法" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 - 所有图表必须使用 **Mermaid** 语法绘制。
 - 尽量不要使用外部图片链接或 ASCII 艺术图。
@@ -34,13 +49,14 @@ description: 将回复保存为 markdown 文件时的格式与内容规范，包
   - 错误示例：`A["第一行\n第二行"]`
 - 该规则适用于**所有 Mermaid 文本位置**，包括但不限于：节点标签、边标签、`Note over`/`Note right of` 文本、子图标题等。凡是需要换行，一律使用 `<br>`，禁止使用 `\n`。
 
-## 4. 图表密度控制
+## 4. 图表密度控制 <a id="4-图表密度控制"></a> <a href="#toc-pos-4-图表密度控制" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 当 Mermaid 流程图节点过多、单行排列过于密集时，必须进行拆分以保证可读性。具体规则：
 
 - **对比类图表**（如两种方案并列对比）：禁止将多个子流程塞进同一个 Mermaid 代码块的并列 `subgraph` 中。应拆分为**多个独立的 Mermaid 代码块**，使其自然上下排列，每个代码块前加加粗标题标注。
 - **单流程过长**（节点超过 6-7 个）：应将 `flowchart LR` 改为 `flowchart TB`，使流程纵向展开；或将流程在逻辑断点处拆分为两个代码块。
 - **判断标准**：如果预览时节点文字被压缩、需要横向滚动、或节点间距过小难以辨识，即说明密度过高，必须拆分。
+- **跨域架构图例外**（多层逻辑域、多 subgraph 协作）：优先**单张图** + `flowchart TB` 分层与左右列对齐，避免跨 subgraph 连线穿插；不要仅为「减交叉」拆成多张业务图。详见 skill **`mermaid-flowchart-layout`** §3–§6（语义 `linkStyle`、独立横向图例块、箭头说明）。
 
 正确做法（拆分为两个代码块，上下排列）：
 
@@ -74,9 +90,11 @@ flowchart TB
 ​```
 ```
 
-## 5. Mermaid 配色方案
+## 5. Mermaid 配色方案 <a id="5-mermaid-配色方案"></a> <a href="#toc-pos-5-mermaid-配色方案" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 所有 Mermaid 图表必须使用**深彩色配色方案**，以适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
+
+架构协作图可用 **`linkStyle`** 区分路径语义（应用 API / 数据面 / 同步 / 背板虚线 / 系统级点线）；配色表与图例写法见 skill **`mermaid-flowchart-layout`** §4–§6。
 
 在每个 Mermaid 图表的开头添加 `%%{init: {'theme': 'dark'}}%%` 或使用 `style` 语句自定义节点颜色。推荐配色：
 
@@ -101,13 +119,13 @@ flowchart TD
     style D fill:#E63946,stroke:#B52D38,color:#FFFFFF
 ```
 
-## 6. 中英文排版
+## 6. 中英文排版 <a id="6-中英文排版"></a> <a href="#toc-pos-6-中英文排版" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 - 英文和中文之间**必须**有空格分隔。
 - 正确示例：`使用 Mermaid 语法绘制 Flowchart 流程图`
 - 错误示例：`使用Mermaid语法绘制Flowchart流程图`
 
-## 7. 实时保存
+## 7. 实时保存 <a id="7-实时保存"></a> <a href="#toc-pos-7-实时保存" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 - 在生成 markdown 内容的过程中，**必须随时保存**到文件。
 - 避免因为会话超时导致新增内容丢失。
@@ -116,7 +134,7 @@ flowchart TD
   - 如果内容很长，分多次追加写入。
   - 宁可多保存几次，也不要等到最后一次性写入。
 
-## 8. 引脚颜色标记
+## 8. 引脚颜色标记 <a id="8-引脚颜色标记"></a> <a href="#toc-pos-8-引脚颜色标记" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 当涉及到通信引脚时，**必须**用颜色标记引脚方向。使用以下固定配色：
 
