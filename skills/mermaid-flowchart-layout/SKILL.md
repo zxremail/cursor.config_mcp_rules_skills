@@ -12,25 +12,25 @@ description: >-
 
 ## 目录 • Mermaid 流程图排版与架构图连线
 
-- <a id="toc-pos-1-多个-subgraph-分行显示"></a>[1. 多个 subgraph 分行显示](#1-多个-subgraph-分行显示)
-  - <a id="toc-pos-11-做法"></a>[1.1 做法](#11-做法)
-  - <a id="toc-pos-12-示例"></a>[1.2 示例](#12-示例)
-  - <a id="toc-pos-13-反例不要这样写"></a>[1.3 反例（不要这样写）](#13-反例不要这样写)
-  - <a id="toc-pos-14-注意事项"></a>[1.4 注意事项](#14-注意事项)
-- <a id="toc-pos-2-单行节点链过长时换行"></a>[2. 单行节点链过长时换行](#2-单行节点链过长时换行)
-- <a id="toc-pos-3-跨域架构图避免连线穿插重要"></a>[3. 跨域架构图：避免连线穿插（重要）](#3-跨域架构图避免连线穿插重要)
-  - <a id="toc-pos-31-问题"></a>[3.1 问题](#31-问题)
-  - <a id="toc-pos-32-默认策略单张图--自上而下分层"></a>[3.2 默认策略：单张图 + 自上而下分层](#32-默认策略单张图--自上而下分层)
-  - <a id="toc-pos-33-同层内左右列对齐并列子域"></a>[3.3 同层内：左右列对齐（并列子域）](#33-同层内左右列对齐并列子域)
-  - <a id="toc-pos-34-上层内子组件收进运行时容器避免双汇聚"></a>[3.4 上层内：子组件收进运行时容器，避免双汇聚](#34-上层内子组件收进运行时容器避免双汇聚)
-  - <a id="toc-pos-35-连线定义集中在图底部"></a>[3.5 连线定义集中在图底部](#35-连线定义集中在图底部)
-  - <a id="toc-pos-36-仅在用户坚持时拆图"></a>[3.6 仅在用户坚持时拆图](#36-仅在用户坚持时拆图)
-- <a id="toc-pos-4-语义配色与线型linkstyle"></a>[4. 语义配色与线型（`linkStyle`）](#4-语义配色与线型linkstyle)
-- <a id="toc-pos-5-箭头说明文字"></a>[5. 箭头说明文字](#5-箭头说明文字)
-- <a id="toc-pos-6-连线图例推荐独立迷你-mermaid-块"></a>[6. 连线图例（推荐：独立迷你 Mermaid 块）](#6-连线图例推荐独立迷你-mermaid-块)
-- <a id="toc-pos-7-规则优先级汇总"></a>[7. 规则优先级（汇总）](#7-规则优先级汇总)
-- <a id="toc-pos-8-检查清单编辑后自检"></a>[8. 检查清单（编辑后自检）](#8-检查清单编辑后自检)
-- <a id="toc-pos-9-其他说明"></a>[9. 其他说明](#9-其他说明)
+- [1. 多个 subgraph 分行显示](#1-多个-subgraph-分行显示)
+  - [1.1 做法](#11-做法)
+  - [1.2 示例](#12-示例)
+  - [1.3 反例（不要这样写）](#13-反例不要这样写)
+  - [1.4 注意事项](#14-注意事项)
+- [2. 单行节点链过长时换行](#2-单行节点链过长时换行)
+- [3. 跨域架构图：避免连线穿插（重要）](#3-跨域架构图避免连线穿插重要)
+  - [3.1 问题](#31-问题)
+  - [3.2 默认策略：单张图 + 自上而下分层](#32-默认策略单张图--自上而下分层)
+  - [3.3 同层内：左右列对齐（并列子域）](#33-同层内左右列对齐并列子域)
+  - [3.4 上层内：子组件收进运行时容器，避免双汇聚](#34-上层内子组件收进运行时容器避免双汇聚)
+  - [3.5 连线定义集中在图底部](#35-连线定义集中在图底部)
+  - [3.6 仅在用户坚持时拆图](#36-仅在用户坚持时拆图)
+- [4. 语义配色与线型（`linkStyle`）](#4-语义配色与线型linkstyle)
+- [5. 箭头说明文字](#5-箭头说明文字)
+- [6. 连线图例（推荐：独立迷你 Mermaid 块）](#6-连线图例推荐独立迷你-mermaid-块)
+- [7. 规则优先级（汇总）](#7-规则优先级汇总)
+- [8. 检查清单（编辑后自检）](#8-检查清单编辑后自检)
+- [9. 其他说明](#9-其他说明)
 
 ---
 
@@ -38,17 +38,17 @@ description: >-
 
 ---
 
-## 1. 多个 subgraph 分行显示 <a id="1-多个-subgraph-分行显示"></a> <a href="#toc-pos-1-多个-subgraph-分行显示" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 1. 多个 subgraph 分行显示
 
 当 flowchart 包含 **2 个及以上 subgraph** 且它们之间无显式连接时，Mermaid 默认会将它们并排在同一行。必须强制分行。
 
-### 1.1 做法 <a id="11-做法"></a> <a href="#toc-pos-11-做法" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 1.1 做法
 
 1. 主 flowchart 方向设为 `flowchart TB`（上下排列 subgraph）
 2. 每个 subgraph 内部设 `direction LR`（节点从左到右）
 3. 相邻 subgraph 之间用 **不可见链接 `~~~`** 强制分行
 
-### 1.2 示例 <a id="12-示例"></a> <a href="#toc-pos-12-示例" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 1.2 示例
 
 ```mermaid
 flowchart TB
@@ -65,7 +65,7 @@ flowchart TB
     end
 ```
 
-### 1.3 反例（不要这样写） <a id="13-反例不要这样写"></a> <a href="#toc-pos-13-反例不要这样写" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 1.3 反例（不要这样写）
 
 ```mermaid
 flowchart TB
@@ -79,7 +79,7 @@ flowchart TB
 
 > 缺少 `~~~` 和 `direction LR`，两个 subgraph 会挤在同一行。
 
-### 1.4 注意事项 <a id="14-注意事项"></a> <a href="#toc-pos-14-注意事项" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 1.4 注意事项
 
 - `~~~` 是 Mermaid 的不可见链接，**不渲染箭头**
 - `~~~` 两侧使用 subgraph 的 **ID**（`subgraph` 关键字后的标识符）
@@ -87,7 +87,7 @@ flowchart TB
 
 ---
 
-## 2. 单行节点链过长时换行 <a id="2-单行节点链过长时换行"></a> <a href="#toc-pos-2-单行节点链过长时换行" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 2. 单行节点链过长时换行
 
 节点超过 **4–5 个** 且横向溢出时，拆链或子图内 `direction LR` 折行：
 
@@ -99,20 +99,20 @@ flowchart LR
 
 ---
 
-## 3. 跨域架构图：避免连线穿插（重要） <a id="3-跨域架构图避免连线穿插重要"></a> <a href="#toc-pos-3-跨域架构图避免连线穿插重要" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 3. 跨域架构图：避免连线穿插（重要）
 
-### 3.1 问题 <a id="31-问题"></a> <a href="#toc-pos-31-问题" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 3.1 问题
 
 多个 subgraph **左右并排**（如「层 A | 层 B | 层 C | 层 D」四列）时，跨 subgraph 的边会被 Mermaid 自动拉成**最短路径**，经常**横穿无关节点/子图**，视觉很乱。
 
-### 3.2 默认策略：单张图 + 自上而下分层 <a id="32-默认策略单张图--自上而下分层"></a> <a href="#toc-pos-32-默认策略单张图--自上而下分层" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 3.2 默认策略：单张图 + 自上而下分层
 
 - **优先一张图**展示全貌；用户未明确要求时**不要**拆成多张图。
 - 主方向 **`flowchart TB`**：按**逻辑层**自上而下排列（例如 `上层 → 中层 → 下层`）。
 - 层间用 **`~~~`** 强制分行（见 §1）。
 - **禁止**仅靠多列并排 + 斜穿全图的长边。
 
-### 3.3 同层内：左右列对齐（并列子域） <a id="33-同层内左右列对齐并列子域"></a> <a href="#toc-pos-33-同层内左右列对齐并列子域" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 3.3 同层内：左右列对齐（并列子域）
 
 某一逻辑层内部若有两条**独立路径**（如主数据通路与协调/信令通路），用 `direction LR` 建**左、右两列**，列内 `direction TB` 自上而下：
 
@@ -152,7 +152,7 @@ SVC_A ==>|批量传输 / API| BRIDGE
 SVC_B -->|配置 / 路由| COORD
 ```
 
-### 3.4 上层内：子组件收进运行时容器，避免双汇聚 <a id="34-上层内子组件收进运行时容器避免双汇聚"></a> <a href="#toc-pos-34-上层内子组件收进运行时容器避免双汇聚" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 3.4 上层内：子组件收进运行时容器，避免双汇聚
 
 两个**并排子组件**各画一条边汇聚到下方**同一运行时节点**，容易在汇合处打成线团。
 
@@ -169,7 +169,7 @@ CLIENT ==>|公开 API| SVC_A
 CLIENT ==>|公开 API| SVC_B
 ```
 
-### 3.5 连线定义集中在图底部 <a id="35-连线定义集中在图底部"></a> <a href="#toc-pos-35-连线定义集中在图底部" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 3.5 连线定义集中在图底部
 
 先写齐 **节点/subgraph**，再在**图末**统一写跨层边，便于维护 `linkStyle` 序号：
 
@@ -184,13 +184,13 @@ CLIENT ==>|公开 API| SVC_B
     linkStyle 2 stroke:#10B981,stroke-width:2px
 ```
 
-### 3.6 仅在用户坚持时拆图 <a id="36-仅在用户坚持时拆图"></a> <a href="#toc-pos-36-仅在用户坚持时拆图" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 3.6 仅在用户坚持时拆图
 
 若单图经 §3.3–3.5 仍无法接受，再按逻辑层拆为多张图，并注明阅读顺序。**默认不拆。**
 
 ---
 
-## 4. 语义配色与线型（`linkStyle`） <a id="4-语义配色与线型linkstyle"></a> <a href="#toc-pos-4-语义配色与线型linkstyle" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 4. 语义配色与线型（`linkStyle`）
 
 用 **颜色 + 线型** 区分路径类型；`linkStyle` 按边**出现顺序**从 0 编号（`~~~` 不计入）。
 
@@ -208,7 +208,7 @@ CLIENT ==>|公开 API| SVC_B
 
 ---
 
-## 5. 箭头说明文字 <a id="5-箭头说明文字"></a> <a href="#toc-pos-5-箭头说明文字" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 5. 箭头说明文字
 
 跨层、易误解的边应加 **`|说明|`**，写清**传递的内容或机制**，而非仅「连接」：
 
@@ -225,7 +225,7 @@ BRIDGE -.->|透明总线 / 隧道| EXT_NODE
 
 ---
 
-## 6. 连线图例（推荐：独立迷你 Mermaid 块） <a id="6-连线图例推荐独立迷你-mermaid-块"></a> <a href="#toc-pos-6-连线图例推荐独立迷你-mermaid-块" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 6. 连线图例（推荐：独立迷你 Mermaid 块）
 
 Mermaid **无原生 `legend`**。要**真实线型/颜色**且不影响主图 `linkStyle` 时，用 **方案 D**：
 
@@ -266,7 +266,7 @@ flowchart LR
 
 ---
 
-## 7. 规则优先级（汇总） <a id="7-规则优先级汇总"></a> <a href="#toc-pos-7-规则优先级汇总" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 7. 规则优先级（汇总）
 
 | 场景 | 主方向 | subgraph 内 | `~~~` | 备注 |
 |------|--------|---------------|-------|------|
@@ -277,7 +277,7 @@ flowchart LR
 
 ---
 
-## 8. 检查清单（编辑后自检） <a id="8-检查清单编辑后自检"></a> <a href="#toc-pos-8-检查清单编辑后自检" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 8. 检查清单（编辑后自检）
 
 - [ ] 是否 `flowchart TB` 分层，而非多域左右并排？
 - [ ] 层间是否用 `LAYER_A ~~~ LAYER_B ~~~ …` 分隔？
@@ -289,7 +289,7 @@ flowchart LR
 
 ---
 
-## 9. 其他说明 <a id="9-其他说明"></a> <a href="#toc-pos-9-其他说明" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 9. 其他说明
 
 - 导出到部分协作平台时，主图与图例可能被渲染为**两个独立画板**，属平台行为，非 Mermaid 语法问题。
 - **Skill 正文保持领域无关**：具体产品名、硬件名、仓库路径应写在**业务文档**的图中，不要写进本 skill。

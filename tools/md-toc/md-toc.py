@@ -5,13 +5,14 @@
 已有「## 目录」时：保留现有条目与顺序，仅按正文标题顺序补充未列入的章节。
 无目录时：在 # 文档标题后新建完整目录。
 
-每条目录项带 toc-pos-* 锚点；对应章节标题下插入右对齐 ↑ 链接，可回到目录中的点击位置。
+默认生成纯 Markdown 目录（无 HTML 锚点/回链）。可选 --back-links / --index-link 启用 HTML 导航。
 
 用法:
-  md-toc.py doc.md                    # 写入文件
+  md-toc.py doc.md                    # 写入文件（纯 Markdown 目录）
   md-toc.py --dry-run doc.md          # 仅预览变更
-  md-toc.py --check doc.md            # CI：目录/回链已是最新则退出 0
-  md-toc.py --no-back-links doc.md    # 不插入章节 ↑ 回链
+  md-toc.py --check doc.md            # CI：目录已是最新则退出 0
+  md-toc.py --back-links doc.md       # 插入 toc-pos 锚点与章节 ↑ 回链
+  md-toc.py --index-link doc.md       # 目录标题添加指向 _INDEX_.md 的箭头
 """
 from __future__ import annotations
 
@@ -165,14 +166,16 @@ def entries_need_number_downgrade(
     *,
     min_level: int,
 ) -> bool:
-    """目录正文仍含自动序号前缀，但当前为 --no-numbered。"""
+    """目录正文仍含「仅目录加号」前缀，但当前为 --no-numbered（标题本身已有序号则跳过）。"""
     if not entries:
         return False
     counters: dict[int, int] = {}
     for entry in entries:
+        if has_number_prefix(entry.title):
+            continue
         update_toc_level_counters(counters, entry.level)
         prefix = format_toc_number_prefix(counters, entry.level, min_level)
-        if prefix and f"[{prefix}" in toc_body:
+        if prefix and f"[{prefix}{entry.title}]" in toc_body:
             return True
     return False
 
@@ -294,8 +297,9 @@ def render_toc_entry_lines(
     min_level: int,
     numbered: bool,
     number_prefix: str,
+    back_links: bool = False,
 ) -> list[str]:
-    """单行列表项：锚点与链接同在 li 内，避免破坏 Markdown 列表。"""
+    """单行列表项；back_links 时在 li 内插入 toc-pos 锚点。"""
     indent = "  " * (entry.level - min_level)
     if numbered and number_prefix:
         base = (
@@ -306,15 +310,22 @@ def render_toc_entry_lines(
         display = f"{number_prefix}{base}"
     else:
         display = entry.title
-    line = (
-        f'{indent}- <a id="{entry.toc_pos_anchor}"></a>'
-        f"[{display}](#{entry.anchor})"
-    )
+    if back_links:
+        line = (
+            f'{indent}- <a id="{entry.toc_pos_anchor}"></a>'
+            f"[{display}](#{entry.anchor})"
+        )
+    else:
+        line = f"{indent}- [{display}](#{entry.anchor})"
     return [line]
 
 
 def render_toc_entries_lines(
-    entries: list[TocEntry], *, min_level: int, numbered: bool
+    entries: list[TocEntry],
+    *,
+    min_level: int,
+    numbered: bool,
+    back_links: bool = False,
 ) -> list[str]:
     lines: list[str] = []
     counters: dict[int, int] = {}
@@ -329,6 +340,7 @@ def render_toc_entries_lines(
                 min_level=min_level,
                 numbered=numbered,
                 number_prefix=prefix,
+                back_links=back_links,
             )
         )
     return lines
@@ -352,9 +364,17 @@ def make_toc_entry(
     )
 
 
-def entries_need_nav_upgrade(entries: list[TocEntry], toc_body: str) -> bool:
+def entries_need_nav_upgrade(
+    entries: list[TocEntry], toc_body: str, *, back_links: bool
+) -> bool:
     if not entries:
         return False
+    has_html_anchors = (
+        TOC_ANCHOR_LINE_RE.search(toc_body) is not None
+        or TOC_ITEM_INLINE_RE.search(toc_body) is not None
+    )
+    if not back_links:
+        return has_html_anchors
     # 旧版：锚点单独占一行，会破坏列表解析（MULTILINE 扫描全文）
     if TOC_ANCHOR_LINE_RE.search(toc_body) is not None:
         return True
@@ -572,6 +592,15 @@ def render_toc_heading_line(
     return line
 
 
+def toc_heading_has_any_index_link(content: str, toc_title: str) -> bool:
+    m = re.search(
+        rf"^##\s+{re.escape(toc_title)}\b.*$",
+        content,
+        re.MULTILINE,
+    )
+    return bool(m and INDEX_LINK_RE.search(m.group(0)))
+
+
 def toc_heading_has_index_link(
     content: str, toc_title: str, index_href: str
 ) -> bool:
@@ -720,6 +749,7 @@ def render_toc_block(
     nav_hint: bool = False,
     link_to_index: bool = False,
     index_href: str = INDEX_FILE,
+    back_links: bool = False,
 ) -> str:
     if not entries:
         return ""
@@ -733,7 +763,11 @@ def render_toc_block(
     if nav_hint:
         lines.append("> 点击章节右侧 **↑** 回到目录对应条目。")
         lines.append("")
-    lines.extend(render_toc_entries_lines(entries, min_level=min_level, numbered=numbered))
+    lines.extend(
+        render_toc_entries_lines(
+            entries, min_level=min_level, numbered=numbered, back_links=back_links
+        )
+    )
     if separator:
         lines.extend(["", "---", ""])
         return "\n".join(lines).rstrip("\n") + "\n\n"
@@ -812,6 +846,7 @@ def rebuild_toc_section(
     nav_hint: bool,
     link_to_index: bool,
     index_href: str,
+    back_links: bool = False,
 ) -> str:
     section = extract_toc_section(content, toc_title, with_separator=separator)
     if section is None:
@@ -827,6 +862,7 @@ def rebuild_toc_section(
         nav_hint=nav_hint,
         link_to_index=link_to_index,
         index_href=index_href,
+        back_links=back_links,
     )
     return prefix + block + suffix
 
@@ -920,6 +956,89 @@ def inject_back_links(
     return new_text, changed
 
 
+def strip_nav_html_from_content(
+    content: str,
+    *,
+    toc_title: str,
+    min_depth: int,
+    max_depth: int,
+    strip_toc_index_link: bool,
+) -> tuple[str, int]:
+    """移除目录标题与章节标题中的 HTML 锚点/回链。返回 (新文本, 变更处数)。"""
+    lines = content.splitlines()
+    out: list[str] = []
+    in_fence = False
+    fence_marker = ""
+    skipping_toc = False
+    changed = 0
+    i = 0
+
+    while i < len(lines):
+        line = lines[i]
+
+        fence_m = FENCE_RE.match(line)
+        if fence_m:
+            marker = fence_m.group(1)
+            if not in_fence:
+                in_fence = True
+                fence_marker = marker[:3]
+            elif line.startswith(fence_marker):
+                in_fence = False
+                fence_marker = ""
+            out.append(line)
+            i += 1
+            continue
+
+        if in_fence:
+            out.append(line)
+            i += 1
+            continue
+
+        if is_toc_heading_line(line, toc_title):
+            skipping_toc = True
+            new_line = line
+            if strip_toc_index_link:
+                stripped = INDEX_LINK_RE.sub("", new_line).rstrip()
+                if stripped != new_line:
+                    changed += 1
+                    new_line = stripped
+            out.append(new_line)
+            i += 1
+            continue
+
+        if skipping_toc:
+            out.append(line)
+            if line.strip() == "---":
+                skipping_toc = False
+            i += 1
+            continue
+
+        if is_separate_back_link_line(line) or BACK_LINK_BLOCK_RE.match(line):
+            changed += 1
+            i += 1
+            continue
+
+        hm = HEADING_RE.match(line)
+        if hm:
+            level = len(hm.group(1))
+            stripped = strip_heading_section_id(
+                strip_inline_back_link(line)
+            ).rstrip()
+            if stripped != line.rstrip():
+                changed += 1
+            out.append(stripped)
+            i += 1
+            continue
+
+        out.append(line)
+        i += 1
+
+    new_text = "\n".join(out)
+    if content.endswith("\n"):
+        new_text += "\n"
+    return new_text, changed
+
+
 def build_title_to_pos(entries: list[TocEntry]) -> dict[str, str]:
     return {e.title: e.toc_pos_anchor for e in entries}
 
@@ -972,6 +1091,7 @@ def apply_document_toc(
             nav_hint=nav_hint,
             link_to_index=link_to_index,
             index_href=index_href or INDEX_FILE,
+            back_links=back_links,
         )
         h1 = re.search(r"^#\s+.+$", content, re.MULTILINE)
         if h1:
@@ -1019,11 +1139,15 @@ def apply_document_toc(
         need_rebuild = (
             added
             or number_downgrade
-            or entries_need_nav_upgrade(merged, body)
+            or entries_need_nav_upgrade(merged, body, back_links=back_links)
             or entries_need_number_sync(
                 merged, body, min_level=min_level, numbered=numbered
             )
             or (not nav_hint and toc_body_has_legacy_hint(body))
+            or (
+                not link_to_index
+                and toc_heading_has_any_index_link(content, toc_title)
+            )
         )
         if need_rebuild:
             if not numbered and not number_downgrade:
@@ -1038,6 +1162,7 @@ def apply_document_toc(
                 nav_hint=nav_hint,
                 link_to_index=link_to_index,
                 index_href=index_href or INDEX_FILE,
+                back_links=back_links,
             )
             toc_upgraded = True
 
@@ -1059,6 +1184,16 @@ def apply_document_toc(
             min_depth=min_depth,
             max_depth=max_depth,
         )
+    else:
+        content, stripped = strip_nav_html_from_content(
+            content,
+            toc_title=toc_title,
+            min_depth=min_depth,
+            max_depth=max_depth,
+            strip_toc_index_link=not link_to_index,
+        )
+        if stripped:
+            links_added = stripped
 
     return content, added, created, links_added, toc_upgraded, index_link_upgraded
 
@@ -1091,6 +1226,9 @@ def document_needs_update(
     ):
         return True
 
+    if not index_href and toc_heading_has_any_index_link(content, toc_title):
+        return True
+
     _, toc_part, _ = section
     header_end = toc_part.index("\n") + 1
     body = toc_part[header_end:]
@@ -1098,7 +1236,7 @@ def document_needs_update(
     existing_titles = {e.title for e in existing}
     if any(title not in existing_titles for _, title in doc_headings):
         return True
-    if entries_need_nav_upgrade(existing, body):
+    if entries_need_nav_upgrade(existing, body, back_links=back_links):
         return True
     if entries_need_number_sync(
         existing, body, min_level=min_level, numbered=numbered
@@ -1119,6 +1257,16 @@ def document_needs_update(
         ):
             return True
         if not nav_hint and toc_body_has_legacy_hint(body):
+            return True
+    elif not back_links:
+        _, stripped = strip_nav_html_from_content(
+            content,
+            toc_title=toc_title,
+            min_depth=min_depth,
+            max_depth=max_depth,
+            strip_toc_index_link=not index_href,
+        )
+        if stripped:
             return True
 
     return False
@@ -1244,7 +1392,11 @@ def process_file(
     if toc_upgraded and not created:
         parts.append("升级目录锚点/序号")
     if links_added:
-        parts.append(f"↑ 回链 {links_added} 处")
+        parts.append(
+            f"↑ 回链 {links_added} 处"
+            if back_links
+            else f"移除 HTML 导航 {links_added} 处"
+        )
     if index_upgraded:
         parts.append("目录→索引")
     print(f"{path}: 已更新（{', '.join(parts)}）")
@@ -1253,7 +1405,7 @@ def process_file(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="为 Markdown 插入/补充目录；支持章节内 ↑ 回到目录对应条目"
+        description="为 Markdown 插入/补充纯 Markdown 目录（默认无 HTML 锚点）"
     )
     parser.add_argument("files", nargs="+", type=Path, help="目标 .md 文件")
     parser.add_argument("--max-depth", type=int, default=3, metavar="N")
@@ -1261,14 +1413,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--title", default="目录", help="目录小节标题")
     parser.add_argument("--no-separator", action="store_true")
     parser.add_argument(
+        "--back-links",
+        action="store_true",
+        help="在目录/章节插入 HTML 锚点与 ↑ 回链（默认：纯 Markdown 目录）",
+    )
+    parser.add_argument(
+        "--index-link",
+        action="store_true",
+        help="在「目录」标题添加指向 _INDEX_.md 的箭头（默认：不添加）",
+    )
+    parser.add_argument(
         "--no-back-links",
         action="store_true",
-        help="不在章节标题下插入 ↑ 回链",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--no-index-link",
         action="store_true",
-        help="不在「目录」标题添加指向 _INDEX_.md 的箭头",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--nav-hint",
@@ -1304,7 +1466,12 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{f}: 文件不存在", file=sys.stderr)
             rc = 1
             continue
-        index_href = None if args.no_index_link else resolve_index_href(f)
+        back_links = args.back_links and not args.no_back_links
+        index_href = (
+            resolve_index_href(f)
+            if args.index_link and not args.no_index_link
+            else None
+        )
         if args.numbered and args.no_numbered:
             parser.error("--numbered 与 --no-numbered 不能同时使用")
         toc_numbered = args.numbered
@@ -1315,7 +1482,7 @@ def main(argv: list[str] | None = None) -> int:
             max_depth=args.max_depth,
             toc_title=args.title,
             separator=not args.no_separator,
-            back_links=not args.no_back_links,
+            back_links=back_links,
             nav_hint=args.nav_hint,
             index_href=index_href,
             numbered=toc_numbered,

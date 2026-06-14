@@ -42,6 +42,9 @@ INDEX_LINK_CLASS = "md-toc-index"
 INDEX_FILE = "_INDEX_.md"
 BACK_LINK_ICON_SIZE = "10.5pt"
 BACK_LINK_STYLE = "float:right;text-decoration:none;color:#5c6370"
+INDEX_LINK_RE = re.compile(
+    r'\s*<a href="[^"]*" class="md-toc-index"[^>]*>.*?</a>\s*'
+)
 TOC_TITLE = "目录"
 MIN_DEPTH = 2
 MAX_DEPTH = 3
@@ -197,11 +200,7 @@ def parse_toc_entries(toc_body, min_level):
 
 def render_toc_entry_lines(entry, min_level):
     indent = "  " * (entry.level - min_level)
-    return [
-        '{0}- <a id="{1}"></a>[{2}](#{3})'.format(
-            indent, entry.toc_pos_anchor, entry.title, entry.anchor
-        )
-    ]
+    return ["{0}- [{1}](#{2})".format(indent, entry.title, entry.anchor)]
 
 
 def make_toc_entry(level, title, anchor, min_level):
@@ -367,6 +366,63 @@ def inject_back_links(content, title_to_pos, title_to_section, min_depth, max_de
     return "\n".join(out) + ("\n" if content.endswith("\n") else ""), changed
 
 
+def toc_body_has_html_nav(body):
+    return (
+        TOC_ITEM_INLINE_RE.search(body) is not None
+        or TOC_ANCHOR_LINE_RE.search(body) is not None
+    )
+
+
+def strip_nav_html_from_content(content, toc_title):
+    lines = content.splitlines()
+    out = []
+    in_fence = False
+    fence_marker = ""
+    skipping_toc = False
+    changed = 0
+    for line in lines:
+        fence_m = FENCE_RE.match(line)
+        if fence_m:
+            marker = fence_m.group(1)
+            if not in_fence:
+                in_fence = True
+                fence_marker = marker[:3]
+            elif line.startswith(fence_marker):
+                in_fence = False
+                fence_marker = ""
+            out.append(line)
+            continue
+        if in_fence:
+            out.append(line)
+            continue
+        if is_toc_heading_line(line, toc_title):
+            skipping_toc = True
+            new_line = INDEX_LINK_RE.sub("", line).rstrip()
+            if new_line != line.rstrip():
+                changed += 1
+            out.append(new_line)
+            continue
+        if skipping_toc:
+            out.append(line)
+            if line.strip() == "---":
+                skipping_toc = False
+            continue
+        hm = HEADING_RE.match(line)
+        if hm:
+            new_line = HEADING_SECTION_ID_RE.sub(
+                "", INLINE_BACK_LINK_RE.sub("", line)
+            ).rstrip()
+            if new_line != line.rstrip():
+                changed += 1
+            out.append(new_line)
+            continue
+        out.append(line)
+    text = "\n".join(out)
+    if content.endswith("\n"):
+        text += "\n"
+    return text, changed
+
+
 def build_title_maps(entries):
     title_to_pos = {e.title: e.toc_pos_anchor for e in entries}
     title_to_section = {e.title: e.anchor for e in entries}
@@ -418,21 +474,17 @@ def process(content, index_href):
             existing, headings, anchor_map, min_level
         )
         all_entries = merged
-        if added or not TOC_ITEM_INLINE_RE.search(body):
+        if added or toc_body_has_html_nav(body):
             block = render_toc_block(
                 merged, TOC_TITLE, min_level, link_to_index, index_href or INDEX_FILE
             )
             content = prefix + block + suffix
         else:
             content = prefix + toc_part + suffix
-    title_to_pos, title_to_section = build_title_maps(all_entries)
-    content, links = inject_back_links(
-        content, title_to_pos, title_to_section,
-        MIN_DEPTH, MAX_DEPTH, TOC_TITLE
-    )
+    content, stripped = strip_nav_html_from_content(content, TOC_TITLE)
     msg = "新建" if created else "更新"
-    if links:
-        msg += ", ↑{0}处".format(links)
+    if stripped:
+        msg += ", 移除HTML {0}处".format(stripped)
     return content, True, msg
 
 
@@ -441,7 +493,7 @@ def process_file(path):
     if not os.path.isfile(path):
         print("{0}: 文件不存在".format(path), file=sys.stderr)
         return 1
-    index_href = resolve_index_href(path)
+    index_href = None
     with open(path, "r", encoding="utf-8") as f:
         old = f.read()
     new, ok, msg = process(old, index_href)

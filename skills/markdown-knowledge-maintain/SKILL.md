@@ -10,23 +10,21 @@ description: >-
 
 # Markdown 知识库文档维护
 
+## 目录 • Markdown 知识库文档维护
 
-
-## 目录
-
-- <a id="toc-pos-1-补充文档内目录cli优先于手写"></a>[1. 补充文档内目录（CLI，优先于手写）](#1-补充文档内目录cli优先于手写)
-  - <a id="toc-pos-11-目录--文档标题"></a>[1.1 目录 • 文档标题](#11-目录--文档标题)
-- <a id="toc-pos-2-同步-_index_md"></a>[2. 同步 `_INDEX_.md`](#2-同步-_index_md)
-- <a id="toc-pos-3-推荐执行顺序"></a>[3. 推荐执行顺序](#3-推荐执行顺序)
-- <a id="toc-pos-4-自动-hook用户级"></a>[4. 自动 Hook（用户级）](#4-自动-hook用户级)
-- <a id="toc-pos-5-何时可跳过"></a>[5. 何时可跳过](#5-何时可跳过)
-- <a id="toc-pos-6-工具位置"></a>[6. 工具位置](#6-工具位置)
+- [1. 补充文档内目录（CLI，优先于手写）](#1-补充文档内目录cli优先于手写)
+  - [1.1 目录 • 文档标题](#11-目录--文档标题)
+- [2. 同步 `_INDEX_.md`](#2-同步-_index_md)
+- [3. 推荐执行顺序](#3-推荐执行顺序)
+- [4. 自动 Hook（用户级）](#4-自动-hook用户级)
+- [5. 何时可跳过](#5-何时可跳过)
+- [6. 工具位置](#6-工具位置)
 
 ---
 
 在**指定知识库目录**内创建或修改任意 `.md` 后，除完成用户任务外，**必须**执行下列维护（无需用户再次提醒）。
 
-## 1. 补充文档内目录（CLI，优先于手写） <a id="1-补充文档内目录cli优先于手写"></a> <a href="#toc-pos-1-补充文档内目录cli优先于手写" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 1. 补充文档内目录（CLI，优先于手写）
 
 ```bash
 ~/.cursor/tools/md-toc/md-toc -- "<改动的.md绝对或相对路径>"
@@ -42,32 +40,33 @@ description: >-
 | 无目录 | CLI 在 `#` 文档标题后新建目录 |
 | 无新增标题 | 命令输出「无变化」即可，勿用 Agent 重复生成目录 |
 | **目录标题格式** | 见下节「目录 • 文档标题」 |
+| **纯 Markdown** | **禁止**在目录/章节中插入 HTML 锚点、↑ 回链或 `_INDEX_.md` SVG 箭头；默认 CLI 已满足，勿手写 `<a id=…>` / `md-toc-back` |
 
 可选检查：`--dry-run` 预览将补充的条目；`--check` 用于 CI。
 
-**双向跳转**：CLI 为每条目录加 `toc-pos-*` 锚点；章节标题**同行右侧** **↑**（`float:right`），回到目录**对应条目**。
+**禁止**：为省事先读全文手写目录块；与 `github-slugger` 不一致的锚点；向 `.md` 写入 md-toc 旧版 HTML 导航（`toc-pos-*`、`md-toc-back`、`md-toc-index`）。
 
-**禁止**：为省事先读全文手写目录块；与 `github-slugger` 不一致的锚点。
+若用户**明确要求** HTML 双向跳转（罕见），才加 `--back-links`；要求目录行链到索引才加 `--index-link`。
 
-### 1.1 目录 • 文档标题 <a id="11-目录--文档标题"></a> <a href="#toc-pos-11-目录--文档标题" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+### 1.1 目录 • 文档标题
 
 知识库 `.md` 的目录小节标题行须写为：
 
 ```markdown
-## 目录 • <文档标题> <a href="…/_INDEX_.md" class="md-toc-index" …>…</a>
+## 目录 • <文档标题>
 ```
 
 | 要点 | 说明 |
 |------|------|
 | `<文档标题>` | 取自正文首行 `# …` 的 H1 标题，与文档主标题**完全一致** |
 | 分隔符 | 半角空格 + `•` + 半角空格（` • `） |
-| 索引箭头 | 行尾保留指向 `_INDEX_.md` 的 SVG 箭头（`class="md-toc-index"`）；相对路径按文件深度计算（如 `docs/` 下为 `../_INDEX_.md`） |
+| 索引入口 | 通过 `_INDEX_.md` 表格导航即可；**不要**在目录标题行追加 HTML/SVG 链到索引 |
 | 标题变更 | 修改 `#` 文档标题后，**同步更新**目录行中的 `<文档标题>` 部分 |
-| 示例 | `## 目录 • 专题 T1：NI PXIe 是否采用 AMP / OpenAMP 架构 <a href="../_INDEX_.md" …>` |
+| 示例 | `## 目录 • 专题 T1：NI PXIe 是否采用 AMP / OpenAMP 架构` |
 
 新建或维护目录时：先跑 `md-toc`，再检查目录标题是否为 `目录 • <当前 # 标题>`；若 CLI 尚未写入标题后缀，由 Agent **补全**，勿改回纯 `## 目录`。
 
-## 2. 同步 `_INDEX_.md` <a id="2-同步-_index_md"></a> <a href="#toc-pos-2-同步-_index_md" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 2. 同步 `_INDEX_.md`
 
 同一知识库根目录 `<根>` 下若存在 `_INDEX_.md`（或其它项目约定索引名），按 **`designated-knowledge-index`** skill：
 
@@ -75,16 +74,16 @@ description: >-
 - 仅改正文、未改文档定位 → 视情况更新 **提要** 列
 - 先 Read 索引再改，避免漏项或重复行
 
-## 3. 推荐执行顺序 <a id="3-推荐执行顺序"></a> <a href="#toc-pos-3-推荐执行顺序" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 3. 推荐执行顺序
 
 1. 完成用户对正文的修改  
-2. 运行 `md-toc.py` 补充目录，并确认目录标题为 `目录 • <# 标题>`  
+2. 运行 `md-toc` 补充目录，并确认目录标题为 `目录 • <# 标题>`（无 HTML 导航）  
 3. 更新 `<根>/_INDEX_.md`（若适用）  
 4. 若目录或索引有变，在回复中**一句话**说明（例如「已补充目录 2 条、已更新索引」）
 
-## 4. 自动 Hook（用户级） <a id="4-自动-hook用户级"></a> <a href="#toc-pos-4-自动-hook用户级" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 4. 自动 Hook（用户级）
 
-若存在 `~/.cursor/hooks.json` 并在 `afterFileEdit` 注册 `supplement-md-toc.sh`，直接调用默认入口即可（会自动补正文序号并生成目录）：
+若存在 `~/.cursor/hooks.json` 并在 `afterFileEdit` 注册 `supplement-md-toc.sh`，直接调用默认入口即可（会自动补正文序号并生成纯 Markdown 目录）：
 
 ```bash
 ~/.cursor/tools/md-toc/md-toc -- "$FILE"
@@ -92,13 +91,13 @@ description: >-
 
 **索引表仍需 Agent 维护**（Hook 不修改 `_INDEX_.md`）。
 
-## 5. 何时可跳过 <a id="5-何时可跳过"></a> <a href="#toc-pos-5-何时可跳过" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 5. 何时可跳过
 
 - 仅修改代码块 / 表格数据 / 错别字，且**未增删改** `##`～`###` 标题
 - 用户明确说「不要动目录/索引」
 - 文件不在知识库场景（普通 README 等）：仅当用户要求时再跑 md-toc
 
-## 6. 工具位置 <a id="6-工具位置"></a> <a href="#toc-pos-6-工具位置" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+## 6. 工具位置
 
 | 组件 | 路径 |
 |------|------|
