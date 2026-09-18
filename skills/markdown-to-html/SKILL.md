@@ -17,6 +17,7 @@ description: >-
 - <a id="toc-pos-2-mermaid-图表处理"></a>[2. Mermaid 图表处理](#2-mermaid-图表处理)
   - <a id="toc-pos-21-正常情况"></a>[2.1 正常情况](#21-正常情况)
   - <a id="toc-pos-22-触发降级的条件必须自动判断"></a>[2.2 触发降级的条件（必须自动判断）](#22-触发降级的条件必须自动判断)
+  - <a id="toc-pos-23-小流程图不要拉满栏宽"></a>[2.3 小流程图不要拉满栏宽](#23-小流程图不要拉满栏宽)
 - <a id="toc-pos-3-分层彩色卡片布局规范"></a>[3. 分层彩色卡片布局规范](#3-分层彩色卡片布局规范)
   - <a id="toc-pos-31-配色体系深色主题"></a>[3.1 配色体系（深色主题）](#31-配色体系深色主题)
   - <a id="toc-pos-32-层级配色分配"></a>[3.2 层级配色分配](#32-层级配色分配)
@@ -92,6 +93,35 @@ Markdown 中的 ` ```mermaid ` 代码块由 `mermaid.js` 在客户端渲染，�
 | 表格/列表嵌套 | 节点内需要展示列表或表格形式的子项 |
 
 **判断原则**：如果 Mermaid 渲染后可能出现节点重叠、文字截断、箭头交叉、需要横向滚动，就必须降级。
+
+### 2.3 小流程图不要拉满栏宽 <a id="23-小流程图不要拉满栏宽"></a> <a href="#toc-pos-23-小流程图不要拉满栏宽" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+`useMaxWidth: true`（或 CSS `width:100%`）会把小 `flowchart` 拉满正文栏；正方形 viewBox 跟着变成近一屏高，四周大片空白。
+
+**HTML 模板（已写入 `base.css` / `runtime.js`，不要改回去）：**
+
+```css
+.mermaid svg{
+  max-width:100% !important;
+  width:auto !important;
+  height:auto !important;
+  display:block;
+  margin:0 auto;
+}
+```
+
+```js
+flowchart:{htmlLabels:true,curve:'basis',useMaxWidth:false,nodeSpacing:20,rankSpacing:32,padding:8}
+```
+
+**Markdown 源里的小图**（预览不走上述 CSS）在 fence 内写：
+
+```
+%%{init: {'theme':'dark','flowchart':{'useMaxWidth':false,'nodeSpacing':16,'rankSpacing':28,'padding':8}}}%%
+flowchart TB
+```
+
+禁止 `.mermaid svg { max-width: none }`。宽架构图仍可靠 `overflow-x:auto` 横向滚动，不要靠撑满栏宽放大节点。
 
 ## 3. 分层彩色卡片布局规范 <a id="3-分层彩色卡片布局规范"></a> <a href="#toc-pos-3-分层彩色卡片布局规范" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
@@ -242,6 +272,7 @@ document.querySelectorAll('[data-figure]').forEach(el => {
 ## 6. 不要做的事 <a id="6-不要做的事"></a> <a href="#toc-pos-6-不要做的事" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 - **不要**把所有图都降级为卡片——简单的 Mermaid 图保留 Mermaid
+- **不要**把 `.mermaid svg` 设为 `max-width:none` 或默认 `useMaxWidth:true`——小流程图会被拉满栏宽
 - **不要**使用外部 CSS 文件——所有样式内嵌
 - **不要**使用外部图片——图表全部用 HTML/CSS 绘制
 - **不要**生成后不检查——生成后应提醒用户在浏览器中预览确认

@@ -2,8 +2,9 @@
 name: mermaid-flowchart-layout
 description: >-
   Mermaid flowchart 排版与架构图连线优化：多 subgraph 分行、跨域连线避免穿插、
-  语义配色 linkStyle、独立横向图例、箭头说明文字。在生成或编辑含多个 subgraph、
-  跨层架构图、协作关系图、图例/连线颜色/线型、或用户抱怨「连线乱/交叉」时应用。
+  语义配色 linkStyle、独立横向图例、箭头说明文字、小图不要拉满栏宽。
+  在生成或编辑含多个 subgraph、跨层架构图、协作关系图、图例/连线颜色/线型、
+  或用户抱怨「连线乱/交叉」「图太大/空白太多」时应用。
 ---
 
 # Mermaid 流程图排版与架构图连线
@@ -31,10 +32,11 @@ description: >-
 - [7. 规则优先级（汇总）](#7-规则优先级汇总)
 - [8. 检查清单（编辑后自检）](#8-检查清单编辑后自检)
 - [9. 其他说明](#9-其他说明)
+- [10. 小流程图不要拉满栏宽](#10-小流程图不要拉满栏宽)
 
 ---
 
-涵盖：**多 subgraph 换行**、**跨域架构图少交叉**、**语义配色**、**独立图例**、**箭头说明**。
+涵盖：**多 subgraph 换行**、**跨域架构图少交叉**、**语义配色**、**独立图例**、**箭头说明**、**小图按内容尺寸显示**。
 
 ---
 
@@ -274,6 +276,7 @@ flowchart LR
 | 跨域多层架构 | `TB` | 同层内可 `LR` 双列 | 层间 + 列对齐 | §3 |
 | 单条长流程链 | `LR` 或 `TB` | — | 视情况 | §2 |
 | 需要图例 | 主图 `TB` + 图例 `LR` | — | 图例独立块 | §6 |
+| 小决策/少节点图 | `TB` 或 `LR` | — | `useMaxWidth:false` | §10 |
 
 ---
 
@@ -286,6 +289,7 @@ flowchart LR
 - [ ] 跨层边与 `linkStyle` 是否集中在图底部？
 - [ ] 关键边是否有 `|说明|`？
 - [ ] 若需图例：是否独立第二块、横向紧凑，且未破坏主图 linkStyle 序号？
+- [ ] 小 `flowchart` 是否 `useMaxWidth:false`，而不是被拉满正文栏？
 
 ---
 
@@ -293,3 +297,18 @@ flowchart LR
 
 - 导出到部分协作平台时，主图与图例可能被渲染为**两个独立画板**，属平台行为，非 Mermaid 语法问题。
 - **Skill 正文保持领域无关**：具体产品名、硬件名、仓库路径应写在**业务文档**的图中，不要写进本 skill。
+
+---
+
+## 10. 小流程图不要拉满栏宽
+
+节点很少的 `flowchart TB`（决策菱形、三五步）若 `useMaxWidth: true`（Markdown 预览默认），SVG `width="100%"` 会按栏宽放大；viewBox 接近正方形时高度跟着变成近一屏，四周大片空白、图形看起来「靠一边」。
+
+**每张小图**在 fence 顶部写：
+
+```
+%%{init: {'theme':'dark','flowchart':{'useMaxWidth':false,'nodeSpacing':16,'rankSpacing':28,'padding':8}}}%%
+flowchart TB
+```
+
+`md2html` 生成页的全局默认已是 `useMaxWidth:false`，CSS 为 `width:auto; max-width:100%`（见 markdown-to-html §2.3）。宽架构图不够看时让容器横向滚动，不要改回 `max-width:none` 去撑满。
