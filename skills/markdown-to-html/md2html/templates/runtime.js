@@ -12,7 +12,7 @@
       secondaryColor:'#1a1428',
       tertiaryColor:'#0d2137'
     },
-    flowchart:{htmlLabels:true,curve:'basis'},
+    flowchart:{htmlLabels:true,curve:'basis',useMaxWidth:false,nodeSpacing:20,rankSpacing:32,padding:8},
     sequence:{actorMargin:50,messageFontSize:13}
   });
 

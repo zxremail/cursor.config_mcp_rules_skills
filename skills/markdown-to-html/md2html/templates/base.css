@@ -44,7 +44,7 @@ article strong{color:#f0f6fc}
 article hr{border:none;border-top:1px dashed var(--border);margin:28px 0}
 
 .mermaid{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0;text-align:center;overflow-x:auto;}
-.mermaid svg{max-width:none !important;height:auto !important;}
+.mermaid svg{max-width:100% !important;width:auto !important;height:auto !important;display:block;margin:0 auto;}
 
 /* customfig 分层卡片（技能 §3） */
 .customfig{background:#0d1117;border-radius:12px;padding:28px;margin:18px 0;
