@@ -1,131 +1,48 @@
 ---
 name: lark-shared
-version: 1.0.0
-description: "飞书/Lark CLI 共享基础：lark-cli 可用性检查（未安装则立即中断）、应用配置初始化、认证登录（auth login）、身份切换（--as user/bot）、权限与 scope 管理、Permission denied 错误处理、安全规则。当用户需要第一次配置(`lark-cli config init`)、使用登录授权(`lark-cli auth login`)、遇到权限不足、切换 user/bot 身份、配置 scope、或首次使用 lark-cli 时触发。"
+version: 1.1.0
+description: "Use for lark-cli setup/auth tasks: auth login/status/logout, user vs bot identity, business-domain permissions (--domain, including all/docs/drive), missing scopes, revoking authorization, or handling _notice JSON."
+metadata:
+  requires:
+    bins: ["lark-cli"]
 ---
 
 # lark-cli 共享规则
 
-本技能指导你如何通过lark-cli操作飞书资源, 以及有哪些注意事项。
+所有 `lark-*` skill 共享的底座：身份、认证、输出契约与高风险操作。
 
-## lark-cli 可用性检查（最高优先级，强制执行）
+## 通用准则
 
-**在执行任何飞书相关操作之前，必须先检查 `lark-cli` 是否已安装。如果未安装，立即中断所有操作，不得反复尝试。**
+1. **调用前先确认用法**：执行前读对应 reference 或跑 `--help`，别猜 flag 盲调。
 
-### 检查方式
+2. **身份决定你代表谁操作**：`--as user` 代表用户本人（能看到、也能操作其日历、云空间/云盘/云存储等个人资源），`--as bot` 代表应用自己，应用级操作，只能访问bot自己的资源，bot 查用户资源会返回空成功而非报错。动手前先搞清楚身份`identity`。身份模型和权限管理 → [`lark-shared-identity-and-permissions.md`](references/lark-shared-identity-and-permissions.md)。
 
-直接尝试运行 `lark-cli --version`，通过退出码判断是否已安装（跨平台通用，Linux / macOS / Windows 均适用）：
+3. **授权 / 配置类 URL 必须配二维码**：当命令输出 `verification_url`、`verification_uri_complete`、`console_url` 等 URL 字段时，必须用 `lark-cli auth qrcode` 生成并在回复中展示，URL 在前二维码在后；优先生成 PNG（`--output`），仅当用户明确要求时才使用 ASCII（`--ascii`）。URL 原样转发——不编解码、不加标点、不重拼 query，二维码和链接请一起展示给用户。
 
-```bash
-lark-cli --version
-```
+4. **`--format json`（默认）下，判断成功用 `ok == true`（或进程退出码 0），不要用 `code == 0`**：成功信封没有顶层 `code` / `msg` 字段，`code` 只出现在错误信封的 `error` 内。按 OpenAPI 老格式 `{"code": 0, "msg": "ok"}`判断会把所有成功调用误判为失败——封装写入类命令时尤其危险。JSON 输出契约 → [`lark-shared-output-contract.md`](references/lark-shared-output-contract.md)。
 
-### 判断规则
-
-- **退出码为 0，输出正常版本号** → `lark-cli` 已安装，继续正常流程。
-- **退出码非 0，或报 `command not found` / 无法识别** → `lark-cli` 未安装，**立即中断**。
-
-### 中断时的响应模板
-
-当检测到 `lark-cli` 未安装时，直接向用户返回以下提示，**禁止执行任何后续飞书操作，禁止反复重试**：
-
-> lark-cli 未安装，无法执行飞书相关操作。请先安装 lark-cli：
->
-> ```bash
-> npm install -g @larksuite/cli
-> ```
->
-> 安装完成后请重新发起请求。
-
-### 禁止行为
-
-- **禁止**在 `lark-cli` 未安装时尝试执行任何 `lark-cli` 命令。
-- **禁止**反复检查或反复尝试安装（安装是用户侧操作，agent 不应代劳）。
-- **禁止**尝试用其他方式（如 curl 裸调 API）绕过 `lark-cli` 缺失问题。
-- **禁止**在未安装的情况下继续读取 SKILL references 或做任何前置准备工作。
-
-## 配置初始化
-
-首次使用需运行 `lark-cli config init` 完成应用配置。
-
-当你帮用户初始化配置时，使用background方式使用下面的命令发起配置应用流程，启动后读取输出，从中提取授权链接并发给用户：
-
-```bash
-# 发起配置（该命令会阻塞直到用户打开链接并完成操作或过期）
-lark-cli config init --new
-```
-
-## 认证
-
-### 身份类型
-
-两种身份类型，通过 `--as` 切换：
-
-| 身份 | 标识 | 获取方式 | 适用场景 |
-|------|------|---------|---------|
-| user 用户身份 | `--as user` | `lark-cli auth login` 等 | 访问用户自己的资源（日历、云空间等） |
-| bot 应用身份 | `--as bot` | 自动，只需 appId + appSecret | 应用级操作,访问bot自己的资源 |
-
-### 身份选择原则
-
-输出的 `[identity: bot/user]` 代表当前身份。bot 与 user 表现差异很大，需确认身份符合目标需求：
-
-- **Bot 看不到用户资源**：无法访问用户的日历、云空间文档、邮箱等个人资源。例如 `--as bot` 查日程返回 bot 自己的（空）日历
-- **Bot 无法代表用户操作**：发消息以应用名义发送，创建文档归属 bot
-- **Bot 权限**：只需在飞书开发者后台开通 scope，无需 `auth login`
-- **User 权限**：后台开通 scope + 用户通过 `auth login` 授权，两层都要满足
-
-
-### 权限不足处理
-
-遇到权限相关错误时，**根据当前身份类型采取不同解决方案**。
-
-错误响应中包含关键信息：
-- `permission_violations`：列出缺失的 scope (N选1)
-- `console_url`：飞书开发者后台的权限配置链接
-- `hint`：建议的修复命令
-
-#### Bot 身份（`--as bot`）
-
-将错误中的 `console_url` 提供给用户，引导去后台开通 scope。**禁止**对 bot 执行 `auth login`。
-
-#### User 身份（`--as user`）
-
-```bash
-lark-cli auth login --domain <domain>           # 按业务域授权
-lark-cli auth login --scope "<missing_scope>"   # 按具体 scope 授权（推荐,符合最小权限原则）
-```
-
-**规则**：auth login 必须指定范围（`--domain` 或 `--scope`）。多次 login 的 scope 会累积（增量授权）。
-
-#### Agent 代理发起认证（推荐）
-
-当你作为 AI agent 需要帮用户完成认证时，使用background方式 执行以下命令发起授权流程, 并将授权链接发给用户：
-
-```bash
-# 发起授权（阻塞直到用户授权完成或过期）
-lark-cli auth login --scope "calendar:calendar:readonly"
-
-```
-
-
-## 更新检查
-
-lark-cli 命令执行后，如果检测到新版本，JSON 输出中会包含 `_notice.update` 字段（含 `message`、`command` 等）。
-
-**当你在输出中看到 `_notice.update` 时，完成用户当前请求后，主动提议帮用户更新**：
-
-1. 告知用户当前版本和最新版本号
-2. 提议执行更新（CLI 和 Skills 需要同时更新）：
-   ```bash
-   npm update -g @larksuite/cli && npx skills add larksuite/cli -g -y
-   ```
-3. 更新完成后提醒用户：**退出并重新打开 AI Agent**以加载最新 Skills
-
-**规则**：不要静默忽略更新提示。即使当前任务与更新无关，也应在完成用户请求后补充告知。
 
 ## 安全规则
 
-- **禁止输出密钥**（appSecret、accessToken）到终端明文。
-- **写入/删除操作前必须确认用户意图**。
-- 用 `--dry-run` 预览危险请求。
+1. **禁止输出密钥**（appSecret、accessToken等）到终端明文。
+
+2. **写入/删除操作前必须确认用户意图**。
+
+3. 目标命令支持 `--dry-run` 时，用 `--dry-run` 预览危险请求。
+
+4. **退出码 10 是高风险确认门禁（`risk: "high-risk-write"`），不是错误**：停下 → **向用户确认**（展示 `action`、`risk` 和关键参数）→ 取得**用户显式同意**后，将 `hint` 指出的确认 flag **追加到你原始 argv 的末尾**后重试；**绝不**静默加确认 flag 绕过 → [`lark-shared-high-risk-approval.md`](references/lark-shared-high-risk-approval.md)。
+
+5. **文件路径只接受相对路径**：`--file`、`--output`、`--output-dir`、`@file` 等路径参数只接受 cwd 下的相对路径，传绝对路径会报 `unsafe file path`。数据输入（`@file`、大 JSON）优先用 stdin 传入，避免路径和转义问题。
+
+
+## Reference 强触发索引
+
+命中任一触发条件时，**MUST 在执行下一步前读取对应 reference**。命中多条时按表中顺序读取，同一reference只读取一次。
+
+| 强触发条件（命中任一即必读） | Reference |
+|---|---|
+| 查看自己是谁(user/bot)、获取当前身份详细字段信息、身份诊断、`--as`选择逻辑、身份延续、登录态、认证、scope、授权和权限管理、`missing_scopes` 或 `console_url`、Agent 准备发起或完成 `auth login` | [`lark-shared-identity-and-permissions.md`](references/lark-shared-identity-and-permissions.md) |
+| 需要依赖 JSON 输出契约判断成功 / 失败、读取 stdout / stderr，或为命令编写脚本与封装 | [`lark-shared-output-contract.md`](references/lark-shared-output-contract.md) |
+| 准备执行high-risk-write(高风险操作)、判断命令风险等级、遇到退出码 exit 10、`confirmation_required`、确认后重试 | [`lark-shared-high-risk-approval.md`](references/lark-shared-high-risk-approval.md) |
+| 首次使用CLI需运行 `lark-cli config init` 完成应用配置、或 CLI 明确提示 `config init --new` | [`lark-shared-config-init.md`](references/lark-shared-config-init.md) |
+| 用户询问 notice、CLI版本更新、或输出含 `_notice`（升级 / skills 落后 / 废弃命令提示）| [`lark-shared-update-notice.md`](references/lark-shared-update-notice.md) |
