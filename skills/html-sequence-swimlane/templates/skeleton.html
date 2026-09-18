@@ -1,0 +1,39 @@
+<div class="customfig seq-e2e" style="--seq-cols:repeat(3,minmax(0,1fr))">
+  <div class="seq-e2e-head">
+    <div class="seq-e2e-head-meta">
+      <span class="seq-e2e-kicker">时序标题 · 3 泳道</span>
+      <span class="seq-e2e-pin">下滑时本栏保持可见</span>
+    </div>
+    <div class="seq-e2e-actors seq-cols">
+      <div class="seq-actor c-user">角色 A</div>
+      <div class="seq-actor c-dmcu">角色 B</div>
+      <div class="seq-actor c-come">角色 C</div>
+    </div>
+  </div>
+
+  <div class="seq-e2e-body">
+    <div class="seq-lifelines" aria-hidden="true"><span></span><span></span><span></span></div>
+
+    <div class="seq-row"><div class="seq-note" style="grid-column:2/4">Note over B,C</div></div>
+    <div class="seq-row"><div class="seq-self" style="grid-column:2/4;--span:2">B 自调用</div></div>
+
+    <div class="seq-frame">
+      <div class="seq-frame-tab">alt</div>
+      <div class="seq-row">
+        <div class="seq-call" style="grid-column:1/4;--span:3">
+          <div class="seq-branch">[路径一]</div>
+          <div class="seq-msg right"><span>A → C</span></div>
+        </div>
+      </div>
+      <div class="seq-else"></div>
+      <div class="seq-row">
+        <div class="seq-call" style="grid-column:2/4;--span:2">
+          <div class="seq-branch">[路径二]</div>
+          <div class="seq-msg right"><span>B → C</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="seq-row"><div class="seq-msg left" style="grid-column:2/4;--span:2"><span>C → B</span></div></div>
+  </div>
+</div>

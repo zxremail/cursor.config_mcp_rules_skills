@@ -358,6 +358,7 @@ flowchart LR
 | **multi-stack** | 控制器 + 机箱双列 + 分布式 | 见 `09`/`10` 计算单元图 |
 | **link-legend** | 仅线型图例 | 五色横条，无架构节点 |
 | **seq-flow** | 简化的时序/步骤 | 水平步骤条（非 Mermaid sequence） |
+| **seq-swimlane** | 多角色 `sequenceDiagram`、要贴顶角色栏 | 见个人 skill `html-sequence-swimlane`（sidecar + extra.css） |
 
 ### 7.7 命令速查 <a id="77-命令速查"></a> <a href="#toc-pos-77-命令速查" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
