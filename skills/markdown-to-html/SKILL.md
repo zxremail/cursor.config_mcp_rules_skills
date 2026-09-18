@@ -284,6 +284,7 @@ doc.figures/              ← sidecar 目录
 | 默认路径 | 与 `doc.md` 同级：`doc.figures/` |
 | Mermaid 替换 | 第 N 个应降级块 → `mermaid-N.html`（从 0 起） |
 | 自定义图 | 任意 `fig-id.html`，Markdown 用 `<!-- FIGURE: fig-id -->` |
+| extra.css | 追加页面内嵌样式。长表冻结标题行用 **freezing-html-table-headers**（页面级 sticky，禁止 `overflow`+`max-height` 内嵌框） |
 | 文件内容 | 片段 HTML（`.customfig` 根元素）；可含 scoped `<style>` |
 | 输出 HTML | 与 `doc.md` 同目录、`doc.html` |
 
