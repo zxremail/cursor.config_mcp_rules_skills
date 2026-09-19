@@ -3,10 +3,10 @@ name: freezing-html-table-headers
 description: >-
   Use when 用户要求表格下拉时标题行保持显示、冻结/钉住表头、sticky header，
   或抱怨生成的表格像内嵌滚动框、小窗口、iframe、太丑。
-  适用于 Markdown 内嵌 HTML 表、Markdown 预览、Markdown Preview Enhanced (MPE)、
-  md2html 独立 HTML、doc.figures/extra.css、.crossnote/style.less。
+  适用于 Markdown 内嵌 HTML 表、内置 Markdown 预览、md2html 独立 HTML、
+  doc.figures/extra.css。MPE 实时预览走 freezing-mpe-table-headers。
   Triggers: 冻结表头, 标题行始终显示, sticky thead, 内嵌表格, overflow max-height,
-  Markdown 预览, Open Preview, Markdown Preview Enhanced, MPE, style.less.
+  Markdown 预览, Open Preview。
 ---
 
 # HTML 表格冻结标题行
@@ -33,7 +33,7 @@ description: >-
 2. extra.css 选择器**不要**只写 `article table…`：Markdown 预览没有 `article`。
 3. 钉 `th`，不要钉 `thead` / `tr`。表格写 `display: table; overflow: visible`；`border-collapse: separate`；`th` 不透明背景。
 4. 内置 Markdown 预览：在 `.md` 里放 `<style>`（见下）。源码编辑区不会钉表头。
-5. **Markdown Preview Enhanced**：见下节，必须同时解开预览容器的 `overflow`。
+5. **Markdown Preview Enhanced**：不要在本技能里改 `.crossnote`。**REQUIRED:** 用 freezing-mpe-table-headers。
 6. md2html 改完后 `md2html build doc.md`。
 
 ```html
@@ -88,43 +88,6 @@ article table.sticky-head thead th {
 
 页面已有顶栏时，把 `top: 0` 改成顶栏高度。md2html 默认无顶栏，用 `0`。
 
-### Markdown Preview Enhanced（`.crossnote/style.less`）
-
-MPE 有两个坑，缺一个都钉不住：
-
-1. 正文 `<style>` 会被 MPE 的 DOMPurify **丢掉**（`style` 属性保留），所以规则必须放进 `.crossnote/style.less`（工作区，优先于 `~/.local/state/crossnote/style.less`）。
-2. 实时预览容器 `.preview-container .crossnote[data-for=preview]` 自带 `overflow: auto` 且 `height: auto`——一个**永不滚动的滚动容器**。sticky 会以它为参照，于是表头跟着表格一起滚走。必须改成 `overflow: visible`。仅改表格样式无效；导出的 HTML 没这条规则，所以「导出能钉、预览不能钉」正是此因。
-
-**禁止**给 `html` / `body` 加 `overflow: hidden`，会把整页锁死无法下滑。
-
-```less
-/* 只解开内容容器；整页仍由预览视口滚动 */
-.preview-container .crossnote[data-for='preview'] {
-  height: auto !important;
-  overflow: visible !important;
-}
-
-.markdown-preview.markdown-preview {
-  table.sticky-head {
-    display: table !important;
-    overflow: visible !important;
-    border-collapse: separate !important;
-    border-spacing: 0;
-    width: 100%;
-  }
-  table.sticky-head thead th {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 20;
-    background: var(--panel, #161b22) !important;
-  }
-}
-```
-
-`head.html` 里的 `<style>` 比正文 `<style>` 可靠（在 `<head>`，不会被净化）。
-
-**改完必须关掉 MPE 预览标签再重新打开**（不要只点刷新）：`head.html` / `style.less` 写进预览壳，已打开的 webview 不会重载外壳。也可命令面板跑 `Markdown Preview Enhanced: Customize CSS (Global)` 确认全局 `~/.local/state/crossnote/` 已更新。
-
 ## 禁止：内嵌滚动框
 
 ```html
@@ -143,8 +106,7 @@ MPE 有两个坑，缺一个都钉不住：
 | `overflow` + `max-height` 包一层 | 内嵌小窗口，丑 |
 | 祖先 `overflow-x: auto` 或预览 `table { overflow:auto }` | sticky 失效 |
 | extra.css 只写 `article table` | Markdown 预览不生效 |
-| 只用 `.md` 内 `<style>` 对付 MPE | MPE 净化时丢掉该标签；要用 `.crossnote/style.less` |
-| MPE 下只改表格、不解开 `.crossnote[data-for=preview]` 的 `overflow` | 表头跟着表格滚走 |
+| 在 MPE 里只靠本技能的 `.md` `<style>` / extra.css | 预览钉不住；改用 freezing-mpe-table-headers |
 | `border-collapse: collapse` | 部分浏览器 sticky 失效 |
 | `th` 背景透明 | 正文行从标题下透出来 |
 | `position: sticky` 写在 `thead`/`tr` | Safari 不钉 |
@@ -156,5 +118,5 @@ MPE 有两个坑，缺一个都钉不住：
 - [ ] `border-collapse: separate; border-spacing: 0`
 - [ ] `th` 不透明背景 + 底部分隔
 - [ ] `.md` 内有 `<style>`（内置预览）或 extra.css 选择器不依赖 `article`
-- [ ] MPE：`.crossnote/style.less` 已写（含容器 `overflow: visible`）并刷新预览
+- [ ] MPE 预览：转 freezing-mpe-table-headers，不要只改 extra.css
 - [ ] md2html 页面已重建
