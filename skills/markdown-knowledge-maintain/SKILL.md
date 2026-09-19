@@ -44,7 +44,7 @@ description: >-
 
 可选检查：`--dry-run` 预览将补充的条目；`--check` 用于 CI。
 
-**禁止**：为省事先读全文手写目录块；与 `github-slugger` 不一致的锚点；向 `.md` 写入 md-toc 旧版 HTML 导航（`toc-pos-*`、`md-toc-back`、`md-toc-index`）。
+**禁止**：为省事先读全文手写目录块；与 `github-slugger` 不一致的锚点；向 `.md` 写入 md-toc 旧版 HTML 导航（`toc-pos-*`、`md-toc-back`、`md-toc-index`）。独立 HTML（`markdown-to-html` / md2html）必须兼容这些 slug，**不要**把目录改成 `#h-1` 来迁就页面。
 
 若用户**明确要求** HTML 双向跳转（罕见），才加 `--back-links`；要求目录行链到索引才加 `--index-link`。
 

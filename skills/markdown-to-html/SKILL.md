@@ -14,6 +14,7 @@ description: >-
 ## 目录 • Markdown 转 HTML 规范
 
 - <a id="toc-pos-1-基本结构"></a>[1. 基本结构](#1-基本结构)
+  - <a id="toc-pos-11-正文目录锚点必须兼容-github-slug"></a>[1.1 正文目录锚点必须兼容 GitHub slug](#11-正文目录锚点必须兼容-github-slug)
 - <a id="toc-pos-2-mermaid-图表处理"></a>[2. Mermaid 图表处理](#2-mermaid-图表处理)
   - <a id="toc-pos-21-正常情况"></a>[2.1 正常情况](#21-正常情况)
   - <a id="toc-pos-22-触发降级的条件必须自动判断"></a>[2.2 触发降级的条件（必须自动判断）](#22-触发降级的条件必须自动判断)
@@ -72,6 +73,33 @@ description: >-
 - 左侧固定侧边栏（自动从 h1/h2 生成目录）
 - 响应式布局（`@media max-width:900px` 时侧边栏收起）
 - Markdown 内容通过 `marked.js` 在客户端解析渲染
+- 正文 `md-toc` 目录链接必须能跳转，见 [§1.1](#11-正文目录锚点必须兼容-github-slug)
+
+### 1.1 正文目录锚点必须兼容 GitHub slug <a id="11-正文目录锚点必须兼容-github-slug"></a> <a href="#toc-pos-11-正文目录锚点必须兼容-github-slug" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+`.md` 正文目录由 `md-toc` 生成，锚点是 **github-slugger**（与 VS Code / GitHub 预览一致），例如 `[1. 怎么验证](#1-怎么验证)`、`[2.1 正常情况](#21-正常情况)`。侧栏 TOC 仍用 `h-1` / `h-2-1`。
+
+标题必须**两套 id 都有**，缺 GitHub slug 时正文目录会点了没反应：
+
+```html
+<h2 id="h-1"><span id="1-怎么验证"></span>1. 怎么验证</h2>
+```
+
+实现已写入模板，**不要改回去**：
+
+| 文件 | 作用 |
+|------|------|
+| `md2html/templates/anchor.js` | `mdGithubSlug` / `mdHeadingHtml` / `mdFindHashTarget` |
+| `md2html/templates/runtime.js` | heading 渲染与正文 `#` 点击走上述函数 |
+| `md2html/builder.py` | 把 `anchor.js` **拼在** `runtime.js` 前面再嵌入页面 |
+
+改这三处后必须跑：
+
+```bash
+node ~/.cursor/skills/markdown-to-html/tests/test_anchor.js
+```
+
+正文 `#` 点击：先解析目标，找不到就**不要** `preventDefault`（否则默认锚点也被吞掉）。
 
 ## 2. Mermaid 图表处理 <a id="2-mermaid-图表处理"></a> <a href="#toc-pos-2-mermaid-图表处理" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
@@ -98,7 +126,7 @@ Markdown 中的 ` ```mermaid ` 代码块由 `mermaid.js` 在客户端渲染，�
 
 `useMaxWidth: true`（或 CSS `width:100%`）会把小 `flowchart` 拉满正文栏；正方形 viewBox 跟着变成近一屏高，四周大片空白。
 
-**HTML 模板（已写入 `base.css` / `runtime.js`，不要改回去）：**
+**HTML 模板（已写入 `base.css` / `anchor.js` / `runtime.js`，不要改回去）：**
 
 ```css
 .mermaid svg{
@@ -276,6 +304,7 @@ document.querySelectorAll('[data-figure]').forEach(el => {
 - **不要**使用外部 CSS 文件——所有样式内嵌
 - **不要**使用外部图片——图表全部用 HTML/CSS 绘制
 - **不要**生成后不检查——生成后应提醒用户在浏览器中预览确认
+- **不要**只给标题 `id="h-N"`、丢掉 GitHub slug——正文目录（`#1-怎么验证`）会无法跳转；**不要**从 `builder.py` 拿掉 `anchor.js` 拼接
 
 ---
 
