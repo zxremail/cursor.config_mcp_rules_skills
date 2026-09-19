@@ -95,9 +95,12 @@ MPE 有两个坑，缺一个都钉不住：
 1. 正文 `<style>` 会被 MPE 的 DOMPurify **丢掉**（`style` 属性保留），所以规则必须放进 `.crossnote/style.less`（工作区，优先于 `~/.local/state/crossnote/style.less`）。
 2. 实时预览容器 `.preview-container .crossnote[data-for=preview]` 自带 `overflow: auto` 且 `height: auto`——一个**永不滚动的滚动容器**。sticky 会以它为参照，于是表头跟着表格一起滚走。必须改成 `overflow: visible`。仅改表格样式无效；导出的 HTML 没这条规则，所以「导出能钉、预览不能钉」正是此因。
 
+**禁止**给 `html` / `body` 加 `overflow: hidden`，会把整页锁死无法下滑。
+
 ```less
-/* 必须：否则下面所有 sticky 都白写 */
+/* 只解开内容容器；整页仍由预览视口滚动 */
 .preview-container .crossnote[data-for='preview'] {
+  height: auto !important;
   overflow: visible !important;
 }
 
@@ -118,7 +121,9 @@ MPE 有两个坑，缺一个都钉不住：
 }
 ```
 
-改完后点预览右上角刷新按钮；MPE 只在保存 `.crossnote/style.less` 或刷新时重新编译。
+`head.html` 里的 `<style>` 比正文 `<style>` 可靠（在 `<head>`，不会被净化）。
+
+**改完必须关掉 MPE 预览标签再重新打开**（不要只点刷新）：`head.html` / `style.less` 写进预览壳，已打开的 webview 不会重载外壳。也可命令面板跑 `Markdown Preview Enhanced: Customize CSS (Global)` 确认全局 `~/.local/state/crossnote/` 已更新。
 
 ## 禁止：内嵌滚动框
 
