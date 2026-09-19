@@ -3,7 +3,7 @@ name: freezing-mpe-table-headers
 description: >-
   Use when 用户在 Markdown Preview Enhanced (MPE) 里要求表格下拉时标题行保持显示、
   冻结/钉住表头，或抱怨 MPE 预览表头跟着滚走、导出 HTML 能钉预览不能钉、
-  整页无法下滑、刷新预览无效、Customize CSS 不生效。
+  整页无法下滑、保存 Markdown 后样式不变、Customize CSS 不生效。
   Triggers: MPE, Markdown Preview Enhanced, .crossnote, style.less, head.html,
   crossnote[data-for=preview], Customize CSS, 预览无法下滑, 表头跟着表格滚。
 ---
@@ -20,7 +20,7 @@ Markdown Preview Enhanced 实时预览里，用**页面级** `th { position: sti
 
 - 用户明确用 MPE / Markdown Preview Enhanced
 - 导出或独立 HTML 已能钉表头，MPE 预览不能
-- 改完 CSS 后刷新预览仍无效
+- 只保存 `.md` 后预览样式不变
 - 表头钉住后整页无法下滑
 
 **不要用本技能：** 内置 Markdown 预览、md2html 独立 HTML（走 freezing-html-table-headers）。
@@ -69,7 +69,7 @@ table.sticky-head thead th {
 
 1. **禁止** `html, body { overflow: hidden }`（以及任何把整页锁死的 `overflow: hidden`）。sticky 仍失效时，去查预览内容容器，不要锁页面。这会让整个预览无法下滑。
 2. **禁止**给表格外包 `overflow` + `max-height`。GitHub 主题的 `table { display:block; overflow:auto }` 必须用 `display:table; overflow:visible` 盖掉。
-3. **改完必须关掉 MPE 预览标签再重新打开。** 不要只点刷新 / Reload Preview：`style.less` / `head.html` 写进预览壳，已打开的 webview **不重载外壳**。
+3. **不必关预览标签。** 在编辑器里保存工作区 `.crossnote/style.less` 或 `head.html` 时，MPE 会重新编译样式并整页刷新。只保存 `.md` 只会换正文，外壳 CSS 不变。若样式是外部写入、刷新仍是旧的：在编辑器里打开并再保存一次 `.crossnote` 文件；仍无效再关标签重开，或 `Developer: Reload Window`。
 
 ## 为什么 `.md` 里的 `<style>` 不够
 
@@ -82,5 +82,5 @@ MPE 用 DOMPurify 丢掉正文里的 `<style>` 标签（`style=""` 属性会留�
 - [ ] 只改 `.preview-container .crossnote[data-for=preview]`，没有 `html/body overflow:hidden`
 - [ ] 表格 `display:table; overflow:visible`；sticky 在 `th` 上；不透明背景
 - [ ] 无 `max-height` + `overflow` 包裹层
-- [ ] 已关掉预览标签再打开（不是只刷新）
+- [ ] 已在编辑器里保存 `.crossnote/style.less`（或 `head.html`），不是只保存 `.md`
 - [ ] 验证：整页仍能滚到底，表头钉在预览窗口顶部
