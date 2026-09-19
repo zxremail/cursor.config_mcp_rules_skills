@@ -34,16 +34,12 @@
   };
 
   var __hIdx = 0;
+  var __slugState = { miscIdx: 0, slugs: Object.create(null) };
   renderer.heading = function(text, level){
-    var plain = String(text).replace(/<[^>]*>/g,'').trim();
-    var m = /^(\d+(?:\.\d+)*)/.exec(plain);
-    var id;
-    if(m){ id = 'h-'+m[1].replace(/\./g,'-'); }
-    else {
-      var ap = /^附录\s*([A-Z])/i.exec(plain);
-      id = ap ? 'h-appendix-'+ap[1].toLowerCase() : 'h-misc-'+(++__hIdx);
-    }
-    return '<h'+level+' id="'+id+'">'+text+'</h'+level+'>\n';
+    __slugState.miscIdx = __hIdx;
+    var html = mdHeadingHtml(text, level, __slugState);
+    __hIdx = __slugState.miscIdx;
+    return html;
   };
 
   marked.setOptions({renderer:renderer, gfm:true, breaks:false});
@@ -74,10 +70,11 @@
   document.getElementById('content').addEventListener('click', function(e){
     var a = e.target.closest('a[href^="#"]');
     if(!a) return;
+    var id = a.getAttribute('href').slice(1);
+    var target = mdFindHashTarget(function(x){ return document.getElementById(x); }, id);
+    if(!target) return;
     e.preventDefault();
-    var id = decodeURIComponent(a.getAttribute('href').slice(1));
-    var target = document.getElementById(id);
-    if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    target.scrollIntoView({behavior:'smooth', block:'start'});
   });
 
   mermaid.run({querySelector:'.mermaid'}).catch(function(err){

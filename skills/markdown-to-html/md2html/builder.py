@@ -79,10 +79,11 @@ def _load_base_css() -> str:
 
 
 def _load_runtime_js() -> str:
+    templates = resources.files("md2html").joinpath("templates")
     return (
-        resources.files("md2html")
-        .joinpath("templates", "runtime.js")
-        .read_text(encoding="utf-8")
+        templates.joinpath("anchor.js").read_text(encoding="utf-8")
+        + "\n"
+        + templates.joinpath("runtime.js").read_text(encoding="utf-8")
     )
 
 
