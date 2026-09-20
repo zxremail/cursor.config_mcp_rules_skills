@@ -296,6 +296,7 @@ document.querySelectorAll('[data-figure]').forEach(el => {
 - 与源 Markdown 同名，扩展名改为 `.html`
 - 放在与源文件相同的目录下
 - 例：`architecture-design.md` → `architecture-design.html`
+- 工作区根存在 `ai.cursor/` 且正在**新建**说明文档时，**REQUIRED：** 先按 **`ai-cursor-doc-output`** 放置源 md，再把 html / sidecar 放在**同一知识库子目录**；不要单独把 `.html` 写到仓库根「方便打开」
 
 ## 6. 不要做的事 <a id="6-不要做的事"></a> <a href="#toc-pos-6-不要做的事" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 

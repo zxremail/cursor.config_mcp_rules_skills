@@ -33,7 +33,7 @@ Step 3: 生成 HTML
   - 更新页码和进度条宽度
 
 Step 4: 交付
-  - 保存到与内容相关的路径，扩展名 .html
+  - 保存为 .html；工作区根有 `ai.cursor/` 时 **REQUIRED** **`ai-cursor-doc-output`**
   - 提醒用户在浏览器中打开预览
 ```
 
@@ -291,6 +291,7 @@ logo 内放单个大写字母，渐变背景自动生成。
 
 - 与内容主题相关，英文小写，连字符分隔，`.html` 扩展名
 - 例：`rxie-evolution-from-axie.html`、`product-roadmap-2026.html`
+- 目录：工作区根有 `ai.cursor/` 时按 **`ai-cursor-doc-output`**，不要写到仓库根
 
 ## 12. 不要做的事
 
