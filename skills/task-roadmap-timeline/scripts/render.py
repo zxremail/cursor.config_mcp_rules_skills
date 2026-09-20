@@ -203,7 +203,7 @@ STANDALONE = """<!DOCTYPE html>
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="将任务计划 YAML 渲染为 roadmap-tl HTML")
+    p = argparse.ArgumentParser(description="将项目推进时间计划 YAML 渲染为 roadmap-tl HTML")
     p.add_argument("plan", type=Path, help="plan.yaml 或 plan.json")
     p.add_argument("-o", "--output", type=Path, help="输出路径（默认 stdout）")
     p.add_argument("--standalone", action="store_true", help="包成完整 HTML 页")
@@ -214,7 +214,7 @@ def main() -> None:
     css = "" if args.no_inline_css else CSS_PATH.read_text(encoding="utf-8")
     body = render_fragment(plan, css)
     if args.standalone:
-        title = esc(plan.get("title") or "任务计划时间表")
+        title = esc(plan.get("title") or "项目推进时间计划表")
         body = STANDALONE.format(title=title, body=body)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
