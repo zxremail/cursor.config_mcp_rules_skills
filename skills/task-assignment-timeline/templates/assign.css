@@ -88,9 +88,16 @@
   position:absolute;inset:0;width:100%;height:100%;
   overflow:visible;
 }
-.assign-tl .as-git-label{
-  font-size:13px;font-weight:700;
+.assign-tl .as-git-caption{
+  position:absolute;
+  transform:translateX(-50%);
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap;
+  z-index:2;
+  pointer-events:none;
 }
+.assign-tl .as-git-main{color:#1A1A1A;}
 
 .assign-tl .as-row-person{min-height:56px;}
 .assign-tl .as-row-person .as-track{

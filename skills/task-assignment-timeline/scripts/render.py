@@ -229,146 +229,77 @@ def git_groups(lanes: list[dict]) -> list[tuple[str, list]]:
     return out
 
 
+def split_space_title(title: str) -> str:
+    if title.endswith("项目空间") or title.endswith("任务空间"):
+        head, tail = title[:-4], title[-4:]
+        return f'<span>{esc(head)}</span><span class="as-side-sub">{esc(tail)}</span>'
+    return f"<span>{esc(title)}</span>"
+
+
 def render_git(group: list[dict], xs: list[float]) -> str:
     rows = len(group)
     h = 56 * rows
     labels = []
     for i, lane in enumerate(group):
-        title = lane.get("title") or ""
-        # split last 4 chars as second line if long 项目空间/任务空间
-        if title.endswith("项目空间") or title.endswith("任务空间"):
-            head, tail = title[:-4], title[-4:]
-            inner = f'<span>{esc(head)}</span><span class="as-side-sub">{esc(tail)}</span>'
-        else:
-            inner = f"<span>{esc(title)}</span>"
+        inner = split_space_title(lane.get("title") or "")
         labels.append(
-            f'<aside class="as-side" style="grid-column:1;grid-row:{i + 1}"><div class="as-side-text">{inner}</div></aside>'
+            f'<aside class="as-side" style="grid-column:1;grid-row:{i + 1}">'
+            f'<div class="as-side-text">{inner}</div></aside>'
         )
 
-    parts = []
-    # main first
-    main_y = 28
-    feat_ys = []
-    for i, lane in enumerate(group):
-        y = 56 * i + 28
-        line = lane.get("line") or {}
-        theme = line.get("theme") or "main"
-        text = line.get("text") or ""
-        if theme != "feature":
-            main_y = y
-            x0, x1 = 1.2, 98.5
-            parts.append(
-                f'<line x1="{x0}%" y1="{y}" x2="{x1}%" y2="{y}" '
-                f'stroke="#1A1A1A" stroke-width="5" stroke-linecap="round"/>'
-            )
-            parts.append(
-                f'<polygon points="{x1:.2f}%,{y} {x1 - 1.6:.2f}%,{y - 8} {x1 - 1.6:.2f}%,{y + 8}" fill="#1A1A1A"/>'
-            )
-            parts.append(
-                f'<text x="52%" y="{y - 10}" text-anchor="middle" class="as-git-label" '
-                f'fill="#1A1A1A" font-size="13" font-weight="700">{esc(text)}</text>'
-            )
-        else:
-            feat_ys.append((lane, y, text))
-
-    for lane, y, text in feat_ys:
-        line = lane.get("line") or {}
-        color = line.get("color") or "#2BB85A"
-        fx = x_of(float(line["fork_at"]), xs)
-        mx = x_of(float(line["merge_at"]), xs)
-        parts.append(
-            f'<path d="M {fx:.3f}% {main_y} L {fx:.3f}% {y} L {mx:.3f}% {y} L {mx:.3f}% {main_y}" '
-            f'fill="none" stroke="{esc(color)}" stroke-width="3.5" '
-            f'stroke-linejoin="round" stroke-linecap="round"/>'
-        )
-        parts.append(
-            f'<polygon points="{mx:.2f}%,{main_y} {mx - 0.9:.2f}%,{main_y + 10} {mx + 0.9:.2f}%,{main_y + 10}" '
-            f'fill="{esc(color)}"/>'
-        )
-        mid = (fx + mx) / 2
-        parts.append(
-            f'<text x="{mid:.2f}%" y="{y + 16}" text-anchor="middle" class="as-git-label" '
-            f'fill="{esc(color)}" font-size="12" font-weight="700">{esc(text)}</text>'
-        )
-
-    svg = (
-        f'<svg viewBox="0 0 1000 {h}" preserveAspectRatio="none" aria-hidden="true">'
-        f'<svg viewBox="0 0 1000 {h}" preserveAspectRatio="none">'
-        + "".join(parts)
-        + "</svg></svg>"
-    )
-    # Using percentage in SVG with nested svg: percentage is relative to viewport.
-    # Single svg with width/height 100% is enough if we use % coords.
-    svg = (
-        f'<svg width="100%" height="100%" viewBox="0 0 100 {h}" preserveAspectRatio="none" aria-hidden="true">'
-        + "".join(
-            # convert % in x to viewBox 0-100; y already in px of viewBox height
-            []
-        )
-    )
-    # Rebuild with viewBox 0 0 100 h so x is 0-100 (same as percent)
-    parts2 = []
-    for i, lane in enumerate(group):
-        y = 56 * i + 28
-        line = lane.get("line") or {}
-        theme = line.get("theme") or "main"
-        text = line.get("text") or ""
-        if theme != "feature":
-            main_y = y
-            parts2.append(
-                f'<line x1="1.2" y1="{y}" x2="98.2" y2="{y}" '
-                f'stroke="#1A1A1A" stroke-width="5" stroke-linecap="round"/>'
-            )
-            parts2.append(
-                f'<polygon points="99.8,{y} 96.6,{y - 7} 96.6,{y + 7}" fill="#1A1A1A"/>'
-            )
-            parts2.append(
-                f'<text x="52" y="{y - 9}" text-anchor="middle" fill="#1A1A1A" '
-                f'font-size="3.4" font-weight="700">{esc(text)}</text>'
-            )
-    feat_ys = []
-    for i, lane in enumerate(group):
-        y = 56 * i + 28
-        line = lane.get("line") or {}
-        if (line.get("theme") or "main") == "feature":
-            feat_ys.append((lane, y, line.get("text") or ""))
-    # find main_y again
-    main_y = 28
+    main_i = 0
     for i, lane in enumerate(group):
         if (lane.get("line") or {}).get("theme") != "feature":
-            main_y = 56 * i + 28
+            main_i = i
             break
-    for lane, y, text in feat_ys:
+    main_y = 56 * main_i + 28
+
+    lines = [
+        f'<line x1="1.2" y1="{main_y}" x2="97.4" y2="{main_y}" '
+        f'stroke="#1A1A1A" stroke-width="5" stroke-linecap="round"/>',
+        f'<polygon points="99.6,{main_y} 96.4,{main_y - 7} 96.4,{main_y + 7}" fill="#1A1A1A"/>',
+    ]
+    captions = []
+    main_text = (group[main_i].get("line") or {}).get("text") or ""
+    if main_text:
+        captions.append(
+            f'<div class="as-git-caption as-git-main" style="left:52%;top:{main_y - 18}px">{esc(main_text)}</div>'
+        )
+
+    for i, lane in enumerate(group):
         line = lane.get("line") or {}
+        if (line.get("theme") or "main") != "feature":
+            continue
+        y = 56 * i + 28
         color = line.get("color") or "#2BB85A"
         fx = x_of(float(line["fork_at"]), xs)
         mx = x_of(float(line["merge_at"]), xs)
-        parts2.append(
+        lines.append(
             f'<path d="M {fx:.3f} {main_y} L {fx:.3f} {y} L {mx:.3f} {y} L {mx:.3f} {main_y}" '
             f'fill="none" stroke="{esc(color)}" stroke-width="3.2" '
             f'stroke-linejoin="round" stroke-linecap="round"/>'
         )
-        parts2.append(
-            f'<polygon points="{mx:.2f},{main_y} {mx - 1.1:.2f},{main_y + 9} {mx + 1.1:.2f},{main_y + 9}" '
+        lines.append(
+            f'<polygon points="{mx:.2f},{main_y} {mx - 1.05:.2f},{main_y + 9} {mx + 1.05:.2f},{main_y + 9}" '
             f'fill="{esc(color)}"/>'
         )
-        mid = (fx + mx) / 2
-        parts2.append(
-            f'<text x="{mid:.2f}" y="{y + 14}" text-anchor="middle" fill="{esc(color)}" '
-            f'font-size="3.2" font-weight="700">{esc(text)}</text>'
-        )
+        text = line.get("text") or ""
+        if text:
+            mid = (fx + mx) / 2
+            captions.append(
+                f'<div class="as-git-caption as-git-feat" style="left:{mid:.2f}%;top:{y + 6}px;color:{esc(color)}">'
+                f"{esc(text)}</div>"
+            )
 
-    # font-size in viewBox 0-100 wide is tiny if we use 3.2. Better: overlay HTML labels,
-    # SVG only for lines. Text with preserveAspectRatio=none will distort.
-    # Use a second svg without preserveAspectRatio=none for text? Or HTML labels.
     return f"""
     <div class="as-git" style="--git-rows:{rows}">
       {"".join(labels)}
       <div class="as-git-canvas">
         {vlines(xs)}
         <svg width="100%" height="100%" viewBox="0 0 100 {h}" preserveAspectRatio="none" aria-hidden="true">
-          {"".join(parts2)}
+          {"".join(lines)}
         </svg>
+        {"".join(captions)}
       </div>
     </div>"""
 
