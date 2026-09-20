@@ -1,0 +1,68 @@
+title: 任务落地分工时间表
+time_axis:
+  ticks:
+    - "2026/6/30"
+    - "2026/8/30"
+    - "2026/9/30"
+    - "2026/10/30"
+    - "2026/11/30"
+  weights: [2, 1, 1, 1]
+  lead: 0.45
+  tail: 0.45
+
+phases:
+  - { text: 开始, region: lead, theme: pink, icon: start }
+  - { text: 阶段一, start: 1, end: 2, theme: orange }
+  - { text: 阶段二, start: 2, end: 3, theme: blue }
+  - { text: 阶段三, start: 3, end: 4, theme: yellow }
+  - { text: 阶段四, start: 4, end: 5, theme: green }
+  - { text: 结束, region: tail, theme: mint }
+
+milestones:
+  - { text: 基线建立, at: 1 }
+  - { text: LXI1.6新增特性验收, at: 2 }
+  - { text: RIGOL OS适配方案确定, at: 3 }
+  - { text: 功能适配完成, at: 4 }
+  - { text: 通过LXI1.6认证, at: 5 }
+
+lanes:
+  - type: branch
+    title: 白尾雷鸟项目空间
+    line: { text: 白尾雷鸟分支, theme: main }
+
+  - type: branch
+    title: 性能优化任务空间
+    line:
+      text: LXI 开发分支
+      theme: feature
+      color: "#2BB85A"
+      fork_at: 1.18
+      merge_at: 5
+
+  - type: person
+    name: 蔡佑杰
+    fte: 0.5
+    theme: green
+    items:
+      - { text: LXI1.6新增特性开发, start: 1.2, end: 1.88 }
+
+  - type: person
+    name: 朱兴瑞
+    fte: 0.3
+    theme: blue
+    items:
+      - { text: 版本切换, start: 1.72, end: 2.02 }
+      - { text: 基于RIGOL OS<br>的方案梳理, start: 2.08, end: 2.55 }
+
+  - type: person
+    name: 朱日芃
+    fte: 1
+    theme: rose
+    items:
+      - { text: VX11协<br>议修改, start: 2.15, end: 2.52 }
+      - { text: ICMP管<br>理修改, start: 2.54, end: 2.92 }
+      - { text: 网络配置管理<br>修改, start: 3.02, end: 3.38 }
+      - { text: Webcontrol<br>适配修改, start: 3.4, end: 3.68 }
+      - { text: UI侧适<br>配修改, start: 3.7, end: 3.98 }
+      - { text: 合规性验证测<br>试, start: 4.05, end: 4.48 }
+      - { text: LXI1.6认证, start: 4.55, end: 4.95 }

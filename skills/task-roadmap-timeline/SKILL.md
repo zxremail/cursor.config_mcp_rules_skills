@@ -112,6 +112,7 @@ lanes:
 
 ## 明确不要
 
+- 当成 `task-assignment-timeline`（任务落地分工：人员、人力、分支合入、底栏星星）
 - Mermaid `gantt`、`timeline`、`flowchart` 冒充本图
 - HTML `<table>` 做格子
 - 深色分层架构卡（那是 `markdown-to-html` §3）

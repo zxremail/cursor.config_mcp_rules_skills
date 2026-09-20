@@ -1,0 +1,150 @@
+/* assign-tl：浅色任务落地分工时间表
+ * 拷入 doc.figures/extra.css，或由 scripts/render.py 内联。
+ */
+.customfig.assign-tl{
+  --as-side:158px;
+  --as-line:#D8D8D8;
+  --as-ink:#3A3A3A;
+  background:#FAFAFA;
+  color:var(--as-ink);
+  border:none;
+  border-radius:16px;
+  padding:18px 20px 12px;
+  margin:18px 0;
+  max-width:100%;
+  overflow:visible;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:13px;
+  line-height:1.35;
+}
+.assign-tl .as-shell{display:flex;flex-direction:column;gap:0;}
+.assign-tl .as-row{
+  display:grid;
+  grid-template-columns:var(--as-side) minmax(0,1fr);
+  gap:8px;
+  align-items:stretch;
+}
+.assign-tl .as-side{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:4px 8px 4px 0;
+  color:#5A5A5A;
+  font-weight:650;
+  font-size:13px;
+  line-height:1.3;
+}
+.assign-tl .as-side-text{display:flex;flex-direction:column;}
+.assign-tl .as-side-sub{font-size:12px;font-weight:600;color:#7A7A7A;}
+.assign-tl .as-track{position:relative;min-height:44px;}
+.assign-tl .as-vlines{position:absolute;inset:-6px 0;pointer-events:none;z-index:1;}
+.assign-tl .as-vline{
+  position:absolute;top:0;bottom:0;width:0;
+  border-left:1px dashed var(--as-line);
+}
+
+.assign-tl .as-row-phases .as-track{min-height:36px;}
+.assign-tl .as-phasebar{
+  display:flex;
+  height:32px;
+  border-radius:16px;
+  overflow:hidden;
+  width:100%;
+}
+.assign-tl .as-phase{
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;white-space:nowrap;
+  color:var(--as-on);
+  gap:4px;
+}
+.assign-tl .as-phase .as-ico{font-size:14px;}
+
+.assign-tl .as-row-dates .as-track{min-height:40px;}
+.assign-tl .as-date-line{
+  position:absolute;left:0;right:0;top:50%;
+  border-top:1px solid #E0E0E0;z-index:0;
+}
+.assign-tl .as-date{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  background:#EEF0F2;color:#6A6A6A;
+  border-radius:999px;padding:3px 10px;
+  font-size:11px;font-weight:650;z-index:2;
+  white-space:nowrap;
+}
+
+.assign-tl .as-git{
+  display:grid;
+  grid-template-columns:var(--as-side) minmax(0,1fr);
+  grid-template-rows:repeat(var(--git-rows,2),56px);
+  align-items:stretch;
+}
+.assign-tl .as-git .as-side{min-height:56px;}
+.assign-tl .as-git-canvas{
+  grid-column:2;
+  grid-row:1 / span var(--git-rows,2);
+  position:relative;
+}
+.assign-tl .as-git-canvas svg{
+  position:absolute;inset:0;width:100%;height:100%;
+  overflow:visible;
+}
+.assign-tl .as-git-label{
+  font-size:13px;font-weight:700;
+}
+
+.assign-tl .as-row-person{min-height:56px;}
+.assign-tl .as-row-person .as-track{
+  min-height:56px;
+  display:grid;
+  grid-template-rows:repeat(var(--as-subrows,1),minmax(44px,auto));
+  align-items:center;
+}
+.assign-tl .as-avatar{
+  width:36px;height:36px;border-radius:50%;flex:none;
+  background:#2F3540;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:14px;
+}
+.assign-tl .as-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+.assign-tl .as-pill{
+  position:absolute;
+  z-index:2;
+  background:var(--as-solid);
+  color:#fff;
+  border-radius:999px;
+  padding:7px 12px;
+  font-size:12px;font-weight:650;
+  text-align:center;line-height:1.25;
+  box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.assign-tl .as-row-stars{min-height:88px;margin-top:4px;}
+.assign-tl .as-star{
+  position:absolute;transform:translateX(-50%);
+  top:8px;z-index:2;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  width:96px;
+}
+.assign-tl .as-star svg{width:34px;height:34px;display:block;}
+.assign-tl .as-star span{
+  font-size:11px;font-weight:650;color:#6A6A6A;
+  text-align:center;line-height:1.3;
+}
+
+/* 阶段条 */
+.assign-tl .t-pink{--as-on:#7A3A4A;background:#F7C1CE;}
+.assign-tl .t-orange{--as-on:#fff;background:#F5A020;}
+.assign-tl .t-blue{--as-on:#fff;background:#3D7EFF;}
+.assign-tl .t-yellow{--as-on:#5C4A00;background:#F5D000;}
+.assign-tl .t-green{--as-on:#fff;background:#3DCC6F;}
+.assign-tl .t-mint{--as-on:#2A6A45;background:#C8F0D4;}
+
+/* 人员胶囊 */
+.assign-tl .p-green{--as-solid:#2BB85A;}
+.assign-tl .p-blue{--as-solid:#5B8DEF;}
+.assign-tl .p-rose{--as-solid:#E85A8C;}
+.assign-tl .p-orange{--as-solid:#F5A020;}
+.assign-tl .p-purple{--as-solid:#6B5CE7;}
+.assign-tl .p-teal{--as-solid:#1AA6A6;}
+.assign-tl .p-slate{--as-solid:#5B6B82;}
