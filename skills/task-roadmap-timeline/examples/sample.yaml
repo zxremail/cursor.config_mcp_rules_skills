@@ -1,0 +1,64 @@
+# 原图结构复刻：6 个季度、顶栏里程碑、四条阶段泳道
+time_axis:
+  ticks:
+    - "2026 Q3"
+    - "2026 Q4"
+    - "2027 Q1"
+    - "2027 Q2"
+    - "2027 Q3"
+    - "2027 Q4"
+
+milestones:
+  label: 重要时间节点
+  segments:
+    - { text: 基础框架发布, start: 1, end: 3, icon: trophy }
+    - { text: 模块化框架推广, start: 3, end: 5, icon: trophy }
+    - { text: 平台化运营, start: 5, end: 6, icon: trophy }
+    - { text: 社区正式上线, start: 6, end: 7, icon: carrot }
+
+lanes:
+  - title: 第一阶段：架构验证
+    theme: purple
+    subrows: 3
+    items:
+      - { text: SCPI性能优化, start: 1, end: 2, row: 1 }
+      - { marker: diamond, at: 2, row: 1 }
+      - { text: 高性能接口支持, start: 2, end: 3, row: 1 }
+      - { text: LXI标准落地, start: 1, end: 2, row: 2 }
+      - { text: SCPI兼容Keysight, start: 2, end: 3, row: 2 }
+      - { text: 特性接口发布订阅, start: 1, end: 3, row: 3 }
+      - { text: 入门型功能裁剪以及UI资源优化, start: 3, end: 4, row: 3 }
+
+  - title: 第二阶段：能力沉淀（平台能力以及人员能力）
+    theme: orange
+    subrows: 4
+    items:
+      - { type: group-bg, start: 2, end: 5, row: 1, rowspan: 4 }
+      - { type: group-title, text: 系统服务完成 (System service), start: 2, end: 5, row: 1 }
+      - { text: 状态机管理服务, start: 2, end: 3, row: 2 }
+      - { text: 硬件接口抽象标准化 (L2/HAL), start: 3, end: 5, row: 2 }
+      - { text: 通信管理服务, start: 2, end: 3, row: 3 }
+      - { text: 软总线, start: 3, end: 4, row: 3 }
+      - { text: 底软框架, start: 4, end: 5, row: 3 }
+      - { type: group-foot, text: 开发人员需求开发/模块设计能力提升, start: 2, end: 5, row: 4 }
+
+  - title: 第三阶段：平台统一
+    theme: green
+    subrows: 2
+    items:
+      - { text: 三雕分层统一, start: 1, end: 2, row: 1 }
+      - { text: 白尾雷鸟L3模块化与三雕统一, start: 2, end: 4, row: 1 }
+      - { marker: diamond, at: 4, row: 1 }
+      - { text: 项目制转产品平台化, start: 4, end: 6, row: 1 }
+      - { marker: diamond, at: 6, row: 1 }
+      - { text: 特性应用架构统一, start: 3, end: 4, row: 2 }
+      - { text: L5模块化统一, start: 4, end: 5, row: 2 }
+
+  - title: 第四阶段：生态开放
+    theme: blue
+    subrows: 4
+    items:
+      - { text: L5高性能接口开放（跨BU研发）, start: 3, end: 5, row: 1 }
+      - { text: L3~L5模块化接口开放（跨BU研发）, start: 4, end: 6, row: 2 }
+      - { text: 生态接口规范发布（对第三方）, start: 5, end: 6, row: 3 }
+      - { text: 建立生态运营社区, start: 6, end: 7, row: 4 }
