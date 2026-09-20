@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>任务落地分工时间表</title>
+</head>
+<body style="margin:0;background:#fff;">
+<style>
+/* assign-tl：浅色任务落地分工时间表
+ * 拷入 doc.figures/extra.css，或由 scripts/render.py 内联。
+ */
+.customfig.assign-tl{
+  --as-side:158px;
+  --as-line:#D8D8D8;
+  --as-ink:#3A3A3A;
+  background:#FAFAFA;
+  color:var(--as-ink);
+  border:none;
+  border-radius:16px;
+  padding:18px 20px 12px;
+  margin:18px 0;
+  max-width:100%;
+  overflow:visible;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:13px;
+  line-height:1.35;
+}
+.assign-tl .as-shell{display:flex;flex-direction:column;gap:0;}
+.assign-tl .as-row{
+  display:grid;
+  grid-template-columns:var(--as-side) minmax(0,1fr);
+  gap:8px;
+  align-items:stretch;
+}
+.assign-tl .as-side{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:4px 8px 4px 0;
+  color:#5A5A5A;
+  font-weight:650;
+  font-size:13px;
+  line-height:1.3;
+}
+.assign-tl .as-side-text{display:flex;flex-direction:column;}
+.assign-tl .as-side-sub{font-size:12px;font-weight:600;color:#7A7A7A;}
+.assign-tl .as-track{position:relative;min-height:44px;}
+.assign-tl .as-vlines{position:absolute;inset:-6px 0;pointer-events:none;z-index:1;}
+.assign-tl .as-vline{
+  position:absolute;top:0;bottom:0;width:0;
+  border-left:1px dashed var(--as-line);
+}
+
+.assign-tl .as-row-phases .as-track{min-height:36px;}
+.assign-tl .as-phasebar{
+  display:flex;
+  height:32px;
+  border-radius:16px;
+  overflow:hidden;
+  width:100%;
+}
+.assign-tl .as-phase{
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;white-space:nowrap;
+  color:var(--as-on);
+  gap:4px;
+}
+.assign-tl .as-phase .as-ico{font-size:14px;}
+
+.assign-tl .as-row-dates .as-track{min-height:40px;}
+.assign-tl .as-date-line{
+  position:absolute;left:0;right:0;top:50%;
+  border-top:1px solid #E0E0E0;z-index:0;
+}
+.assign-tl .as-date{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  background:#EEF0F2;color:#6A6A6A;
+  border-radius:999px;padding:3px 10px;
+  font-size:11px;font-weight:650;z-index:2;
+  white-space:nowrap;
+}
+
+.assign-tl .as-git{
+  display:grid;
+  grid-template-columns:var(--as-side) minmax(0,1fr);
+  grid-template-rows:repeat(var(--git-rows,2),56px);
+  align-items:stretch;
+}
+.assign-tl .as-git .as-side{min-height:56px;}
+.assign-tl .as-git-canvas{
+  grid-column:2;
+  grid-row:1 / span var(--git-rows,2);
+  position:relative;
+}
+.assign-tl .as-git-canvas svg{
+  position:absolute;inset:0;width:100%;height:100%;
+  overflow:visible;
+}
+.assign-tl .as-git-caption{
+  position:absolute;
+  transform:translateX(-50%);
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap;
+  z-index:2;
+  pointer-events:none;
+}
+.assign-tl .as-git-main{color:#1A1A1A;}
+
+.assign-tl .as-row-person{min-height:56px;}
+.assign-tl .as-row-person .as-track{
+  min-height:56px;
+  display:grid;
+  grid-template-rows:repeat(var(--as-subrows,1),minmax(44px,auto));
+  align-items:center;
+}
+.assign-tl .as-avatar{
+  width:36px;height:36px;border-radius:50%;flex:none;
+  background:#2F3540;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:14px;
+}
+.assign-tl .as-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+.assign-tl .as-pill{
+  position:absolute;
+  z-index:2;
+  background:var(--as-solid);
+  color:#fff;
+  border-radius:999px;
+  padding:7px 12px;
+  font-size:12px;font-weight:650;
+  text-align:center;line-height:1.25;
+  box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.assign-tl .as-row-stars{min-height:88px;margin-top:4px;}
+.assign-tl .as-star{
+  position:absolute;transform:translateX(-50%);
+  top:8px;z-index:2;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  width:96px;
+}
+.assign-tl .as-star svg{width:34px;height:34px;display:block;}
+.assign-tl .as-star span{
+  font-size:11px;font-weight:650;color:#6A6A6A;
+  text-align:center;line-height:1.3;
+}
+
+/* 阶段条 */
+.assign-tl .t-pink{--as-on:#7A3A4A;background:#F7C1CE;}
+.assign-tl .t-orange{--as-on:#fff;background:#F5A020;}
+.assign-tl .t-blue{--as-on:#fff;background:#3D7EFF;}
+.assign-tl .t-yellow{--as-on:#5C4A00;background:#F5D000;}
+.assign-tl .t-green{--as-on:#fff;background:#3DCC6F;}
+.assign-tl .t-mint{--as-on:#2A6A45;background:#C8F0D4;}
+
+/* 人员胶囊 */
+.assign-tl .p-green{--as-solid:#2BB85A;}
+.assign-tl .p-blue{--as-solid:#5B8DEF;}
+.assign-tl .p-rose{--as-solid:#E85A8C;}
+.assign-tl .p-orange{--as-solid:#F5A020;}
+.assign-tl .p-purple{--as-solid:#6B5CE7;}
+.assign-tl .p-teal{--as-solid:#1AA6A6;}
+.assign-tl .p-slate{--as-solid:#5B6B82;}
+</style>
+<div class="customfig assign-tl">
+  <div class="as-shell">
+    
+    <div class="as-row as-row-phases">
+      <aside class="as-side"></aside>
+      <div class="as-track"><div class="as-phasebar"><div class="as-phase t-pink" style="flex:7.6271"><svg class="as-ico" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="1.5" width="10" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.2 5.2v5.6L11 8z" fill="currentColor"/></svg>开始</div><div class="as-phase t-orange" style="flex:33.8983">阶段一</div><div class="as-phase t-blue" style="flex:16.9492">阶段二</div><div class="as-phase t-yellow" style="flex:16.9492">阶段三</div><div class="as-phase t-green" style="flex:16.9492">阶段四</div><div class="as-phase t-mint" style="flex:7.6271">结束</div></div></div>
+    </div>
+    <div class="as-row as-row-dates">
+      <aside class="as-side"><span class="as-side-sub">时间轴线</span></aside>
+      <div class="as-track">
+        <div class="as-vlines" aria-hidden="true"><span class="as-vline" style="left:7.627%"></span><span class="as-vline" style="left:41.525%"></span><span class="as-vline" style="left:58.475%"></span><span class="as-vline" style="left:75.424%"></span><span class="as-vline" style="left:92.373%"></span></div>
+        <div class="as-date-line"></div>
+        <span class="as-date" style="left:7.627%">2026/6/30</span><span class="as-date" style="left:41.525%">2026/8/30</span><span class="as-date" style="left:58.475%">2026/9/30</span><span class="as-date" style="left:75.424%">2026/10/30</span><span class="as-date" style="left:92.373%">2026/11/30</span>
+      </div>
+    </div>
+    <div class="as-git" style="--git-rows:2">
+      <aside class="as-side" style="grid-column:1;grid-row:1"><div class="as-side-text"><span>白尾雷鸟</span><span class="as-side-sub">项目空间</span></div></aside><aside class="as-side" style="grid-column:1;grid-row:2"><div class="as-side-text"><span>性能优化</span><span class="as-side-sub">任务空间</span></div></aside>
+      <div class="as-git-canvas">
+        <div class="as-vlines" aria-hidden="true"><span class="as-vline" style="left:7.627%"></span><span class="as-vline" style="left:41.525%"></span><span class="as-vline" style="left:58.475%"></span><span class="as-vline" style="left:75.424%"></span><span class="as-vline" style="left:92.373%"></span></div>
+        <svg width="100%" height="100%" viewBox="0 0 100 112" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="1.2" y1="28" x2="97.4" y2="28" stroke="#1A1A1A" stroke-width="5" stroke-linecap="round"/><polygon points="99.6,28 96.4,21 96.4,35" fill="#1A1A1A"/><path d="M 13.729 28 L 13.729 84 L 92.373 84 L 92.373 28" fill="none" stroke="#2BB85A" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><polygon points="92.37,28 91.32,37 93.42,37" fill="#2BB85A"/>
+        </svg>
+        <div class="as-git-caption as-git-main" style="left:52%;top:10px">白尾雷鸟分支</div><div class="as-git-caption as-git-feat" style="left:53.05%;top:90px;color:#2BB85A">LXI 开发分支</div>
+      </div>
+    </div>
+    <div class="as-row as-row-person">
+      <aside class="as-side"><div class="as-avatar">蔡</div><div class="as-side-text"><span>蔡佑杰-0.5人力</span></div></aside>
+      <div class="as-track" style="--as-subrows:1;min-height:56px">
+        <div class="as-vlines" aria-hidden="true"><span class="as-vline" style="left:7.627%"></span><span class="as-vline" style="left:41.525%"></span><span class="as-vline" style="left:58.475%"></span><span class="as-vline" style="left:75.424%"></span><span class="as-vline" style="left:92.373%"></span></div>
+        <div class="as-pill p-green" style="left:14.407%;width:23.051%;top:50.00%;transform:translateY(-50%)">LXI1.6新增特性开发</div>
+      </div>
+    </div>
+    <div class="as-row as-row-person">
+      <aside class="as-side"><div class="as-avatar">朱</div><div class="as-side-text"><span>朱兴瑞-0.3人力</span></div></aside>
+      <div class="as-track" style="--as-subrows:1;min-height:56px">
+        <div class="as-vlines" aria-hidden="true"><span class="as-vline" style="left:7.627%"></span><span class="as-vline" style="left:41.525%"></span><span class="as-vline" style="left:58.475%"></span><span class="as-vline" style="left:75.424%"></span><span class="as-vline" style="left:92.373%"></span></div>
+        <div class="as-pill p-blue" style="left:32.034%;width:9.831%;top:50.00%;transform:translateY(-50%)">版本切换</div><div class="as-pill p-blue" style="left:42.881%;width:7.966%;top:50.00%;transform:translateY(-50%)">基于RIGOL OS<br>的方案梳理</div>
+      </div>
+    </div>
+    <div class="as-row as-row-person">
+      <aside class="as-side"><div class="as-avatar">朱</div><div class="as-side-text"><span>朱日芃-1人力</span></div></aside>
+      <div class="as-track" style="--as-subrows:1;min-height:56px">
+        <div class="as-vlines" aria-hidden="true"><span class="as-vline" style="left:7.627%"></span><span class="as-vline" style="left:41.525%"></span><span class="as-vline" style="left:58.475%"></span><span class="as-vline" style="left:75.424%"></span><span class="as-vline" style="left:92.373%"></span></div>
+        <div class="as-pill p-rose" style="left:44.068%;width:6.271%;top:50.00%;transform:translateY(-50%)">VX11协<br>议修改</div><div class="as-pill p-rose" style="left:50.678%;width:6.441%;top:50.00%;transform:translateY(-50%)">ICMP管<br>理修改</div><div class="as-pill p-rose" style="left:58.814%;width:6.102%;top:50.00%;transform:translateY(-50%)">网络配置管理<br>修改</div><div class="as-pill p-rose" style="left:65.254%;width:4.746%;top:50.00%;transform:translateY(-50%)">Webcontrol<br>适配修改</div><div class="as-pill p-rose" style="left:70.339%;width:4.746%;top:50.00%;transform:translateY(-50%)">UI侧适<br>配修改</div><div class="as-pill p-rose" style="left:76.271%;width:7.288%;top:50.00%;transform:translateY(-50%)">合规性验证测<br>试</div><div class="as-pill p-rose" style="left:84.746%;width:6.780%;top:50.00%;transform:translateY(-50%)">LXI1.6认证</div>
+      </div>
+    </div>
+    <div class="as-row as-row-stars">
+      <aside class="as-side"></aside>
+      <div class="as-track">
+        <div class="as-vlines" aria-hidden="true"><span class="as-vline" style="left:7.627%"></span><span class="as-vline" style="left:41.525%"></span><span class="as-vline" style="left:58.475%"></span><span class="as-vline" style="left:75.424%"></span><span class="as-vline" style="left:92.373%"></span></div>
+        <div class="as-star" style="left:7.627%"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.7 5.6 6.2.9-4.5 4.3 1.1 6.1L12 16.8 6.5 19.5l1.1-6.1L3.1 9.1l6.2-.9z" fill="none" stroke="#8B7CF6" stroke-width="1.7" stroke-linejoin="round"/></svg><span>基线建立</span></div><div class="as-star" style="left:41.525%"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.7 5.6 6.2.9-4.5 4.3 1.1 6.1L12 16.8 6.5 19.5l1.1-6.1L3.1 9.1l6.2-.9z" fill="none" stroke="#8B7CF6" stroke-width="1.7" stroke-linejoin="round"/></svg><span>LXI1.6新增特性验收</span></div><div class="as-star" style="left:58.475%"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.7 5.6 6.2.9-4.5 4.3 1.1 6.1L12 16.8 6.5 19.5l1.1-6.1L3.1 9.1l6.2-.9z" fill="none" stroke="#8B7CF6" stroke-width="1.7" stroke-linejoin="round"/></svg><span>RIGOL OS适配方案确定</span></div><div class="as-star" style="left:75.424%"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.7 5.6 6.2.9-4.5 4.3 1.1 6.1L12 16.8 6.5 19.5l1.1-6.1L3.1 9.1l6.2-.9z" fill="none" stroke="#8B7CF6" stroke-width="1.7" stroke-linejoin="round"/></svg><span>功能适配完成</span></div><div class="as-star" style="left:92.373%"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.7 5.6 6.2.9-4.5 4.3 1.1 6.1L12 16.8 6.5 19.5l1.1-6.1L3.1 9.1l6.2-.9z" fill="none" stroke="#8B7CF6" stroke-width="1.7" stroke-linejoin="round"/></svg><span>通过LXI1.6认证</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
