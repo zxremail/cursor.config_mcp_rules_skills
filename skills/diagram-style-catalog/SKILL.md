@@ -34,6 +34,7 @@ description: >-
 | 指纹 | Skill |
 |------|--------|
 | 左栏 L0–L7 / 硬件；浅色色带 + 双白卡片；关/改/加/留/决策胶囊；平台角标嵌胶囊内 | `layer-action-capsule-diagram` |
+| 浅色层底 + 白底分组框 + 饱和色内卡片；层名在左、层间↓、底栏色块图例 | `fig-tinted-layer-cards` |
 | Mermaid `flowchart`、多 subgraph、跨层连线、暗色节点 | `mermaid-flowchart-layout` |
 | 深色分层彩色卡片墙（`.layer` / `.halbox` / `customfig`） | `markdown-to-html` §3 / §7.6 |
 | HTML 时序：贴顶彩色角色栏、生命线、橙色 Note | `html-sequence-swimlane` |
@@ -53,6 +54,8 @@ description: >-
 |--------|------|
 | 「架构图」一律 Mermaid | 先对本表；胶囊 / 深色卡片 / 时间表都不是 flowchart |
 | 胶囊图 = 深色卡片墙 | 胶囊是浅色色带+白卡片；卡片墙是 `markdown-to-html` §3 |
+| 浅色分层卡片墙 = 深色卡片墙 | 浅底白分组彩卡片 → `fig-tinted-layer-cards`；深色 `.layer` → `markdown-to-html` §3 |
+| 浅色分层卡片墙 = 胶囊图 | 本图无关/改/加/留胶囊、无左栏 L0–L7 |
 | roadmap = 人员分工表 | 阶段×时间 → `task-roadmap-timeline`；谁做哪块 → `task-assignment-timeline` |
 | 时序 HTML = 分层卡片 | 贴顶角色栏 → `html-sequence-swimlane` |
 
@@ -73,6 +76,7 @@ description: >-
 | 图种 | 出口 |
 |------|------|
 | 深色分层卡片 / HTML 时序 / 阶段路线图 / 人员分工表 | `markdown-to-html` sidecar |
+| 浅色分层卡片墙 | 飞书画板（`lark-whiteboard`） |
 | 分层卡片 → draw.io / 时序 → draw.io | 本地 `.drawio` |
 | 内化成 Skill | §3，不构图 |
 
@@ -96,6 +100,7 @@ description: >-
 - 聊天框输入 **`/draw`**：在 Skill 列表里搜 `draw` 并选中（`~/.cursor/skills/draw/`）。
 - 也可以 `/` 后搜具体 Skill 名，如 `layer-action-capsule-diagram`
 - 「按分层行动胶囊图画」「走 `layer-action-capsule-diagram`」
+- 「按浅色分层卡片墙画」「走 `fig-tinted-layer-cards`」
 - 「对照这张图内化成 Skill，先查目录有没有同类」
 - 只说「画个架构图」→ 先出一轮菜单 + §5 大纲，不要直接画 Mermaid
 
@@ -128,6 +133,18 @@ subgraph / 层（上→下）：
 标题：
 层（上→下）及每层卡片：
 .md 路径：
+```
+
+**浅色分层卡片墙**
+```
+标题：
+副标题：
+层（上→下，灰→红）：
+  - 层名 / 副标题：
+    分组名：
+      - 卡片标题：一行说明
+层间↓：
+飞书链接或画板 token：
 ```
 
 **HTML 贴顶角色时序**

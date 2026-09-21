@@ -24,7 +24,7 @@ description: >-
 | 按栈分层的改造/能力清单（上 UI 下硬件） | 时间排期 → `task-roadmap-timeline` |
 | 每条动作要标「关/改/加/留/决策」+ 平台 | 时序 → `html-sequence-swimlane` |
 | 层与层之间有一条政策箭头 | 关系/流向架构 → `mermaid-flowchart-layout` |
-| 浅色色带 + 白卡片 + 胶囊 | 深色分层卡片墙 → `markdown-to-html` §3 |
+| 浅色色带 + 白卡片 + 胶囊 | 深色卡片墙 → `markdown-to-html` §3；浅底白分组彩卡片 → `fig-tinted-layer-cards` |
 
 ## 结构（从上到下）
 

@@ -21,6 +21,7 @@ disable-model-invocation: true
 | id | 标签 |
 |----|------|
 | capsule | 新画：分层行动胶囊图 |
+| tinted-cards | 新画：浅色分层卡片墙 |
 | mermaid-flow | 新画：Mermaid 分层/连线架构 |
 | dark-cards | 新画：深色分层彩色卡片墙 |
 | seq-html | 新画：HTML 贴顶角色时序 |
@@ -29,6 +30,8 @@ disable-model-invocation: true
 | cards-drawio | 转换：分层卡片 HTML → draw.io |
 | seq-drawio | 转换：Mermaid 时序图 → draw.io |
 | internalize | 其它：把对照图内化成 Skill |
+
+选定后 `kind` → Skill：`capsule`→`layer-action-capsule-diagram`，`tinted-cards`→`fig-tinted-layer-cards`，`mermaid-flow`→`mermaid-flowchart-layout`，`dark-cards`→`markdown-to-html`，`seq-html`→`html-sequence-swimlane`，`roadmap`→`task-roadmap-timeline`，`assign`→`task-assignment-timeline`，`cards-drawio`→`cards-to-drawio`，`seq-drawio`→`mermaid-to-drawio`。
 
 **Q2 `medium`**：飞书画板 / MD→飞书文档 / 独立 HTML / HTML 幻灯片 / 本图种默认。
 
