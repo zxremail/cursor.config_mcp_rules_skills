@@ -77,7 +77,8 @@ description: >-
 
 ## 4. 用户怎么点名
 
-- 聊天框输入 **`/draw`**：弹出本目录菜单，选完再画（最省事）
+- 聊天框输入 **`/draw`**：在 Skill 列表里搜 `draw` 并选中，弹出本目录菜单（最省事）。这是 `~/.cursor/skills/draw/`，不是旧的 `.cursor/commands/`。
+- 也可以 `/` 后搜具体 Skill 名，如 `layer-action-capsule-diagram`
 - 「按分层行动胶囊图画」「走 `layer-action-capsule-diagram`」
 - 「像分层行动胶囊图那样，不要深色卡片墙」
 - 「对照这张图内化成 Skill，先查目录有没有同类」
