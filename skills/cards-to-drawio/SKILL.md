@@ -1,13 +1,16 @@
 ---
 name: cards-to-drawio
-description: 将"分层彩色卡片布局"架构图（来自 markdown-to-html skill 的 customfig / 由 .layer + .halbox 等 HTML/CSS 卡片绘制的图）转换为可在 draw.io 中继续编辑的 .drawio 文件，保持原有四层结构、颜色语义与跨列布局。Use when the user asks to convert layered card diagrams to drawio, or mentions "分层卡片转 drawio", "彩色卡片图转 drawio", "卡片布局转 drawio", "把这个图转换成 drawio", "convert layered cards to drawio", "card layout to drawio".
+description: >-
+  Use when converting layered colored-card architecture HTML (.layer / .halbox / customfig)
+  to Draw.io (.drawio), or the user says 分层卡片转 drawio、彩色卡片图转 drawio、卡片布局转 drawio.
+  Not for Mermaid sequence、胶囊图, or a generic 「转 drawio」 with no layered cards.
 ---
 
 # 分层彩色卡片图 → Draw.io
 
 其它图种（胶囊图、时序、时间表）不要走本转换；分诊见 `diagram-style-catalog`。
 
-将由 `markdown-to-html` skill 产出的"分层彩色卡片图"（四层结构 / 彩色 `.layer` / `.halbox` / `.customfig` 卡片）转换为等价的 Draw.io 文件，保持配色语义与几何布局，使其可在 draw.io 中继续编辑、再导出 SVG/PNG。
+将由 `markdown-to-html` skill 产出的"分层彩色卡片图"（彩色 `.layer` / `.halbox` / `.customfig` 卡片）转换为等价的 Draw.io 文件，保持配色语义与几何布局，使其可在 draw.io 中继续编辑、再导出 SVG/PNG。
 
 ---
 

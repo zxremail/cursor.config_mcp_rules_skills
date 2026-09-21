@@ -1,6 +1,9 @@
 ---
 name: mermaid-to-drawio
-description: 将 Mermaid 时序图转换为 Draw.io (.drawio) 格式，包含配色、箭头、生命线等样式规范。Use when converting Mermaid sequence diagrams to Draw.io format or when the user mentions drawio conversion.
+description: >-
+  Use when converting a Mermaid sequenceDiagram to Draw.io (.drawio),
+  or the user says 时序图转 drawio、sequenceDiagram 转 drawio、生命线/角色栏转 drawio.
+  Not for flowchart、分层卡片、胶囊图, or a generic 「转 drawio」 with no sequence diagram.
 ---
 
 # Mermaid 时序图转换为 Draw.io 格式
