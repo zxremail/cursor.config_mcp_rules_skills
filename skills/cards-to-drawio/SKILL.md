@@ -5,6 +5,8 @@ description: 将"分层彩色卡片布局"架构图（来自 markdown-to-html sk
 
 # 分层彩色卡片图 → Draw.io
 
+其它图种（胶囊图、时序、时间表）不要走本转换；分诊见 `diagram-style-catalog`。
+
 将由 `markdown-to-html` skill 产出的"分层彩色卡片图"（四层结构 / 彩色 `.layer` / `.halbox` / `.customfig` 卡片）转换为等价的 Draw.io 文件，保持配色语义与几何布局，使其可在 draw.io 中继续编辑、再导出 SVG/PNG。
 
 ---

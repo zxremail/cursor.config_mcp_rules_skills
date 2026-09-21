@@ -19,6 +19,7 @@ Markdown 预览继续用 Mermaid `sequenceDiagram`。生成的独立 HTML 里，
 - 对照 Markdown 预览，HTML 时序必须「长得像 Mermaid」
 
 分层架构卡、数据流卡仍走 `markdown-to-html` §3 / §7.6 其它模式。
+其它图种分诊 → `diagram-style-catalog`。
 
 ## 工作流
 

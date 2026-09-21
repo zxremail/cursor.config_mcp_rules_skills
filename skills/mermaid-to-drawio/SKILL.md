@@ -5,6 +5,9 @@ description: 将 Mermaid 时序图转换为 Draw.io (.drawio) 格式，包含配
 
 # Mermaid 时序图转换为 Draw.io 格式
 
+flowchart / 分层卡片 / 胶囊图不要走本转换；分诊见 `diagram-style-catalog`。
+分层卡片 HTML → drawio 走 `cards-to-drawio`。
+
 当用户要求将 Mermaid 语法的时序图转换为 Draw.io 格式时，必须遵循以下所有规则。
 
 ---

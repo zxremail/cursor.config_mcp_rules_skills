@@ -12,6 +12,8 @@ description: >-
 
 # Mermaid 流程图排版与架构图连线
 
+不确定该不该用 Mermaid flowchart（相对胶囊图、深色卡片墙、时间表）→ 先读 `diagram-style-catalog`。
+
 
 
 ## 目录 • Mermaid 流程图排版与架构图连线

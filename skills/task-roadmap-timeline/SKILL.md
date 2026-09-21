@@ -14,6 +14,7 @@ description: >-
 嵌套分组、菱形节点、阶梯排布都靠 CSS Grid，**禁止**用 Mermaid `gantt` / `flowchart` 硬凑。
 
 配合 `markdown-to-html` sidecar：根元素 `.customfig.roadmap-tl`。也可 `--standalone` 出独立页。
+人员分工表不是本图 → `task-assignment-timeline`。不确定图种 → `diagram-style-catalog`。
 
 ## 工作流
 

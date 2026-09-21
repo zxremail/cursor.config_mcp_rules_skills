@@ -15,6 +15,7 @@ description: >-
 
 浅色横向图：**顶栏阶段色条、日期虚线、空间分支线、人员胶囊、底栏星星**。
 用 CSS + 少量 SVG，**禁止** Mermaid `gantt` / `flowchart`。
+阶段×时间路线图不是本图 → `task-roadmap-timeline`。不确定图种 → `diagram-style-catalog`。
 
 配合 `markdown-to-html` sidecar：根元素 `.customfig.assign-tl`。也可 `--standalone`。
 
