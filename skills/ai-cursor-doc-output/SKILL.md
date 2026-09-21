@@ -7,7 +7,8 @@ description: >-
   default path for a new .md/.html, when tempted to write it to the repo root,
   docs/, or next to source for “方便打开”, or when moving an existing knowledge
   note so it sits beside a new HTML file. Triggers: 保存 markdown、导出 html、
-  生成幻灯片、放到项目里、ai.cursor.
+  生成幻灯片、放到项目里、ai.cursor、Mermaid 深彩色、暗色主题。
+  正文格式与每一张 Mermaid 配色仍走 markdown-export，不只文件名。
 ---
 
 # ai.cursor 文档默认落点
@@ -33,7 +34,7 @@ description: >-
 2. **先 Read** `ai.cursor/_INDEX_.md`。没有则建最小三列表格（文档 | 说明 | 提要）
 3. 索引里已有匹配分类 → 放入对应子目录
 4. 没有匹配 → 按主题新建英文、小写、连字符子目录，并在索引**补一行**
-5. basename 仍按 **`markdown-export`**（英文、小写、连字符）
+5. basename 与 **每一张 Mermaid 的深彩色配色** 仍按 **`markdown-export`**（英文文件名；图必须 `theme: dark` **且**节点 `style`/`classDef`，见该 skill §5）。不要只抄文件名规则、把图画成默认浅色。
 6. HTML 与 sidecar `*.figures/` 与源 md **同目录**——同在知识库子目录内，不是同在仓库根
 7. 落盘后走 **`markdown-knowledge-maintain`**（`md-toc` + 索引）
 
@@ -57,3 +58,4 @@ description: >-
 - 准备写到 `<workspace>/foo.md`、`<workspace>/foo.html` 或 `docs/foo.md`
 - 准备把已有 `ai.cursor/.../x.md` 移到仓库根
 - 写了新说明文档但没改 `_INDEX_.md`
+- 文档里的 Mermaid 没有深彩色配色（缺 `theme: dark`，或节点仍是默认浅底）

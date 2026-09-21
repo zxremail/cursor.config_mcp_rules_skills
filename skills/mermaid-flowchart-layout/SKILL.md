@@ -6,7 +6,8 @@ description: >-
   排版占位线必须隐形（禁止裸 ~~~ 幽灵线）。
   在生成或编辑含多个 subgraph、跨层架构图、协作关系图、图例/连线颜色/线型、
   或用户抱怨「连线乱/交叉」「图太大/空白太多」「小图底下多余图例」
-  「无箭头灰线 / 幽灵线」时应用。
+  「无箭头灰线 / 幽灵线」、浅色/默认配色、暗色主题看不清、忘记 theme dark
+  时应用。每一张图还必须用深彩色节点配色（见文首硬规则）。
 ---
 
 # Mermaid 流程图排版与架构图连线
@@ -15,6 +16,7 @@ description: >-
 
 ## 目录 • Mermaid 流程图排版与架构图连线
 
+- [0. 深彩色配色（硬规则，先于排版）](#0-深彩色配色硬规则先于排版)
 - [1. 多个 subgraph 分行显示](#1-多个-subgraph-分行显示)
   - [1.1 做法](#11-做法)
   - [1.2 示例](#12-示例)
@@ -41,7 +43,27 @@ description: >-
 
 ---
 
-涵盖：**多 subgraph 换行**、**跨域架构图少交叉**、**排版线必须隐形**、**语义配色**、**箭头说明**、**小图按内容尺寸显示且不加图例**、**仅复杂架构图才用独立图例**。
+涵盖：**深彩色节点配色（硬规则）**、**多 subgraph 换行**、**跨域架构图少交叉**、**排版线必须隐形**、**连线语义配色**、**箭头说明**、**小图按内容尺寸显示且不加图例**、**仅复杂架构图才用独立图例**。
+
+---
+
+## 0. 深彩色配色（硬规则，先于排版）
+
+排版之前先上色。本 skill 后文部分示例为突出分行/隐形线，可能把节点 `style` 写短；**正式输出不得照抄无色版本。**
+
+写每一张图之前先读三遍：
+
+1. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
+2. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
+3. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
+
+**REQUIRED：** 节点色板、禁止项、借口对照见 **`markdown-export`** §5。最低限度每张图都要：
+
+- 第一行 `%%{init: {'theme': 'dark'}}%%`（小图再加 `useMaxWidth:false`，§10）
+- 每个可见节点 `classDef`/`style`：深彩色 `fill` + 浅色字（`color:#FFFFFF`）
+- **禁止**只写 `theme: dark` 就交差；**禁止**白底/浅灰默认节点
+
+连线 `linkStyle`（§4）是路径语义，**不能代替**节点深彩色。
 
 ---
 
@@ -60,6 +82,7 @@ description: >-
 占位边写在语义边之前，`linkStyle 0` 固定用来消掉它：
 
 ```mermaid
+%%{init: {'theme': 'dark'}}%%
 flowchart TB
     subgraph 正常流程["正常流程"]
         direction LR
@@ -79,6 +102,8 @@ flowchart TB
     A1 --> B1 --> C1
     A2 --> B2 --> C2
     linkStyle 0 opacity:0,stroke-width:0px
+    classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    class A1,B1,C1,A2,B2,C2 n
 ```
 
 ### 1.3 反例（不要这样写）
@@ -135,9 +160,12 @@ linkStyle N opacity:0,stroke-width:0px
 节点超过 **4–5 个** 且横向溢出时，拆链或子图内 `direction LR` 折行：
 
 ```mermaid
+%%{init: {'theme': 'dark'}}%%
 flowchart LR
     A --> B --> C --> D
     D --> E --> F --> G
+    classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    class A,B,C,D,E,F,G n
 ```
 
 ---
@@ -249,7 +277,7 @@ CLIENT ==>|公开 API| SVC_B
 | 外部扩展 / 远程 / 总线延伸 | `-->` **实线** | `#94A3B8`，`stroke-width:2.5px`（**不用** `-.->`，否则与虚线难区分） |
 | 跨边界衔接（可选第三色） | `-->` 实线 | `#22D3EE`，`2px` |
 
-暗色主题 `themeVariables` 与 `classDef` 配色应与**当前项目**文档约定一致（勿在 skill 内写死某一产品色板）。
+**节点**必须用深彩色 `classDef`/`style`（**`markdown-export`** §5），与连线色是两件事。`themeVariables` 不要改回浅色底。产品品牌色可以叠加在深彩色原则上，**不能**拿「skill 不写死产品色板」当借口输出默认浅色图。
 
 ---
 
@@ -258,11 +286,15 @@ CLIENT ==>|公开 API| SVC_B
 跨层、易误解的边应加 **`|说明|`**，写清**传递的内容或机制**，而非仅「连接」：
 
 ```mermaid
-CLIENT ==>|公开 API：创建任务 / 读写| SVC_A
-SVC_A ==>|协议封装 · 批量 IO| BRIDGE
-SVC_B -->|路由表 / 策略下发| COORD
-SIGNAL -.->|物理信令线| ACTUATOR
-BRIDGE -.->|透明总线 / 隧道| EXT_NODE
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    CLIENT ==>|公开 API：创建任务 / 读写| SVC_A
+    SVC_A ==>|协议封装 · 批量 IO| BRIDGE
+    SVC_B -->|路由表 / 策略下发| COORD
+    SIGNAL -.->|物理信令线| ACTUATOR
+    BRIDGE -.->|透明总线 / 隧道| EXT_NODE
+    classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    class CLIENT,SVC_A,BRIDGE,SVC_B,COORD,SIGNAL,ACTUATOR,EXT_NODE n
 ```
 
 - 标签过长时用 `<br/>` 换行，或略写后在**当前业务文档**中补一句。
@@ -347,7 +379,7 @@ flowchart LR
 | 跨域多层架构 | `TB` | 同层内可 `LR` 双列 | 有语义边则不再加占位 | §3、§1.4 |
 | 单条长流程链 | `LR` 或 `TB` | — | 视情况 | §2 |
 | 需要图例（仅 §6.2） | 主图 `TB` + 图例 `LR` | — | 图例内样本间隔也须隐形 | §6.3 |
-| 小决策/少节点图 | `TB` 或 `LR` | — | `useMaxWidth:false`；**禁止**独立图例 | §6.1、§10 |
+| 小决策/少节点图 | `TB` 或 `LR` | — | `useMaxWidth:false`；**禁止**独立图例；深彩色节点 | §0、§6.1、§10 |
 
 ---
 
@@ -364,6 +396,8 @@ flowchart LR
 - [ ] 小图 / 边已带 `|说明|` / 线型不足 3 种：是否**没有**独立图例块？
 - [ ] 仅当 §6.2 成立：图例是否独立第二块、横向紧凑，且未破坏主图 linkStyle 序号？
 - [ ] 小 `flowchart` 是否 `useMaxWidth:false`，而不是被拉满正文栏？
+- [ ] 是否 `%%{init: {'theme':'dark'}}%%`，且每个可见节点都有深彩色 `fill` + 浅色字？
+- [ ] 是否只有 `theme: dark`、节点仍是默认浅底？有则不合格，按 **`markdown-export`** §5 补 `style`/`classDef`
 
 ---
 
@@ -380,7 +414,7 @@ flowchart LR
 
 **小图禁止独立图例**（§6.1）。边上写 `|说明|` 即可，不要在主图下再跟一块 `LEG["图例"]`。
 
-**每张小图**在 fence 顶部写：
+**每张小图**在 fence 顶部写（`theme: dark` 仍不够：节点还必须按 §0 / **`markdown-export`** §5 上深彩色）：
 
 ```
 %%{init: {'theme':'dark','flowchart':{'useMaxWidth':false,'nodeSpacing':16,'rankSpacing':28,'padding':8}}}%%

@@ -107,6 +107,10 @@ node ~/.cursor/skills/markdown-to-html/tests/test_anchor.js
 
 Markdown 中的 ` ```mermaid ` 代码块由 `mermaid.js` 在客户端渲染，无需特殊处理。
 
+**源 `.md` 里的图必须已经是深彩色**：HTML 全局 `theme:'dark'` **不能代替**节点 `style`/`classDef`。若源图是默认浅色节点，导出页在暗色主题里同样难看。写或改源文档时遵循 **`markdown-export`** §5 与 **`mermaid-flowchart-layout`** §0。
+
+**再读三遍：** 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
+
 ### 2.2 触发降级的条件（必须自动判断） <a id="22-触发降级的条件必须自动判断"></a> <a href="#toc-pos-22-触发降级的条件必须自动判断" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 遇到以下任一情况时，**禁止使用 Mermaid**，必须改用分层彩色卡片布局：
