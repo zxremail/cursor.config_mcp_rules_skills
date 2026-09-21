@@ -36,7 +36,7 @@ description: >-
 | 左栏 L0–L7 / 硬件；浅色色带 + 双白卡片；关/改/加/留/决策胶囊；平台角标嵌胶囊内 | `layer-action-capsule-diagram` |
 | 浅色层底 + 白底分组框 + 饱和色内卡片；层名在左、层间↓、底栏色块图例 | `fig-tinted-layer-cards` |
 | Mermaid `flowchart`、多 subgraph、跨层连线、暗色节点 | `mermaid-flowchart-layout` |
-| 深色分层彩色卡片墙（`.layer` / `.halbox` / `customfig`） | `markdown-to-html` §3 / §7.6 |
+| 深色分层彩色卡片墙（HTML）；`.layer` / `.halbox` / `customfig` | `markdown-to-html` §3 / §7.6 |
 | HTML 时序：贴顶彩色角色栏、生命线、橙色 Note | `html-sequence-swimlane` |
 | 左栏阶段 × 顶栏季度；里程碑横条、菱形节点 | `task-roadmap-timeline` |
 | 人员泳道、人力胶囊、Git 式分支合入、底栏星星 | `task-assignment-timeline` |

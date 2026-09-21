@@ -23,7 +23,7 @@ disable-model-invocation: true
 | capsule | 新画：分层行动胶囊图 |
 | tinted-cards | 新画：浅色分层彩色卡片墙 |
 | mermaid-flow | 新画：Mermaid 分层/连线架构 |
-| dark-cards | 新画：深色分层彩色卡片墙 |
+| dark-cards | 新画：深色分层彩色卡片墙（HTML） |
 | seq-html | 新画：HTML 贴顶角色时序 |
 | roadmap | 新画：项目阶段路线图 |
 | assign | 新画：人员分工时间表 |
