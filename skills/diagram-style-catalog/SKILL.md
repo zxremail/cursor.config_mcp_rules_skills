@@ -50,7 +50,7 @@ description: >-
 | 独立 HTML / sidecar | `markdown-to-html` |
 | HTML 幻灯片 | `markdown-to-slides` |
 
-有样式 Skill 时：**先样式后媒介**。例如 3.1 胶囊图 → `layer-action-capsule-diagram` 再 `lark-whiteboard`，不要只走 whiteboard-cli 默认色板。
+有样式 Skill 时：**先样式后媒介**。例如行动胶囊图 → `layer-action-capsule-diagram` 再 `lark-whiteboard`，不要只走 whiteboard-cli 默认色板。
 
 ## 3. 内化新图（用户要把样子做成 Skill）
 
@@ -68,6 +68,6 @@ description: >-
 ## 4. 用户怎么点名
 
 - 「按分层行动胶囊图画」「走 `layer-action-capsule-diagram`」
-- 「像 3.1 那样，不要深色卡片墙」
+- 「像分层行动胶囊图那样，不要深色卡片墙」
 - 「对照这张图内化成 Skill，先查目录有没有同类」
 - 只说「画个架构图」→ 先对本表，对不上再问，不要直接画 Mermaid
