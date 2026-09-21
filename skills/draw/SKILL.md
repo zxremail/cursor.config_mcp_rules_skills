@@ -21,7 +21,7 @@ disable-model-invocation: true
 | id | 标签 |
 |----|------|
 | capsule | 新画：分层行动胶囊图 |
-| tinted-cards | 新画：浅色分层卡片墙 |
+| tinted-cards | 新画：浅色分层彩色卡片墙 |
 | mermaid-flow | 新画：Mermaid 分层/连线架构 |
 | dark-cards | 新画：深色分层彩色卡片墙 |
 | seq-html | 新画：HTML 贴顶角色时序 |
