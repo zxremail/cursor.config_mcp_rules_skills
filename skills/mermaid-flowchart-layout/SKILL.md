@@ -49,7 +49,7 @@ description: >-
 
 ## 0. 深彩色配色（硬规则，先于排版）
 
-排版之前先上色。本 skill 后文部分示例为突出分行/隐形线，可能把节点 `style` 写短；**正式输出不得照抄无色版本。**
+排版之前先上色。**本 skill 里凡是 ` ```mermaid ` 围栏（含反例）都必须深彩色**，禁止再放可渲染的默认浅色图。反例只示范排版错误，配色仍要合格；不要因为「这是反例」就把 `theme`/`classDef` 拿掉。
 
 写每一张图之前先读三遍：
 
@@ -108,9 +108,10 @@ flowchart TB
 
 ### 1.3 反例（不要这样写）
 
-**反例 A**：既没有占位边、层间也没有语义边，两个 subgraph 会挤在同一行。
+**反例 A**：既没有占位边、层间也没有语义边，两个 subgraph 会挤在同一行。配色仍用深彩色——错的是分行，不是配色。
 
 ```mermaid
+%%{init: {'theme': 'dark'}}%%
 flowchart TB
     subgraph 正常流程["正常流程"]
         A1 --> B1 --> C1
@@ -118,6 +119,8 @@ flowchart TB
     subgraph 异常流程["异常流程"]
         A2 --> B2 --> C2
     end
+    classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    class A1,B1,C1,A2,B2,C2 n
 ```
 
 **反例 B**：层间已有 `-->` / `==>`，再写 `~~~` 或 `---`。预览会出现**无箭头灰线**（幽灵线）。有语义边就足以分行，不要再加占位边。
@@ -188,23 +191,31 @@ flowchart LR
 某一逻辑层内部若有两条**独立路径**（如主数据通路与协调/信令通路），用 `direction LR` 建**左、右两列**，列内 `direction TB` 自上而下：
 
 ```mermaid
-subgraph MID["中层（示例）"]
-    direction LR
-    subgraph COL_L["左列 · 主数据路径"]
-        direction TB
-        BRIDGE["协议适配 / 缓冲"]
-        WORKER["处理单元"]
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    subgraph MID["中层（示例）"]
+        direction LR
+        subgraph COL_L["左列 · 主数据路径"]
+            direction TB
+            BRIDGE["协议适配 / 缓冲"]
+            WORKER["处理单元"]
+        end
+        COL_L --- COL_R
+        subgraph COL_R["右列 · 协调路径"]
+            direction TB
+            COORD["协调服务"]
+            SIGNAL["信令 / 状态"]
+            COORD --> SIGNAL
+        end
     end
-    COL_L --- COL_R
-    subgraph COL_R["右列 · 协调路径"]
-        direction TB
-        COORD["协调服务"]
-        SIGNAL["信令 / 状态"]
-        COORD --> SIGNAL
-    end
-end
-%% COL_L --- COL_R 是占位边，全图须按 §1.4 隐形
+    linkStyle 0 opacity:0,stroke-width:0px
+    classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    classDef alt fill:#A23B72,stroke:#7B2D55,color:#FFFFFF
+    class BRIDGE,WORKER n
+    class COORD,SIGNAL alt
 ```
+
+`COL_L --- COL_R` 是占位边，必须按 §1.4 隐形（上图 `linkStyle 0`）。
 
 **跨层连线规则**（减少交叉）：
 
@@ -218,8 +229,14 @@ end
 用 **`源节点 --- 目标列顶节点`** 做列对齐，且仅当二者之间**还没有**语义边时才加；加上后必须按 §1.4 隐形。已有 `==>` / `-->` 就不要再加占位边：
 
 ```mermaid
-SVC_A ==>|批量传输 / API| BRIDGE
-SVC_B -->|配置 / 路由| COORD
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    SVC_A ==>|批量传输 / API| BRIDGE
+    SVC_B -->|配置 / 路由| COORD
+    classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    classDef alt fill:#A23B72,stroke:#7B2D55,color:#FFFFFF
+    class SVC_A,BRIDGE n
+    class SVC_B,COORD alt
 ```
 
 ### 3.4 上层内：子组件收进运行时容器，避免双汇聚
@@ -229,23 +246,31 @@ SVC_B -->|配置 / 路由| COORD
 **改法**：用**运行时容器** subgraph **包住**并排子组件，**不再**画 `子组件 → 运行时`；上层入口只连子组件：
 
 ```mermaid
-subgraph RUNTIME["运行时环境"]
-    direction LR
-    SVC_A["服务 A"]
-    SVC_A --- SVC_B
-    SVC_B["服务 B"]
-end
-CLIENT ==>|公开 API| SVC_A
-CLIENT ==>|公开 API| SVC_B
-%% SVC_A --- SVC_B 为占位边，须按 §1.4 计入并隐形
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    subgraph RUNTIME["运行时环境"]
+        direction LR
+        SVC_A["服务 A"]
+        SVC_A --- SVC_B
+        SVC_B["服务 B"]
+    end
+    CLIENT ==>|公开 API| SVC_A
+    CLIENT ==>|公开 API| SVC_B
+    linkStyle 0 opacity:0,stroke-width:0px
+    classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    class CLIENT,SVC_A,SVC_B n
 ```
+
+`SVC_A --- SVC_B` 为占位边，须按 §1.4 计入并隐形（上图 `linkStyle 0`）。
 
 ### 3.5 连线定义集中在图底部
 
 先写齐 **节点/subgraph**，再在**图末**统一写跨层边，便于维护 `linkStyle` 序号：
 
-```mermaid
-    %% … 节点与 subgraph …
+完整图仍须 `theme: dark` + 节点 `classDef`。图末连线片段如下（不要把这段残缺源码当可渲染图复制出去）：
+
+```text
+    %% … 节点与 subgraph 已写在上方，且已 classDef …
 
     CLIENT ==>|说明| SVC_A
     SVC_A ==>|说明| BRIDGE
@@ -335,7 +360,7 @@ Mermaid **无原生 `legend`**。要**真实线型/颜色**且不影响主图 `l
 - **横向紧凑**：`flowchart LR`，样本边一排；样本之间用隐形 `---` 分隔（§1.4），**禁止** `~~~`。
 
 ```mermaid
-%%{init: {'theme': 'dark', 'flowchart': {'padding': 6, 'nodeSpacing': 12, 'rankSpacing': 18}, ...}}%%
+%%{init: {'theme': 'dark', 'flowchart': {'padding': 6, 'nodeSpacing': 12, 'rankSpacing': 18, 'useMaxWidth': false}}}%%
 flowchart LR
     subgraph LEG["图例"]
         direction LR
@@ -358,6 +383,8 @@ flowchart LR
     linkStyle 6 stroke:#67E8F9,stroke-width:2px,stroke-dasharray:12 4
     linkStyle 7 opacity:0,stroke-width:0px
     linkStyle 8 stroke:#94A3B8,stroke-width:2.5px
+    classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    class A1,B1,A2,B2,A3,B3,A4,B4,A5,B5 n
 ```
 
 | 方案 | 集成方式 | 真实线型 | 维护 |
@@ -414,11 +441,19 @@ flowchart LR
 
 **小图禁止独立图例**（§6.1）。边上写 `|说明|` 即可，不要在主图下再跟一块 `LEG["图例"]`。
 
-**每张小图**在 fence 顶部写（`theme: dark` 仍不够：节点还必须按 §0 / **`markdown-export`** §5 上深彩色）：
+**每张小图**在 fence 顶部写，并且给节点上深彩色（只写 `theme: dark` 不够）：
 
-```
+```mermaid
 %%{init: {'theme':'dark','flowchart':{'useMaxWidth':false,'nodeSpacing':16,'rankSpacing':28,'padding':8}}}%%
 flowchart TB
+    A{判断} -->|是| B[执行]
+    A -->|否| C[结束]
+    classDef dec fill:#F18F01,stroke:#C67500,color:#FFFFFF
+    classDef ok fill:#2D936C,stroke:#1E6B4E,color:#FFFFFF
+    classDef bad fill:#E63946,stroke:#B52D38,color:#FFFFFF
+    class A dec
+    class B ok
+    class C bad
 ```
 
 `md2html` 生成页的全局默认已是 `useMaxWidth:false`，CSS 为 `width:auto; max-width:100%`（见 markdown-to-html §2.3）。宽架构图不够看时让容器横向滚动，不要改回 `max-width:none` 去撑满。

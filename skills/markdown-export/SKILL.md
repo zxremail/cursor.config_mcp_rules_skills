@@ -105,10 +105,11 @@ flowchart LR
 ​```
 ```
 
-错误做法（挤在一个代码块中左右并排）：
+错误做法（挤在一个代码块中左右并排）。反例只错在并排，配色仍须深彩色：
 
 ```markdown
 ​```mermaid
+%%{init: {'theme': 'dark'}}%%
 flowchart TB
     subgraph A["方案 A"]
         A1 --> A2 --> A3
@@ -116,6 +117,8 @@ flowchart TB
     subgraph B["方案 B"]
         B1 --> B2 --> B3
     end
+    classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    class A1,A2,A3,B1,B2,B3 n
 ​```
 ```
 
