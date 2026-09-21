@@ -1,4 +1,4 @@
-# 画图：先选出视觉语言
+# Draw: pick a visual language first
 
 用户要画图。先 Read `~/.cursor/skills/diagram-style-catalog/SKILL.md`。
 
