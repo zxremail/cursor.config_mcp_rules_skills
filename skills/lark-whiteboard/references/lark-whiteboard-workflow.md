@@ -25,13 +25,12 @@
 
 **Step 2：探测可编辑性 / 是否由代码绘制**
 
-- `+export --output-type source` — 能返回单一 Mermaid/PlantUML 源码，说明画板由代码绘制。用户要的是文字露出时仍走路径⓪，不要改走路径①；除此之外，单一源码可走路径①，无代码或多图则走路径②③④
+- `+export --output-type source` — 能返回单一 Mermaid/PlantUML 源码，说明画板由代码绘制、可走路径①；返回无代码/多图则走路径②③④
 
 **Step 3：选编辑路径**（按上到下匹配，命中即停；用户有明确指定则以用户为准）
 
 | 路径 | 命中条件 | 怎么改 | 写入方式 | 是否有损 |
 |---|---|---|---|---|
-| ⓪文字露出 | 用户说文字被遮挡、显示不全、裁切、被挡住，或「从图1变为图2 / 以同样的要求」 | 先读 [`lark-whiteboard-text-visibility.md`](lark-whiteboard-text-visibility.md)。**禁止**用 Mermaid/PlantUML 源码覆盖来修这个问题 | raw overwrite（只改几何与对齐） | 保留原文、配色、连线标签 |
 | ①源码重构 | `+export source` 返回单一 Mermaid/PlantUML（即画板由代码绘制） | 在源码上改 → 按源码类型用 `+update --input_format mermaid` 或 `+update --input_format plantuml` | overwrite（整板重建） | ⚠️ **非严格无损，执行前确认** |
 | ②属性微调 | 只改已有节点的文字/颜色 | `+export --output-type raw --output <file>`（**必须写入文件**）→ 编辑文件中目标节点字段；如只能用 `+update --input_format raw --source @<file> --overwrite` 写回，先说明会整板重建并等待用户确认 | overwrite（整板重建） | ⚠️ **有损风险，未确认不得执行** |
 | ③增量追加 | 在原图基础上新增图/元素，保留原内容 | `+export --output-type preview` → 理解原图 → `+export --output-type raw` → 确定新节点坐标 → [§ 渲染 & 写入画板](#渲染--写入画板) 创作&写入 | append（**不加 `--overwrite`**） | 无损（原节点不动） |

@@ -1,7 +1,7 @@
 ---
 name: feishu-doc-format
 description: >
-  个人默认飞书云文档排版：标题 seq=auto 自动编号（不手写 1. / 1.1），
+  个人默认飞书云文档排版：标题 seq=auto 自动编号（不手写 1. / 1.1）、标题不用代码格式，
   表格浅紫表头 rgb(236,226,254) + 浅蓝首列 rgb(225,234,255)，
   表头与首列加粗、首列不用代码格式。
   Use when creating or editing Feishu/Lark Docx or Wiki, 飞书文档,
@@ -24,10 +24,19 @@ description: >
 - 插入或删除同级标题后，飞书会自动重排（例如原 `1` 变为 `2`，`1.1` 变为 `2.1`）。
 - 仅当用户明确要求公文手写序号（`一、` / `（一）`）时才不用 `seq="auto"`。
 
+### 标题不用代码格式
+
+- 标题文本一律普通正文，禁止 `<code>` / `inline_code` / 等宽字体。
+- 类型名、函数名、头文件、库名写在标题里时也走普通文字，不要包成行内代码。
+- 标题下正文、以及表格非首列，需要突出命令或标识时仍可用 `<code>`。
+
 ```xml
 <h1 seq="auto">读前须知</h1>
 <h2 seq="auto">你实际在用的是什么</h2>
+<h2 seq="auto">priv_result_t</h2>
 ```
+
+不要写成 `<h2 seq="auto"><code>priv_result_t</code></h2>`。
 
 ## 表格
 
@@ -59,4 +68,4 @@ description: >
 </table>
 ```
 
-Markdown 导入飞书后若表头/首列无色、未加粗、首列被包成代码，或标题仍手写序号，用 `docs +update` 按上表补齐，标题改为 `seq="auto"` 并去掉手写前缀。
+Markdown 导入飞书后若表头/首列无色、未加粗、首列被包成代码，或标题仍手写序号、标题被包成 `<code>`，用 `docs +update` 按上表补齐：标题改为 `seq="auto"`、去掉手写前缀，并去掉标题上的 `<code>`。
