@@ -114,6 +114,7 @@ lark-cli whiteboard +update \
 
 - 确认所有 Mermaid 块都已转为画板并填充内容
 - 确认没有遗漏任何 board_token
+- 按 [`../feishu-doc-format/SKILL.md`](../feishu-doc-format/SKILL.md) 检查标题是否 `seq="auto"`（无手写序号）、表格是否浅紫表头 + 浅蓝首列；Markdown 导入未带上时用 `docs +update` 补
 - 向用户返回文档链接（`doc_url`）
 
 ## 快速决策表

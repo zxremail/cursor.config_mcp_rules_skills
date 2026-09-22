@@ -20,6 +20,7 @@ metadata:
 
 ### 文档内容
 
+- **个人默认排版 — [`feishu-doc-format`](../feishu-doc-format/SKILL.md)**：创建或编辑正文时默认采用自动编号标题、浅紫表头、浅蓝首列；用户另指定样式时除外。
 - **读取 / 摘要 — [`+fetch`](references/lark-doc-fetch.md)**：先读参考再获取文档。
 - **从零创作 — [`创建工作流`](references/lark-doc-create-workflow.md)**：先完整执行创建工作流，**简单任务不是跳过的理由**；
 - **导入 / 空文档 — [`+create`](references/lark-doc-create.md)**：仅创建空文档或原样导入用户提供的完整内容时，跳过创建工作流。
