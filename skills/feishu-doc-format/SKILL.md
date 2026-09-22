@@ -2,7 +2,8 @@
 name: feishu-doc-format
 description: >
   个人默认飞书云文档排版：标题 seq=auto 自动编号（不手写 1. / 1.1），
-  表格浅紫表头 rgb(236,226,254) + 浅蓝首列 rgb(225,234,255)。
+  表格浅紫表头 rgb(236,226,254) + 浅蓝首列 rgb(225,234,255)，
+  表头与首列加粗、首列不用代码格式。
   Use when creating or editing Feishu/Lark Docx or Wiki, 飞书文档,
   docs +create / +update, or converting markdown to Feishu documents.
   Takes precedence over lark-doc default table/heading styles; do not patch lark-doc.
@@ -30,26 +31,32 @@ description: >
 
 ## 表格
 
-- **表头行**所有 `<th>`：`background-color="rgb(236,226,254)"`（飞书浅紫），文字 `<p align="center">`。
-- **首列**（表头以下的 `<td>`）：`background-color="rgb(225,234,255)"`（飞书浅蓝）。
-- 其余数据格默认白底，不铺色。
+- **表头行**所有 `<th>`：`background-color="rgb(236,226,254)"`（飞书浅紫），文字 `<p align="center"><b>…</b></p>`。
+- **首列**（表头以下的 `<td>`）：`background-color="rgb(225,234,255)"`（飞书浅蓝），文字 `<p><b>…</b></p>`。
+- 其余数据格默认白底、常规字重，不铺色。
 - 必须写上述 rgb 字符串。不要用基础色 `purple`（过深）；不要写 `medium-purple`（表格里会被映射成浅紫，语义不准）。
+
+### 首列不用代码格式
+
+- 首列（含表头「产物」这类标签）一律普通正文 + `<b>`，禁止 `<code>` / `inline_code` / 等宽字体。
+- 库名、头文件、`.so` / `.h` 等标识写在首列时也走普通加粗正文，不要当成行内代码。
+- 其它列需要突出命令、头文件名时，仍可用 `<code>`（例如 `-lrigolos_priv`、`priv_protocol.h`）。
 
 ```xml
 <table>
   <thead>
     <tr>
-      <th background-color="rgb(236,226,254)" vertical-align="middle"><p align="center">产物</p></th>
-      <th background-color="rgb(236,226,254)" vertical-align="middle"><p align="center">作用</p></th>
+      <th background-color="rgb(236,226,254)" vertical-align="middle"><p align="center"><b>产物</b></p></th>
+      <th background-color="rgb(236,226,254)" vertical-align="middle"><p align="center"><b>作用</b></p></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td background-color="rgb(225,234,255)" vertical-align="top"><p>首列内容</p></td>
-      <td vertical-align="top"><p>说明</p></td>
+      <td background-color="rgb(225,234,255)" vertical-align="top"><p><b>librigolos_priv.so</b></p></td>
+      <td vertical-align="top"><p>业务程序 <code>-lrigolos_priv</code> 链接它</p></td>
     </tr>
   </tbody>
 </table>
 ```
 
-Markdown 导入飞书后若表头/首列无色、或标题仍手写序号，用 `docs +update` 按上表补色，标题改为 `seq="auto"` 并去掉手写前缀。
+Markdown 导入飞书后若表头/首列无色、未加粗、首列被包成代码，或标题仍手写序号，用 `docs +update` 按上表补齐，标题改为 `seq="auto"` 并去掉手写前缀。
