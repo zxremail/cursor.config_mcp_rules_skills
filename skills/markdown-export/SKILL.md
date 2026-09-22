@@ -5,7 +5,7 @@ description: >-
   when drawing or editing Mermaid diagrams in .md; or when a chart looks
   light-themed, default-colored, washed-out, pale, or hard to read on a
   dark background. Triggers: 生成 markdown、写文档、导出 md、Mermaid 配色、
-  深彩色、暗色主题、theme dark、浅色图、默认配色。
+  深彩色、暗色主题、theme dark、浅色图、默认配色、文字被遮挡、显示不全、裁切。
 ---
 
 # Markdown 文档导出规范
@@ -71,6 +71,7 @@ description: >-
   - 正确示例：`A["第一行<br>第二行"]`
   - 错误示例：`A["第一行\n第二行"]`
 - 该规则适用于**所有 Mermaid 文本位置**，包括但不限于：节点标签、边标签、`Note over`/`Note right of` 文本、子图标题等。凡是需要换行，一律使用 `<br>`，禁止使用 `\n`。
+- **文字必须完整露出。** 节点、子图标题、边标签在预览里不得被框裁掉、被别的节点盖住或被箭头穿过。长文本用 `<br>` 换行，让框被文字撑开。flowchart 的排法见 `mermaid-flowchart-layout` §11。写完必须看渲染结果；仍被挡就挪开挡住它的节点或边，不要把字号缩小到塞进旧框。
 
 ## 4. 图表密度控制 <a id="4-图表密度控制"></a> <a href="#toc-pos-4-图表密度控制" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
