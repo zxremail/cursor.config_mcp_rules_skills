@@ -118,7 +118,7 @@ Markdown 中的 ` ```mermaid ` 代码块由 `mermaid.js` 在客户端渲染，�
 2. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
 3. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
 
-有左右方向的流程图按 `mermaid-flowchart-layout` §4.1 上色。时序图请求用实线 `->>`、返回用虚线 `-->>`。页面样式把实线消息描成 `#3370FF`、虚线消息描成 `#00A870`（已写入 `base.css`）。自调用要单独用浅色时，降级为 `html-sequence-swimlane` 的 `.seq-self`。
+时序图请求用实线 `->>`、返回用虚线 `-->>`，按 `mermaid-flowchart-layout` §4.1 上色。页面样式把实线消息描成 `#3370FF`、虚线消息描成 `#00A870`（已写入 `base.css`）。自调用要单独用浅色时，降级为 `html-sequence-swimlane` 的 `.seq-self`。流程图步骤箭头不用这组颜色。
 
 ### 2.2 触发降级的条件（必须自动判断） <a id="22-触发降级的条件必须自动判断"></a> <a href="#toc-pos-22-触发降级的条件必须自动判断" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
