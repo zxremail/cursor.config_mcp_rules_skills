@@ -4,9 +4,10 @@ description: >
   个人默认飞书云文档排版：标题 seq=auto 自动编号（不手写 1. / 1.1）、标题不用代码格式，
   表格浅紫表头 rgb(236,226,254) + 浅蓝首列 rgb(225,234,255)，
   表头与首列加粗、首列不用代码格式。
-  Use when creating or editing Feishu/Lark Docx or Wiki, 飞书文档,
-  docs +create / +update, or converting markdown to Feishu documents.
-  Takes precedence over lark-doc default table/heading styles; do not patch lark-doc.
+  飞书文档画板中的流程图，标题栏字体必须加粗。
+  Use when creating or editing Feishu/Lark Docx or Wiki, 飞书文档, 画板流程图/时序图,
+  docs +create / +update, whiteboard +update, or converting markdown to Feishu documents.
+  Takes precedence over lark-doc default table/heading styles; do not patch lark-doc or lark-whiteboard.
 ---
 
 # 飞书文档个人默认格式
@@ -14,7 +15,7 @@ description: >
 写或改飞书云文档时默认采用下列格式。用户当场指定其他样式时以当场为准。
 本 Skill 覆盖官方 `lark-doc` 里「表头用 light-gray / medium-gray」的建议。
 
-**不要把本格式写进 `lark-doc/`。** `lark-cli update` 会同步覆盖官方 AI Skills；个人偏好只放本 Skill 和 `~/.cursor/rules/feishu-doc-format.mdc`。
+**不要把本格式写进 `lark-doc/` 或 `lark-whiteboard/`。** `lark-cli update` 会同步覆盖官方 AI Skills；个人偏好只放本 Skill 和 `~/.cursor/rules/feishu-doc-format.mdc`。
 
 ## 标题
 
@@ -69,3 +70,12 @@ description: >
 ```
 
 Markdown 导入飞书后若表头/首列无色、未加粗、首列被包成代码，或标题仍手写序号、标题被包成 `<code>`，用 `docs +update` 按上表补齐：标题改为 `seq="auto"`、去掉手写前缀，并去掉标题上的 `<code>`。
+
+## 画板流程图标题栏
+
+飞书文档画板中的流程图，标题栏字体必须加粗。
+
+- 时序图：参与者标题栏（`life_line` 的 `text.font_weight`）设为 `bold`。箭头、消息、自调用说明保持 `regular`。
+- 分层流程图：外框或分组的标题栏同样加粗。色块内文和连线标签不加粗。
+- 加粗后字形变宽。预览里若换行或被裁切，只加宽该标题框，不缩小字号。时序图加宽时保持标题框中心不动，避免生命线和箭头错位。
+- 改已有画板时改 raw 节点后写回。不要用 Mermaid 整板重画，否则字重会回到常规。写回后导出预览，确认标题加粗且整行可见。文字被裁切时同时遵守 `feishu-whiteboard-text-visibility`。
