@@ -6,6 +6,7 @@ description: >-
   配合 markdown-to-html 的 sidecar customfig 使用。
   Use when HTML sequence diagram, 泳道时序, sequenceDiagram 降级,
   贴顶角色栏, sticky actors, seq-e2e, or md2html customfig 时序图.
+  向右箭头 #3370FF、向左虚线 #00A870、自调用 #E8EAED。
 ---
 
 # HTML 泳道时序图（seq-e2e）
@@ -39,8 +40,8 @@ Windows：`PYTHONIOENCODING=utf-8 py -3 -m md2html build doc.md`
 | 角色栏 | 每列一色圆角条，`white-space:nowrap`，`position:sticky;top:0` | 角色名折成两行 |
 | 生命线 | 列中心竖线 `#8AA0B4` | 无线 |
 | 阶段 / Note | 橙色底 `#F18F01`、黑字，只覆盖相关列 | 通栏橙条（除非 Note 真覆盖全部角色） |
-| 自消息 `A->>A` | 生命线右侧 **回弯箭头** + 右侧白字 | 纯文字无箭头；蓝/绿卡片 |
-| 跨角色消息 | 线连两列中心，**标签在线上方** | 黑底胶囊切断线条 |
+| 自消息 `A->>A` | 生命线右侧 **回弯箭头**，线色 `#E8EAED`，右侧白字 | 纯文字无箭头；蓝/绿卡片；涂成向右蓝或向左绿 |
+| 跨角色消息 | 向右实线 `#3370FF`，向左虚线 `#00A870`；标签在线上方，字色仍为 `#E8EAED` | 黑底胶囊切断线条；左右箭头同一灰色 |
 | alt / opt | 左上色块 + 虚线框；分支名 `[实体键]` 叠在该箭头正中上方 | 紫底大卡片、else 写成左对齐长标题抢泳道 |
 | 时间推进 | **一行一事**（一个 `.seq-row` 只放一条消息或一张 Note） | grid 自动把多条事件挤进同一行 |
 
@@ -112,7 +113,7 @@ Note over PMCU,COMe  grid-column:5/7
 | `.c-fpga` | `#0e7490` | `#22d3ee` |
 | `.c-ep` | `#334155` | `#94A3B8` |
 
-信号线 `#B0BEC5`，标签 `#E8EAED`，Note `#F18F01` / 字 `#1A1A1A`，alt `#6A4C93`，opt `#2D936C`。与 Mermaid `themeVariables` 对齐。
+向右请求 `#3370FF` 实线，向左返回 `#00A870` 虚线，自调用 `#E8EAED`。标签 `#E8EAED`，Note `#F18F01` / 字 `#1A1A1A`，alt `#6A4C93`，opt `#2D936C`。浅色飞书画板的自调用用 `#1F2329`，见 `feishu-doc-format`。
 
 ## 打磨清单
 

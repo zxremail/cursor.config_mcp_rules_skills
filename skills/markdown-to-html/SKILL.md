@@ -5,6 +5,7 @@ description: >-
   分层卡片替代；推荐两阶段：先基本 sidecar + md2html build，再按需打磨单张图。
   Use when the user asks to convert markdown to HTML, md2html, sidecar,
   customfig, or mentions "md 转 html", "生成 html", "导出 html", "markdown to html".
+  时序图向右箭头 #3370FF、向左虚线 #00A870。
 ---
 
 # Markdown 转 HTML 规范
@@ -116,6 +117,8 @@ Markdown 中的 ` ```mermaid ` 代码块由 `mermaid.js` 在客户端渲染，�
 1. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
 2. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
 3. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
+
+有左右方向的流程图按 `mermaid-flowchart-layout` §4.1 上色。时序图请求用实线 `->>`、返回用虚线 `-->>`。页面样式把实线消息描成 `#3370FF`、虚线消息描成 `#00A870`（已写入 `base.css`）。自调用要单独用浅色时，降级为 `html-sequence-swimlane` 的 `.seq-self`。
 
 ### 2.2 触发降级的条件（必须自动判断） <a id="22-触发降级的条件必须自动判断"></a> <a href="#toc-pos-22-触发降级的条件必须自动判断" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 

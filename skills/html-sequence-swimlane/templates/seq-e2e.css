@@ -5,8 +5,10 @@
   --seq-gap:8px;
   --seq-cols:repeat(8,minmax(0,1fr));
   --seq-line:#8AA0B4;
-  --seq-signal:#B0BEC5;
+  --seq-signal:#E8EAED;
   --seq-signal-text:#E8EAED;
+  --seq-right:#3370FF;
+  --seq-left:#00A870;
   --seq-note:#F18F01;
   --seq-note-border:#C67500;
   --seq-note-text:#1A1A1A;
@@ -190,14 +192,16 @@
   bottom:1px;
   border:5px solid transparent;
 }
+.seq-msg.right::before{border-top-color:var(--seq-right)}
+.seq-msg.left::before{border-top:1.5px dashed var(--seq-left)}
 .seq-msg.right::after{
   right:calc(50% / var(--span, 1) - 1px);
-  border-left-color:var(--seq-signal);
+  border-left-color:var(--seq-right);
   border-right-width:0;
 }
 .seq-msg.left::after{
   left:calc(50% / var(--span, 1) - 1px);
-  border-right-color:var(--seq-signal);
+  border-right-color:var(--seq-left);
   border-left-width:0;
 }
 
