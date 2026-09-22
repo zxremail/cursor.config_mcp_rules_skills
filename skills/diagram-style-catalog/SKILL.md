@@ -58,6 +58,7 @@ description: >-
 | 浅色分层彩色卡片墙 = 胶囊图 | 本图无关/改/加/留胶囊、无左栏 L0–L7 |
 | roadmap = 人员分工表 | 阶段×时间 → `task-roadmap-timeline`；谁做哪块 → `task-assignment-timeline` |
 | 时序 HTML = 分层卡片 | 贴顶角色栏 → `html-sequence-swimlane` |
+| 「分层协作总图」= 职责+时序+GPIO 一张 flowchart | 先定**一个问题**；混装走 `mermaid-flowchart-layout` §3.0，禁止塞进同一张 |
 
 ## 2. 选媒介（交卷）
 
@@ -123,6 +124,7 @@ description: >-
 **Mermaid 分层架构**
 ```
 标题：
+只回答的问题（职责 | 时序 | 实现细节，三选一）：
 subgraph / 层（上→下）：
 节点与边：
 .md 路径或飞书链接：
