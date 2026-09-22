@@ -18,14 +18,14 @@
 
 ## 标题与列表编号
 
-- 完整文档以唯一的 `<title>` 开头；正文标题使用 `<h1>` 至 `<h9>`，层级须连续，不跳级，例如 `<h1>` 后不能直接使用 `<h3>`，应先出现 `<h2>`。需要自动编号时设置 `seq="auto"`，系统会按标题层级生成并递增阿拉伯数字编号，例如一级标题为 `1`，二级标题为 `1.1`。**个人默认**：正文标题一律 `seq="auto"`，文本不手写序号，章 `<h1>`、节 `<h2>`；见 [`../../feishu-doc-format/SKILL.md`](../../feishu-doc-format/SKILL.md)。
+- 完整文档以唯一的 `<title>` 开头；正文标题使用 `<h1>` 至 `<h9>`，层级须连续，不跳级，例如 `<h1>` 后不能直接使用 `<h3>`，应先出现 `<h2>`。需要自动编号时设置 `seq="auto"`，系统会按标题层级生成并递增阿拉伯数字编号，例如一级标题为 `1`，二级标题为 `1.1`。
 - 有序列表：默认属性 `seq="auto"`，需从指定数字开始时设置对应值，如 `seq="3"`。
 
 ## 表格
 
 - `<table><thead><tr><th><p>表头</p></th></tr></thead><tbody><tr><td><p>内容</p></td></tr></tbody></table>`
 - `<colgroup><col /></colgroup>` 紧跟 `<table>` 定义列宽；`width` 表示列宽，可选 `span` 表示连续作用的列数。
-- `<th>` / `<td>` 支持 `background-color`、`vertical-align`、`colspan`、`rowspan`；`vertical-align`：`top | middle | bottom`；`background-color` 支持基础色相、`light-{色相}`、`medium-gray`，以及 `rgb(r,g,b)`。**个人默认**（覆盖下方「表头 light-gray」）：表头 `rgb(236,226,254)` 且文字居中，首列数据格 `rgb(225,234,255)`，其余数据格白底；见 [`../../feishu-doc-format/SKILL.md`](../../feishu-doc-format/SKILL.md)。被合并的单元格不再写入。
+- `<th>` / `<td>` 支持 `background-color`、`vertical-align`、`colspan`、`rowspan`；`vertical-align`：`top | middle | bottom`；`background-color` 支持基础色相、`light-{色相}`、`medium-gray`，表头优先使用 `light-gray` 或 `medium-gray`，彩色单元格仅用于表达状态或分类。被合并的单元格不再写入。
 
 ## 扩展标签
 
@@ -43,7 +43,7 @@
 
 - **合法值**：色相为 `red, orange, yellow, green, blue, purple, gray`；`text-color`、`border-color` 使用基础色相；`<span>`、`<th>`、`<td>`、`<button>` 背景支持基础色相、`light-{色相}`、`medium-gray`；高亮块背景支持 `gray`、`light-{色相}`、`medium-{色相}`。
 - **高亮块**：默认使用 `light-*` 背景和默认文字色；强提醒才使用 `medium-*`，彩色文字只强调短语。
-- **表格**：个人默认表头浅紫 `rgb(236,226,254)`、首列浅蓝 `rgb(225,234,255)`；无个人格式要求时才用 `light-gray` / `medium-gray`。避免整表铺色。
+- **表格**：表头优先使用 `light-gray` 或 `medium-gray`；彩色单元格只表达状态或分类，避免整表铺色。
 
 ## 转义规则
 

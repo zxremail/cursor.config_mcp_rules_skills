@@ -5,12 +5,15 @@ description: >
   表格浅紫表头 rgb(236,226,254) + 浅蓝首列 rgb(225,234,255)。
   Use when creating or editing Feishu/Lark Docx or Wiki, 飞书文档,
   docs +create / +update, or converting markdown to Feishu documents.
+  Takes precedence over lark-doc default table/heading styles; do not patch lark-doc.
 ---
 
 # 飞书文档个人默认格式
 
 写或改飞书云文档时默认采用下列格式。用户当场指定其他样式时以当场为准。
-本 Skill 覆盖 `lark-doc` XML 里「表头用 light-gray / medium-gray」的建议。
+本 Skill 覆盖官方 `lark-doc` 里「表头用 light-gray / medium-gray」的建议。
+
+**不要把本格式写进 `lark-doc/`。** `lark-cli update` 会同步覆盖官方 AI Skills；个人偏好只放本 Skill 和 `~/.cursor/rules/feishu-doc-format.mdc`。
 
 ## 标题
 
