@@ -7,7 +7,7 @@ description: >-
   在生成或编辑含多个 subgraph、跨层架构图、协作关系图、分层协作总图、图例/连线颜色/线型、
   或用户抱怨「连线乱/交叉」「太杂太乱」「一堆关系塞进一个图」
   「职责和时序画在同一张」「图太大/空白太多」「小图底下多余图例」
-  「无箭头灰线 / 幽灵线」、浅色/默认配色、暗色主题看不清、忘记 theme dark、
+  「无箭头灰线 / 幽灵线」「图例挤在一起 / 要有间隔的线型图例」、浅色/默认配色、暗色主题看不清、忘记 theme dark、
   文字被遮挡、显示不全、裁切、被箭头或内层节点挡住、
   或要按向左/向右给时序图箭头上色时应用。
   每一张图还必须用深彩色节点配色（见文首硬规则），且每一处文字都要完整露出（§11）。
@@ -409,39 +409,49 @@ flowchart TB
 
 ### 6.3 需要时的画法（方案 D）
 
-Mermaid **无原生 `legend`**。要**真实线型/颜色**且不影响主图 `linkStyle` 时，用 **方案 D**：
+Mermaid **无原生 `legend`**。要**真实线型/颜色**且不影响主图 `linkStyle` 时，用 **方案 D**。样子是一条横条：`图例` 标题在上，下面每种线型一对小圆点，说明写在箭头上，**样本与样本之间有一段空白**。
 
-- 主图与图例各一个 ` ```mermaid ` 块；
-- 图例块内边从 0 编号，**独立** `linkStyle`；
-- **横向紧凑**：`flowchart LR`，样本边一排；样本之间用隐形 `---` 分隔（§1.4），**禁止** `~~~`。
+间隔从哪来：对与对之间写一条 `---`，再用 `linkStyle` 把它涂掉（§1.4）。线不画出来，但那一档宽度还在，所以圆点组之间是空的。不要把 `nodeSpacing` 调成 0 来「凑紧」。
+
+- 主图与图例各一个 ` ```mermaid ` 块；图例边从 0 编号，**独立** `linkStyle`。
+- `flowchart LR`，一个 `subgraph LEG["图例"]`，`direction LR`。
+- 端点只用小圆 `((·))`。标签放在箭头上，不要写进圆点。
+- 只收录主图里真正出现的线型。多一种就再接「一对圆点 + 一条隐形 `---`」。
+- 图例 init 固定：`padding: 6`，`nodeSpacing: 12`，`rankSpacing: 18`，`useMaxWidth: false`。禁止拉满正文栏。
+- 每个圆点 `classDef` 深彩色。**禁止** `~~~`。
 
 ```mermaid
 %%{init: {'theme': 'dark', 'flowchart': {'padding': 6, 'nodeSpacing': 12, 'rankSpacing': 18, 'useMaxWidth': false}}}%%
 flowchart LR
     subgraph LEG["图例"]
         direction LR
-        A1((·)) ==>|上层→接口 API| B1((·))
+        A1((·)) ==>|上层 → 接口 API| B1((·))
         B1 --- A2
-        A2((·)) -->|主数据路径| B2((·))
+        A2((·)) -->|协调 / 信令| B2((·))
         B2 --- A3
-        A3((·)) -->|协调 / 信令| B3((·))
+        A3((·)) -.->|配置 / 策略| B3((·))
         B3 --- A4
-        A4((·)) -.->|背板·长虚线| B4((·))
-        B4 --- A5
-        A5((·)) -->|扩展·灰实线| B5((·))
+        A4((·)) ==>|主数据路径| B4((·))
     end
     linkStyle 0 stroke:#F59E0B,stroke-width:2.5px
     linkStyle 1 opacity:0,stroke-width:0px
-    linkStyle 2 stroke:#10B981,stroke-width:2px
+    linkStyle 2 stroke:#06B6D4,stroke-width:2px
     linkStyle 3 opacity:0,stroke-width:0px
-    linkStyle 4 stroke:#06B6D4,stroke-width:2px
+    linkStyle 4 stroke:#3B82F6,stroke-width:2px,stroke-dasharray:4 4
     linkStyle 5 opacity:0,stroke-width:0px
-    linkStyle 6 stroke:#67E8F9,stroke-width:2px,stroke-dasharray:12 4
-    linkStyle 7 opacity:0,stroke-width:0px
-    linkStyle 8 stroke:#94A3B8,stroke-width:2.5px
+    linkStyle 6 stroke:#10B981,stroke-width:2.5px
     classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
-    class A1,B1,A2,B2,A3,B3,A4,B4,A5,B5 n
+    class A1,B1,A2,B2,A3,B3,A4,B4 n
 ```
+
+上图语义边与隐形边交替：0 橙粗、1 隐形、2 青、3 隐形、4 蓝虚线、5 隐形、6 绿粗。颜色仍按 §4，标签换成该图自己的线型名。
+
+**禁止：**
+
+- 样本连成 `A1 --> B1 --> A2 --> B2`，中间没有空档
+- 省掉 `---`，指望几对圆点自己散开（会折行或贴在一起）
+- 用裸 `~~~` 当间隔（灰线涂不掉）
+- `useMaxWidth: true` 把横条拉满栏宽
 
 | 方案 | 集成方式 | 真实线型 | 维护 |
 |------|----------|----------|------|
@@ -461,7 +471,7 @@ flowchart LR
 | 多个 subgraph 对比/分层 | `TB` | `LR` | 无语义边时隐形 `---` | §1.4 |
 | 跨域多层架构 | `TB` | 同层内可 `LR` 双列 | 有语义边则不再加占位 | §3.0 先定单一问题；§3、§1.4 |
 | 单条长流程链 | `LR` 或 `TB` | — | 视情况 | §2 |
-| 需要图例（仅 §6.2） | 主图 `TB` + 图例 `LR` | — | 图例内样本间隔也须隐形 | §6.3 |
+| 需要图例（仅 §6.2） | 主图 `TB` + 图例 `LR` | 样本对之间隐形 `---` | 间隔留白、线本身隐形；`useMaxWidth: false` | §6.3 |
 | 小决策/少节点图 | `TB` 或 `LR` | — | `useMaxWidth:false`；**禁止**独立图例；深彩色节点 | §0、§6.1、§10 |
 
 ---
@@ -478,7 +488,7 @@ flowchart LR
 - [ ] 跨层边与 `linkStyle` 是否集中在图底部？
 - [ ] 关键边是否有 `|说明|`？
 - [ ] 小图 / 边已带 `|说明|` / 线型不足 3 种：是否**没有**独立图例块？
-- [ ] 仅当 §6.2 成立：图例是否独立第二块、横向紧凑，且未破坏主图 linkStyle 序号？
+- [ ] 仅当 §6.2 成立：图例是否独立第二块、样本之间有空白间隔（隐形 `---`）、圆点已上色，且未破坏主图 linkStyle 序号？
 - [ ] 小 `flowchart` 是否 `useMaxWidth:false`，而不是被拉满正文栏？
 - [ ] 是否 `%%{init: {'theme':'dark'}}%%`，且每个可见节点都有深彩色 `fill` + 浅色字？
 - [ ] 是否只有 `theme: dark`、节点仍是默认浅底？有则不合格，按 **`markdown-export`** §5 补 `style`/`classDef`
