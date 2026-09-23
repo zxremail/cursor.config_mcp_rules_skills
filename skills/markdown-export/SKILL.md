@@ -6,6 +6,7 @@ description: >-
   light-themed, default-colored, washed-out, pale, or hard to read on a
   dark background. Triggers: 生成 markdown、写文档、导出 md、Mermaid 配色、
   深彩色、暗色主题、theme dark、浅色图、默认配色、文字被遮挡、显示不全、裁切、
+  嵌套 subgraph 外框内框同色、套盒糊成一块、层框列框不易区分、
   时序图按向左/向右给箭头上色。
 ---
 
@@ -142,6 +143,7 @@ flowchart TB
 2. **每个可见节点**都有 `style` 或 `classDef`：深色/深彩色 `fill`、协调的 `stroke`、浅色文字（默认 `color:#FFFFFF`）。
 3. 对比度足够：暗色底上的字必须浅；禁止浅底深字、深底深字、白底黑字。
 4. **禁止**只写 `theme: dark` 却不给节点上色——默认节点在暗色预览里往往发灰、发白、发糊，不算完成。
+5. 嵌套 `subgraph`：外框与内框 `fill` **不得相同**（外深内浅）。细则见 **`mermaid-flowchart-layout`** §0.1。
 
 ### 5.2 禁止提交的形态
 
@@ -152,6 +154,7 @@ flowchart TB
 | `fill:#fff` / `#ffffff` / `#eee` / `#f8f8f8` / `#fafafa` / 不写 fill | 浅色图，暗色主题刺眼或看不清 |
 | `color:#000` / `#333` 配深色 fill | 字融进色块 |
 | 复制本 skill 排版示例时把配色一起省掉 | 排版示例的省略不等于允许无色 |
+| 嵌套 subgraph 外框与内框同一 `fill` | 套盒糊成一块，分不出层/列 |
 
 引脚方向色（亮紫/绿/黄等）按 **§8**，仍须 `theme: dark`，且字色按对比度选黑或白。
 
@@ -193,6 +196,7 @@ flowchart TD
 | 「用户没提配色 / 赶时间」 | 本规则不依赖用户提醒；无色 = 未完成 |
 | 「sequenceDiagram / classDiagram 不好上色」 | 仍须 `theme: dark`；能 `style`/`classDef` 的参与者/类必须上色 |
 | 「浅色对比度其实也行」 | 禁止。目标是暗色主题环境，不是打印纸 |
+| 「同一层所以内外框同色」 | 同色相可以，同 fill 不行；外深内浅才分得出套盒 |
 
 ### 5.6 红旗 — 写出图后立刻自检
 
@@ -201,6 +205,7 @@ flowchart TD
 - 预览里节点发白、发灰、像默认皮肤
 - 暗色背景上字发暗、看不清
 - 「我一会儿再统一改配色」
+- 嵌套 subgraph 的 `style` 外框与内框 `fill` 相同，或预览里层框/列框分不开
 
 **出现任一条：补色后再保存。不要带着浅色/默认图结束任务。**
 

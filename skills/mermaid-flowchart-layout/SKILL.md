@@ -8,9 +8,10 @@ description: >-
   或用户抱怨「连线乱/交叉」「太杂太乱」「一堆关系塞进一个图」
   「职责和时序画在同一张」「图太大/空白太多」「小图底下多余图例」
   「无箭头灰线 / 幽灵线」「图例挤在一起 / 要有间隔的线型图例」、浅色/默认配色、暗色主题看不清、忘记 theme dark、
+  嵌套 subgraph 外框与内框同色、套盒糊成一块、层框列框不易区分、
   文字被遮挡、显示不全、裁切、被箭头或内层节点挡住、
   或要按向左/向右给时序图箭头上色时应用。
-  每一张图还必须用深彩色节点配色（见文首硬规则），且每一处文字都要完整露出（§11）。
+  每一张图还必须用深彩色节点配色（见文首硬规则），嵌套套盒必须外深内浅（§0.1），且每一处文字都要完整露出（§11）。
 ---
 
 # Mermaid 流程图排版与架构图连线
@@ -22,6 +23,7 @@ description: >-
 ## 目录 • Mermaid 流程图排版与架构图连线
 
 - [0. 深彩色配色（硬规则，先于排版）](#0-深彩色配色硬规则先于排版)
+  - [0.1 嵌套 subgraph 套盒必须分色](#01-嵌套-subgraph-套盒必须分色)
 - [1. 多个 subgraph 分行显示](#1-多个-subgraph-分行显示)
   - [1.1 做法](#11-做法)
   - [1.2 示例](#12-示例)
@@ -50,7 +52,7 @@ description: >-
 
 ---
 
-涵盖：**深彩色节点配色（硬规则）**、**文字必须完整露出**、**一张图只回答一个问题**、**多 subgraph 换行**、**跨域架构图少交叉**、**排版线必须隐形**、**连线语义配色**、**箭头说明**、**小图按内容尺寸显示且不加图例**、**仅复杂架构图才用独立图例**。
+涵盖：**深彩色节点配色（硬规则）**、**嵌套套盒外深内浅**、**文字必须完整露出**、**一张图只回答一个问题**、**多 subgraph 换行**、**跨域架构图少交叉**、**排版线必须隐形**、**连线语义配色**、**箭头说明**、**小图按内容尺寸显示且不加图例**、**仅复杂架构图才用独立图例**。
 
 ---
 
@@ -69,8 +71,45 @@ description: >-
 - 第一行 `%%{init: {'theme': 'dark'}}%%`（小图再加 `useMaxWidth:false`，§10）
 - 每个可见节点 `classDef`/`style`：深彩色 `fill` + 浅色字（`color:#FFFFFF`）
 - **禁止**只写 `theme: dark` 就交差；**禁止**白底/浅灰默认节点
+- 嵌套 subgraph：外框 `fill` 必须深于内框（§0.1）
 
 连线 `linkStyle`（§4）是路径语义，**不能代替**节点深彩色。
+
+### 0.1 嵌套 subgraph 套盒必须分色
+
+`subgraph` 里再套 `subgraph` 时，外框与内框的 `fill` **不得相同**。同色相可以，同 fill 不行：预览里套盒会糊成一块，分不出层和列。
+
+层次（暗色主题，同色相由深到浅）：
+
+| 套盒 | `fill` | `stroke` |
+|------|--------|----------|
+| 外层（逻辑层） | 最深 | 该层主色 |
+| 内层（列 / 分组） | 同色相更亮 | 比外框更亮 |
+| 节点 | 饱和色（`markdown-export` §5.3） | 节点描边 |
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    subgraph L["逻辑层"]
+        direction LR
+        subgraph COL["列 · 分组"]
+            N["模块"]
+        end
+    end
+    style L fill:#0D2433,stroke:#2E86AB,color:#FFFFFF
+    style COL fill:#1B4965,stroke:#5BA3C9,color:#FFFFFF
+    style N fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+```
+
+**禁止：** `style` 外框与内框抄同一条 `fill`；只给节点上色、内外框都走默认 cluster 底；用浅白/浅灰内框来「区分」（仍须深彩色）。
+
+| 借口 | 实际 |
+|------|------|
+| 「同一层所以同色」 | 同色相 ≠ 同 fill；外深内浅才看得出套盒 |
+| 「已经有描边」 | fill 相同时描边几乎看不见 |
+| 「theme dark 会自动分层」 | 不会；必须分别 `style` 外框 id 和内框 id |
+
+单层、没有嵌套的 subgraph 不强制内外两套色，但仍须深彩色。
 
 ---
 
@@ -249,9 +288,12 @@ flowchart TB
     classDef alt fill:#A23B72,stroke:#7B2D55,color:#FFFFFF
     class BRIDGE,WORKER n
     class COORD,SIGNAL alt
+    style MID fill:#0D2433,stroke:#2E86AB,color:#FFFFFF
+    style COL_L fill:#1B4965,stroke:#5BA3C9,color:#FFFFFF
+    style COL_R fill:#3A1528,stroke:#C45A8C,color:#FFFFFF
 ```
 
-`COL_L --- COL_R` 是占位边，必须按 §1.4 隐形（上图 `linkStyle 0`）。
+`COL_L --- COL_R` 是占位边，必须按 §1.4 隐形（上图 `linkStyle 0`）。层框 `MID` 与列框 `COL_*` 的 `fill` 必须不同（§0.1）。
 
 **跨层连线规则**（减少交叉）：
 
@@ -492,6 +534,7 @@ flowchart LR
 - [ ] 小 `flowchart` 是否 `useMaxWidth:false`，而不是被拉满正文栏？
 - [ ] 是否 `%%{init: {'theme':'dark'}}%%`，且每个可见节点都有深彩色 `fill` + 浅色字？
 - [ ] 是否只有 `theme: dark`、节点仍是默认浅底？有则不合格，按 **`markdown-export`** §5 补 `style`/`classDef`
+- [ ] 嵌套 subgraph：外框与内框 `fill` 是否不同、外深内浅？同色则不合格（§0.1）
 - [ ] 节点文字、subgraph 标题、边标签是否都完整可读？被框裁掉、被内层节点盖住、被箭头穿过则不合格（§11）
 
 ---
