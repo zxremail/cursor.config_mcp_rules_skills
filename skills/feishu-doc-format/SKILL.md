@@ -41,11 +41,13 @@ description: >
 
 ## 表格
 
+用户说「润色飞书表格」或「修改飞书表格」，且未同时给出格式 Skill 与目标列时：先读并执行 **feishu-table-format-choice**（列出候选、请选格式和列），选定前不要改表。从零建文档里的表仍直接用本节默认底。
+
 - **表头行**所有 `<th>`：`background-color="rgb(236,226,254)"`（飞书浅紫），文字 `<p align="center"><b>…</b></p>`。
 - **首列**（表头以下的 `<td>`）：`background-color="rgb(225,234,255)"`（飞书浅蓝），文字 `<p><b>…</b></p>`。
 - 其余数据格默认白底、常规字重，不铺色；内容用 `<p>`，不要自动改成圆点列表。
 - 必须写上述 rgb 字符串。不要用基础色 `purple`（过深）；不要写 `medium-purple`（表格里会被映射成浅紫，语义不准）。
-- 仅当用户明确要求「硬约束圆点列表 / 单元格 ul」并加载 `feishu-table-cell-bullets` 时，才把指定列拆成 `<ul>`。
+- 仅当用户（或经 `feishu-table-format-choice` 选定后）要「硬约束圆点列表 / 单元格 ul」时，才读 `feishu-table-cell-bullets` 拆指定列。
 
 ### 首列不用代码格式
 
