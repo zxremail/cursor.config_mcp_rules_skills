@@ -41,6 +41,26 @@ description: >-
 
 可补：命令面板执行 `Developer: Reload Window`，或 `Clangd: Restart language server`。
 
+## 省 tokens：禁止把仓库和产物读进对话
+
+本流程只用 **Shell**，不要 Read / Grep / Glob / Task 扫源码。clangd 在本机建索引，不需要模型看见头文件。
+
+允许看的输出（截断）：
+
+- `make compile_commands` 的几行 stderr
+- `python3 -c "import json; print(len(json.load(open('compile_commands.json'))))"` 只打条目数
+- `clangd --check=... 2>&1 | tail -20`（一个源文件）
+- `ls` / `test -f` 判断 `compile_commands.json`、`.cache/clangd` 是否存在
+
+禁止：
+
+- `Read` 整份 `compile_commands.json` 或任意 `.idx` / clangd 日志
+- 把 `clangd --check` 的完整 stdout 贴进回复
+- 为「搞清工程结构」而 Explore 全仓库、读 Makefile 全文（有 `make compile_commands` 直接跑）
+- 清 `~/.cache/clangd`
+
+工具结果已经进上下文：命令本身就要短，用 `tail` / `wc` / `len()`，不要 `cat`。
+
 ## 常见借口
 
 | 借口 | 实际 |
@@ -48,3 +68,5 @@ description: >-
 | 「用户就是要重建，反问浪费时间」 | 必须先反问那一句 |
 | 「顺手把 Makefile 脚本也改了」 | 未要求则不改生成脚本 |
 | 「清掉 ~/.cache/clangd 更彻底」 | 只清当前工作区 `.cache/clangd` |
+| 「先读完工程再重建更稳」 | 本流程不读源码；缺编译数据库就停 |
+| 「把 compile_commands 读进来核对」 | 只报条目数；内容给 clangd 用 |
