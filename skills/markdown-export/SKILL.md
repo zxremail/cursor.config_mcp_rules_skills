@@ -299,7 +299,7 @@ flowchart LR
 - 目标是**飞书云文档**：走 **`feishu-doc-format`**，不要用 span。
 - 用户**明确要求**纯 Markdown、不要 HTML、或只要 GitHub 渲染且不要标签：不加 span。
 - 冻结表头 / sticky：走 **`freezing-html-table-headers`**（或 MPE 用 **`freezing-mpe-table-headers`**），与字色是两件事。
-- 给**某一列数据**加区分字色（是/否、共用/分叉）：走 **`coloring-markdown-table-column`**。那是数据列，不是表头浅紫；管道表 `span` 在预览里经常无色。
+- 给**某一列数据**按取值加区分字色：走 **`coloring-markdown-table-column`**。那是数据列，不是表头浅紫；管道表 `span` 在预览里经常无色。
 
 | <span style="color:#C9A0FF">借口</span> | <span style="color:#C9A0FF">实际</span> |
 |------|------|
