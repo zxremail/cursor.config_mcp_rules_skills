@@ -11,8 +11,10 @@ description: >-
   「总图只留同列边，跨列主通路没另画小图」「主通路只写在模块上」，浅色/默认配色、暗色主题看不清、忘记 theme dark、
   嵌套 subgraph 外框与内框同色、套盒糊成一块、层框列框不易区分、
   文字被遮挡、显示不全、裁切、被箭头或内层节点挡住、
+  Markdown 文档 mermaid 实际含义标题、YAML title、
   或要按向左/向右给时序图箭头上色时应用。
   每一张图还必须用深彩色节点配色（见文首硬规则），嵌套套盒必须外深内浅（§0.1），且每一处文字都要完整露出（§11）。
+  Markdown 文档中的每个 mermaid 图也要有实际含义标题。
 ---
 
 # Mermaid 流程图排版与架构图连线
@@ -60,6 +62,18 @@ description: >-
 
 ## 0. 深彩色配色（硬规则，先于排版）
 
+Markdown 文档中的每个 mermaid 图也要有「实际含义标题」。写入 `.md` 的围栏开头必须是 YAML `title`，然后才是 `%%{init}`：
+
+```
+---
+title: 业务进程到特权守护进程的调用关系
+---
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+```
+
+标题取最近小节 + 图在讲什么，短句、无句号。禁止「流程图」「如图」「示意图」。不要在围栏外再写一行重复标题。`sequenceDiagram` 只用 YAML `title`，不要再写 `title xxx` 以免双份。转飞书时该 `title` 作为画板内标题来源，见 `markdown-to-feishu-doc`。
+
 排版之前先上色。**本 skill 里凡是 ` ```mermaid ` 围栏（含反例）都必须深彩色**，禁止再放可渲染的默认浅色图。反例只示范排版错误，配色仍要合格；不要因为「这是反例」就把 `theme`/`classDef` 拿掉。
 
 写每一张图之前先读三遍：
@@ -70,7 +84,7 @@ description: >-
 
 **REQUIRED：** 节点色板、禁止项、借口对照见 **`markdown-export`** §5。最低限度每张图都要：
 
-- 第一行 `%%{init: {'theme': 'dark'}}%%`（小图再加 `useMaxWidth:false`，§10）
+- YAML `title` 之后必须是 `%%{init: {'theme': 'dark'}}%%`（小图再加 `useMaxWidth:false`，§10）
 - 每个可见节点 `classDef`/`style`：深彩色 `fill` + 浅色字（`color:#FFFFFF`）
 - **禁止**只写 `theme: dark` 就交差；**禁止**白底/浅灰默认节点
 - 嵌套 subgraph：外框 `fill` 必须深于内框（§0.1）
@@ -586,6 +600,7 @@ flowchart LR
 
 ## 8. 检查清单（编辑后自检）
 
+- [ ] 写入 `.md` 的图是否有 YAML「实际含义标题」（禁止「流程图」「如图」）？
 - [ ] 预览中是否还有无箭头灰线？有则不合格（裸 `~~~` 或占位边未隐形）
 - [ ] 层间已有语义边时，是否**没有**额外 `---` / `~~~`？
 - [ ] 无语义边需要分行时，是否 `---` + `linkStyle … opacity:0,stroke-width:0px`？

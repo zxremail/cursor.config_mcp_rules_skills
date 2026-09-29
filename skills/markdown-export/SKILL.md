@@ -7,7 +7,7 @@ description: >-
   dark background. Triggers: 生成 markdown、写文档、导出 md、Mermaid 配色、
   深彩色、暗色主题、theme dark、浅色图、默认配色、文字被遮挡、显示不全、裁切、
   嵌套 subgraph 外框内框同色、套盒糊成一块、层框列框不易区分、
-  时序图按向左/向右给箭头上色。
+  时序图按向左/向右给箭头上色、实际含义标题、YAML title。
 ---
 
 # Markdown 文档导出规范
@@ -70,6 +70,7 @@ description: >-
 ## 3. 图表语法 <a id="3-图表语法"></a> <a href="#toc-pos-3-图表语法" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 - 所有图表必须使用 **Mermaid** 语法绘制。
+- Markdown 文档中的每个 mermaid 图也要有「实际含义标题」：围栏开头写 YAML `title`（取最近小节 + 图意，禁止「流程图」「如图」），然后再写 `%%{init}`。不要在围栏外再重复一行标题。
 - 每一张图都必须遵守 §5 深彩色配色硬规则（`theme: dark` **加上**节点 `style`/`classDef`）。无配色的图视为未完成，不得写入文件。
 - 尽量不要使用外部图片链接或 ASCII 艺术图。
 - **禁止使用 `\n` 作为换行**：Mermaid 节点文本中需要换行时，必须使用 `<br>` 标签，不要使用 `\n`。`\n` 在预览中会被原样显示为文字，不会换行。
@@ -203,7 +204,8 @@ flowchart TD
 
 ### 5.6 红旗 — 写出图后立刻自检
 
-- 围栏里第一行不是 `%%{init: ... theme ... dark ...}`
+- 围栏开头没有 YAML `title:`，或标题是「流程图」「如图」
+- YAML `title` 之后不是 `%%{init: ... theme ... dark ...}`
 - 搜不到 `fill:#` 或 `classDef`
 - 预览里节点发白、发灰、像默认皮肤
 - 暗色背景上字发暗、看不清

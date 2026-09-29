@@ -7,7 +7,7 @@ description: >
   or mentions "markdown 转飞书", "md 转飞书文档", "把 md 导入飞书", "markdown 导入飞书",
   "把 markdown 文档转化为飞书文档", "md 文档转化为飞书文档",
   "代码块标题", "代码块描述", "caption", "代码块",
-  "画板标题", "画板增加实际含义标题".
+  "画板标题", "画板增加实际含义标题", "mermaid 实际含义标题".
 ---
 
 # Markdown → 飞书文档（Mermaid → 画板）
@@ -32,7 +32,7 @@ Step 5: 验证完成（含代码块标题、画板内标题）
 
 1. 使用 Read 工具读取本地 `.md` 文件全文
 2. 识别所有 Mermaid 代码块：以 ` ```mermaid ` 开头、` ``` ` 结尾的围栏代码块
-3. 按出现顺序记录每个 Mermaid 块的内容（含完整的 Mermaid 代码，**保留 style 指令**）
+3. 按出现顺序记录每个 Mermaid 块的内容（含完整的 Mermaid 代码，**保留 style 指令**）。同时记下 YAML `title:`（实际含义标题）；没有则按最近小节 + 图意拟定，转换前不要丢下缺标题的源码。
 
 ### Step 2: 生成转化后的 Markdown
 
@@ -139,7 +139,9 @@ lark-cli whiteboard +update \
 
 每个画板增加实际含义标题。标题必须写在**画板内部画布顶部**，作为独立 `text` / `text_shape` 节点，不要写在文档正文里，也不要当成代码块那样的 `<whiteboard caption>`（该属性会换掉整块画板）。
 
-拟定规则：取最近小节标题 + 图在讲什么，短句、无句号。例如 `业务进程到特权守护进程的调用关系`、`便捷 API 一次调用内部顺序`。禁止「画板」「如图」「流程图」。
+拟定规则：优先用源码 YAML `title:`；没有则取最近小节标题 + 图在讲什么。短句、无句号。例如 `业务进程到特权守护进程的调用关系`、`便捷 API 一次调用内部顺序`。禁止「画板」「如图」「流程图」。
+
+向飞书画板写入 Mermaid 时，**不要**把 YAML `title:` / `---` 行送进 `whiteboard +update --input_format mermaid`（飞书渲染器常不认，标题也不会变成画布文字）。去掉 frontmatter 后再 overwrite，然后用上面的 YAML `title` 做画布内标题。
 
 做法（Mermaid `+update --overwrite` 之后立刻做，否则标题会被冲掉）：
 
