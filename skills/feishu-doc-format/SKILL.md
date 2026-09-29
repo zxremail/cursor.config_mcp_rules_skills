@@ -6,9 +6,10 @@ description: >
   表头与首列加粗、首列不用代码格式。
   飞书文档画板中的时序图，参与者标题栏字体必须加粗；箭头按方向着色：向右实线 #3370FF、向左虚线 #00A870、自调用实线 #1F2329。
   代码块标题用实际含义，禁止停留在默认「代码块」。
+  每个画板增加实际含义标题，写在画板内部画布顶部，不要写在文档正文里。
   Use when creating or editing Feishu/Lark Docx or Wiki, 飞书文档, 画板时序图,
   docs +create / +update, whiteboard +update, converting markdown to Feishu documents,
-  代码块标题, 代码块描述, caption.
+  代码块标题, 代码块描述, caption, 画板标题.
   Takes precedence over lark-doc default table/heading styles; do not patch lark-doc or lark-whiteboard.
 ---
 
@@ -87,6 +88,14 @@ Markdown 导入飞书后若表头/首列无色、未加粗、首列被包成代�
 ```
 
 用 `{主题} {体裁}`：函数声明、签名模板、调用示例、命令行示例、配置示例。禁止 caption 为「代码块」「示例」「如下」或仅语言名。转换流程见 `markdown-to-feishu-doc`。
+
+## 画板标题
+
+每个画板增加实际含义标题。
+
+标题放在**画板内部**画布顶部：独立 `text` / `text_shape` 节点，24px、加粗、居中，宽度与图同宽。不要用文档里画板上方的加粗段落代替；不要给 `<whiteboard>` 写 `caption`（会换成空画板）；不要用 section / frame 的 `title`。
+
+Mermaid 整板 `--overwrite` 之后必须再增量追加标题节点。转换步骤见 `markdown-to-feishu-doc`。预览里标题被裁切时遵守 `feishu-whiteboard-text-visibility`。
 
 ## 画板时序图标题栏
 

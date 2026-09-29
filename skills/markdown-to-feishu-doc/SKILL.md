@@ -2,11 +2,12 @@
 name: markdown-to-feishu-doc
 description: >
   将本地 Markdown 文档转化为飞书云文档，自动将 Mermaid 代码块转为飞书画板，
-  并把每个代码块标题改成实际含义（禁止停留在默认「代码块」）。
+  并把每个代码块标题、每个画板标题改成实际含义。
   Use when the user asks to convert markdown/md files to Feishu (飞书) documents,
   or mentions "markdown 转飞书", "md 转飞书文档", "把 md 导入飞书", "markdown 导入飞书",
   "把 markdown 文档转化为飞书文档", "md 文档转化为飞书文档",
-  "代码块标题", "代码块描述", "caption", "代码块".
+  "代码块标题", "代码块描述", "caption", "代码块",
+  "画板标题", "画板增加实际含义标题".
 ---
 
 # Markdown → 飞书文档（Mermaid → 画板）
@@ -23,8 +24,8 @@ description: >
 Step 1: 读取并解析 Markdown
 Step 2: 提取 Mermaid → 生成转化后的 Markdown（非 Mermaid 代码块必须带实际含义 caption）
 Step 3: 创建飞书文档（含空白画板占位）
-Step 4: 填充画板内容（Mermaid → 画板）
-Step 5: 验证完成（含每个代码块标题）
+Step 4: 填充画板内容（Mermaid → 画板），并为每个画板增加实际含义标题
+Step 5: 验证完成（含代码块标题、画板内标题）
 ```
 
 ### Step 1: 读取并解析 Markdown
@@ -134,6 +135,21 @@ lark-cli whiteboard +update \
 
 **Mermaid style 保留规则**：原始 Mermaid 中的 `style` 指令（fill、stroke、color 等）必须完整保留，不得丢弃。
 
+### 每个画板增加实际含义标题
+
+每个画板增加实际含义标题。标题必须写在**画板内部画布顶部**，作为独立 `text` / `text_shape` 节点，不要写在文档正文里，也不要当成代码块那样的 `<whiteboard caption>`（该属性会换掉整块画板）。
+
+拟定规则：取最近小节标题 + 图在讲什么，短句、无句号。例如 `业务进程到特权守护进程的调用关系`、`便捷 API 一次调用内部顺序`。禁止「画板」「如图」「流程图」。
+
+做法（Mermaid `+update --overwrite` 之后立刻做，否则标题会被冲掉）：
+
+1. `whiteboard +export --output-type raw --output @相对路径`，按节点包围盒取图宽，标题 `x` 与图左对齐、`width` 等于图宽、`y` 在内容上方约 48px。
+2. 用 whiteboard-cli 把一条 DSL `type: text`、`fontSize: 24`、`textAlign: center` 转成 OpenAPI；`font_weight` 改为 `bold`。
+3. `whiteboard +update --input_format raw --source @文件` **不要加 `--overwrite`**（增量追加）。
+4. `+export --output-type preview` 确认标题整行可见、未被裁切。文字露出规则见 `feishu-whiteboard-text-visibility`。
+
+从 DSL 一次画成的图：标题作为文档第一个 text 子节点一起写入，不要事后再在文档里加一行加粗段落。
+
 **非 Mermaid 可视化内容的路由**：如果 Markdown 中包含复杂图表描述（如文字描述的架构图、流程图），参考以下路由决策：
 - 思维导图 / 时序图 / 类图 / 饼图 → Mermaid 格式（`--input_format mermaid`）
 - 架构图 / 组织架构图 / 泳道图 / 鱼骨图等 → 使用 whiteboard-cli DSL，参见 [`../lark-whiteboard-cli/SKILL.md`](../lark-whiteboard-cli/SKILL.md)
@@ -143,7 +159,8 @@ lark-cli whiteboard +update \
 - 确认所有 Mermaid 块都已转为画板并填充内容
 - 确认没有遗漏任何 board_token
 - **代码块标题**：`docs +fetch --detail with-ids` 后，每个 `<pre>` 的 `caption` 都是实际含义；不得为空、不得仅为换行、不得仍是「代码块」
-- 按 [`../feishu-doc-format/SKILL.md`](../feishu-doc-format/SKILL.md) 检查标题是否 `seq="auto"`（无手写序号）、表格是否浅紫表头 + 浅蓝首列、表头与首列是否加粗、首列是否未使用代码格式、代码块 caption 是否为实际含义；Markdown 导入未带上时用 `docs +update` 补
+- **画板标题**：每张画板预览顶部都有实际含义标题；文档里画板正上方不得再留重复加粗段落
+- 按 [`../feishu-doc-format/SKILL.md`](../feishu-doc-format/SKILL.md) 检查标题是否 `seq="auto"`（无手写序号）、表格是否浅紫表头 + 浅蓝首列、表头与首列是否加粗、首列是否未使用代码格式、代码块 caption 与画板内标题是否为实际含义；Markdown 导入未带上时用 `docs +update` / `whiteboard +update` 补
 - 向用户返回文档链接（`doc_url`）
 
 ## 快速决策表
@@ -162,3 +179,4 @@ lark-cli whiteboard +update \
 - 画板创建后不可逆。如果 Mermaid 语法有误导致画板更新失败，检查错误信息、修正语法后重试
 - 如果原始 Markdown 不包含任何 Mermaid 代码块，可以用 `drive +import --file ./xxx.md --type docx` 简化创建，但**导入后仍必须**为每个代码块补上实际含义 caption（import 不会写 caption）
 - 「代码块」是飞书缺省标题，不是可用文案。转换结束前必须改完，不能留给用户手工点选
+- 「画板」是飞书缺省块名。每个画板增加实际含义标题，写在画布内，不能留给用户手工点选
