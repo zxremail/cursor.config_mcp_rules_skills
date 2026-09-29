@@ -1,10 +1,12 @@
 ---
 name: markdown-to-feishu-doc
 description: >
-  将本地 Markdown 文档转化为飞书云文档，自动将 Mermaid 代码块转为飞书画板。
+  将本地 Markdown 文档转化为飞书云文档，自动将 Mermaid 代码块转为飞书画板，
+  并把每个代码块标题改成实际含义（禁止停留在默认「代码块」）。
   Use when the user asks to convert markdown/md files to Feishu (飞书) documents,
   or mentions "markdown 转飞书", "md 转飞书文档", "把 md 导入飞书", "markdown 导入飞书",
-  "把 markdown 文档转化为飞书文档", "md 文档转化为飞书文档".
+  "把 markdown 文档转化为飞书文档", "md 文档转化为飞书文档",
+  "代码块标题", "代码块描述", "caption", "代码块".
 ---
 
 # Markdown → 飞书文档（Mermaid → 画板）
@@ -19,10 +21,10 @@ description: >
 
 ```
 Step 1: 读取并解析 Markdown
-Step 2: 提取 Mermaid → 生成转化后的 Markdown
+Step 2: 提取 Mermaid → 生成转化后的 Markdown（非 Mermaid 代码块必须带实际含义 caption）
 Step 3: 创建飞书文档（含空白画板占位）
 Step 4: 填充画板内容（Mermaid → 画板）
-Step 5: 验证完成
+Step 5: 验证完成（含每个代码块标题）
 ```
 
 ### Step 1: 读取并解析 Markdown
@@ -50,8 +52,34 @@ Step 5: 验证完成
 **关键规则**：
 - 每个 Mermaid 块对应一个 `<whiteboard type="blank"></whiteboard>`
 - 保持 Mermaid 块在文档中的相对位置不变
-- 非 Mermaid 的代码块（如 python、bash）保持原样
-- 标准 Markdown 格式原样保留，飞书 `docs +create` 支持标准 Markdown
+- 非 Mermaid 的代码块**不得**原样丢进飞书围栏：必须写成带 `caption` 的 `<pre>`（见下节）
+- 其余标准 Markdown 格式原样保留，飞书 `docs +create` 支持标准 Markdown
+
+### 代码块标题必须是实际含义
+
+每个「代码块」的标题都要全部改成实际含义。飞书 `<pre>` 没有 `caption`、或 caption 为空 / 仅换行时，界面统一显示「代码块」，转换后禁止留下这种默认标题。
+
+Markdown 围栏通常只有语言标记（如 c、bash），没有标题。转换时根据**上一节标题 + 代码角色**为每一块单独拟定 caption，写入：
+
+```xml
+<pre lang="c" caption="priv_reboot 函数声明"><code>priv_result_t priv_reboot(void);</code></pre>
+```
+
+拟定规则（`{主题} {体裁}`，同一节内不重复）：
+
+| 代码角色 | 体裁用词 | 示例 |
+|---------|---------|------|
+| 函数/类型声明、签名模板 | 函数声明 / 签名模板 | `priv_reboot 函数声明`、`超时版便捷 API 签名模板` |
+| 调用、判断返回值 | 调用示例 | `priv_reboot 调用示例` |
+| shell / CLI | 命令行示例 | `lcd-brightness 命令行示例` |
+| 配置、JSON、单元片段 | 配置示例 / 报文示例 | `usbtmc.conf 配置示例` |
+
+- 主题取最近的小节标题或代码里的主符号（函数名、命令、文件名），不要只用语言名。
+- caption 短句、无句号；不要写成「如下」「示例」「代码」「c」「bash」。
+- 代码正文放在 `<code>` 内；`<` `>` `&` 按 XML 转义；换行用 `<br/>`。
+- Mermaid 走画板，不给 `<pre>` 加「代码块」标题。
+
+若 `docs +create --markdown` 未能带上 caption：立刻 `docs +fetch --detail with-ids`，对每个 `<pre>` 做 `block_replace`，补上 `caption="实际含义"`。不要等用户再提。
 
 ### Step 3: 创建飞书文档
 
@@ -114,7 +142,8 @@ lark-cli whiteboard +update \
 
 - 确认所有 Mermaid 块都已转为画板并填充内容
 - 确认没有遗漏任何 board_token
-- 按 [`../feishu-doc-format/SKILL.md`](../feishu-doc-format/SKILL.md) 检查标题是否 `seq="auto"`（无手写序号）、表格是否浅紫表头 + 浅蓝首列、表头与首列是否加粗、首列是否未使用代码格式；Markdown 导入未带上时用 `docs +update` 补
+- **代码块标题**：`docs +fetch --detail with-ids` 后，每个 `<pre>` 的 `caption` 都是实际含义；不得为空、不得仅为换行、不得仍是「代码块」
+- 按 [`../feishu-doc-format/SKILL.md`](../feishu-doc-format/SKILL.md) 检查标题是否 `seq="auto"`（无手写序号）、表格是否浅紫表头 + 浅蓝首列、表头与首列是否加粗、首列是否未使用代码格式、代码块 caption 是否为实际含义；Markdown 导入未带上时用 `docs +update` 补
 - 向用户返回文档链接（`doc_url`）
 
 ## 快速决策表
@@ -123,7 +152,7 @@ lark-cli whiteboard +update \
 |-------|-------|
 | "把这个 md 转成飞书文档" | 完整执行 Step 1-5 |
 | "markdown 导入飞书" | 完整执行 Step 1-5 |
-| "md 转飞书，不用画板" | 直接 `drive +import --file ./xxx.md --type docx`（Mermaid 保留为代码块） |
+| "md 转飞书，不用画板" | `drive +import` 后仍须给每个代码块补实际含义 caption |
 | "md 转飞书，放到 XX 文件夹" | Step 3 添加 `--folder-token` |
 | "md 转飞书，放到知识库" | Step 3 添加 `--wiki-node` 或 `--wiki-space` |
 
@@ -131,4 +160,5 @@ lark-cli whiteboard +update \
 
 - `drive +import` 只能原样导入 Markdown，**不会**将 Mermaid 转为画板。本 Skill 必须使用 `docs +create` + `whiteboard +update` 的组合流程
 - 画板创建后不可逆。如果 Mermaid 语法有误导致画板更新失败，检查错误信息、修正语法后重试
-- 如果原始 Markdown 不包含任何 Mermaid 代码块，可以直接使用 `drive +import --file ./xxx.md --type docx` 简化流程
+- 如果原始 Markdown 不包含任何 Mermaid 代码块，可以用 `drive +import --file ./xxx.md --type docx` 简化创建，但**导入后仍必须**为每个代码块补上实际含义 caption（import 不会写 caption）
+- 「代码块」是飞书缺省标题，不是可用文案。转换结束前必须改完，不能留给用户手工点选

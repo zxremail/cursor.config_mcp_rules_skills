@@ -5,8 +5,10 @@ description: >
   表格浅紫表头 rgb(236,226,254) + 浅蓝首列 rgb(225,234,255)，
   表头与首列加粗、首列不用代码格式。
   飞书文档画板中的时序图，参与者标题栏字体必须加粗；箭头按方向着色：向右实线 #3370FF、向左虚线 #00A870、自调用实线 #1F2329。
+  代码块标题用实际含义，禁止停留在默认「代码块」。
   Use when creating or editing Feishu/Lark Docx or Wiki, 飞书文档, 画板时序图,
-  docs +create / +update, whiteboard +update, or converting markdown to Feishu documents.
+  docs +create / +update, whiteboard +update, converting markdown to Feishu documents,
+  代码块标题, 代码块描述, caption.
   Takes precedence over lark-doc default table/heading styles; do not patch lark-doc or lark-whiteboard.
 ---
 
@@ -73,6 +75,18 @@ description: >
 ```
 
 Markdown 导入飞书后若表头/首列无色、未加粗、首列被包成代码，或标题仍手写序号、标题被包成 `<code>`，用 `docs +update` 按上表补齐：标题改为 `seq="auto"`、去掉手写前缀，并去掉标题上的 `<code>`。
+
+## 代码块标题
+
+每个「代码块」的标题都要全部改成实际含义。
+
+飞书 `<pre>` 缺 `caption`（或为空 / 仅换行）时，界面一律显示「代码块」。创建、从 Markdown 转换、或事后编辑，都必须写成：
+
+```xml
+<pre lang="c" caption="priv_reboot 函数声明"><code>...</code></pre>
+```
+
+用 `{主题} {体裁}`：函数声明、签名模板、调用示例、命令行示例、配置示例。禁止 caption 为「代码块」「示例」「如下」或仅语言名。转换流程见 `markdown-to-feishu-doc`。
 
 ## 画板时序图标题栏
 
