@@ -7,7 +7,8 @@ description: >-
   dark background. Triggers: 生成 markdown、写文档、导出 md、Mermaid 配色、
   深彩色、暗色主题、theme dark、浅色图、默认配色、文字被遮挡、显示不全、裁切、
   嵌套 subgraph 外框内框同色、套盒糊成一块、层框列框不易区分、
-  时序图按向左/向右给箭头上色、实际含义标题、YAML title。
+  时序图按向左/向右给箭头上色、实际含义标题、YAML title、
+  表格表头、标题栏颜色、管道表、表头字体颜色、span color。
 ---
 
 # Markdown 文档导出规范
@@ -30,6 +31,7 @@ description: >-
 - <a id="toc-pos-6-中英文排版"></a>[6. 中英文排版](#6-中英文排版)
 - <a id="toc-pos-7-实时保存"></a>[7. 实时保存](#7-实时保存)
 - <a id="toc-pos-8-引脚颜色标记"></a>[8. 引脚颜色标记](#8-引脚颜色标记)
+- <a id="toc-pos-9-表格表头文字颜色"></a>[9. 表格表头文字颜色](#9-表格表头文字颜色)
 
 ---
 
@@ -58,6 +60,7 @@ description: >-
 新生成的 markdown 文件，尽量详实丰富，不厌其烦，可以包括各种图，例如流程图、关系图、各种框图等等。当然不是必须都包括这些图，目的是为了清晰明了。
 
 - 内容必须**详实丰富，不厌其烦**，深入展开每个知识点。
+- 管道表表头必须按 **§9** 给文字上色（`#C9A0FF` span）；不要为此改成 HTML `<table>`。
 - 图是为了把结构、流程、关系讲清楚。适用时用 Mermaid 画，类型按内容选，例如：
   - 流程图（Flowchart）
   - 关系图（Class Diagram / ER Diagram）
@@ -151,7 +154,7 @@ flowchart TB
 
 ### 5.2 禁止提交的形态
 
-| 禁止 | 原因 |
+| <span style="color:#C9A0FF">禁止</span> | <span style="color:#C9A0FF">原因</span> |
 |------|------|
 | 无 `%%{init: {'theme': 'dark'}}%%` | 跟随编辑器/平台默认浅色主题 |
 | 只有 `theme: dark`，节点无 `style`/`classDef` | 节点仍是默认浅底或低对比 |
@@ -191,7 +194,7 @@ flowchart TD
 
 ### 5.5 借口对照（这些想法出现时：停下来补色）
 
-| 借口 | 实际 |
+| <span style="color:#C9A0FF">借口</span> | <span style="color:#C9A0FF">实际</span> |
 |------|------|
 | 「先把结构画对，颜色以后再加」 | 无色图不得写入文件；结构与配色必须同一次完成 |
 | 「这张图很简单，默认主题就行」 | 简单图同样在暗色主题里看；越小越要 `style` |
@@ -234,7 +237,7 @@ flowchart TD
 
 当涉及到通信引脚时，**必须**用颜色标记引脚方向。使用以下固定配色：
 
-| 引脚类型 | 颜色 | 色值 |
+| <span style="color:#C9A0FF">引脚类型</span> | <span style="color:#C9A0FF">颜色</span> | <span style="color:#C9A0FF">色值</span> |
 |---------|------|------|
 | 输入（Input） | 亮紫色 | `#E066FF` |
 | 输出（Output） | 绿色 | `#00FF00` |
@@ -265,3 +268,41 @@ flowchart LR
 - `INT` — 🟣 输入（Input）
 - `VCC` — 🔴 电源（Power）
 - `GND` — ⚫ 地（Ground）
+
+## 9. 表格表头文字颜色 <a id="9-表格表头文字颜色"></a> <a href="#toc-pos-9-表格表头文字颜色" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
+
+写 Markdown **管道表**时，必须给**表头文字**上色，让标题行在暗色预览里和数据行分开。只改字体颜色，不改表头背景。
+
+**写法：** 保留 `| 列 |` 管道表。每个表头单元格用 `<span style="color:#C9A0FF">列名</span>`。不要为了上色把整张表改成 `<table>` HTML，不要默认加 `th` 背景或文档级 `<style>`。
+
+**固定色值：** `#C9A0FF`（浅紫，暗色底可读）。用户当场指定其它字色时以当场为准。
+
+正确：
+
+```markdown
+| <span style="color:#C9A0FF">函数</span> | <span style="color:#C9A0FF">作用</span> | <span style="color:#C9A0FF">是否需要参数</span> |
+|------|------|--------------|
+| `priv_reboot()` | 重启设备 | 否 |
+```
+
+错误：
+
+| <span style="color:#C9A0FF">禁止</span> | <span style="color:#C9A0FF">原因</span> |
+|------|------|
+| 纯 `| 函数 |` 无 span | 表头与数据行同色，标题栏看不出 |
+| 整表改成 `<table><th>` 只为上色 | 管道表够用；单元格内 span 即可 |
+| 给表头加 `background` 当默认 | 本规则只要字色 |
+| 写表时先占位、以后再上色 | 出表即带色 |
+
+**例外（可观察条件）：**
+
+- 目标是**飞书云文档**：走 **`feishu-doc-format`**，不要用 span。
+- 用户**明确要求**纯 Markdown、不要 HTML、或只要 GitHub 渲染且不要标签：不加 span。
+- 冻结表头 / sticky：走 **`freezing-html-table-headers`**（或 MPE 用 **`freezing-mpe-table-headers`**），与字色是两件事。
+
+| <span style="color:#C9A0FF">借口</span> | <span style="color:#C9A0FF">实际</span> |
+|------|------|
+| 「标准 Markdown 不能上色」 | 管道表单元格里可以写 span |
+| 「要上色必须改成 HTML 表」 | 不必；只包表头文字 |
+| 「GitHub 会剥 style，所以不写」 | 知识库默认给 Cursor / VS Code 预览看；照写 |
+| 「小表不用上色」 | 凡管道表表头都上色 |

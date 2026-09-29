@@ -33,7 +33,7 @@ description: >-
 2. **先 Read** `ai.cursor/_INDEX_.md`。没有则建最小三列表格（文档 | 说明 | 提要）
 3. 索引里已有匹配分类 → 放入对应子目录
 4. 没有匹配 → 按主题新建英文、小写、连字符子目录，并在索引**补一行**
-5. basename 与 **每一张 Mermaid 的深彩色配色** 仍按 **`markdown-export`**（英文文件名；图必须 `theme: dark` **且**节点 `style`/`classDef`，见该 skill §5）。不要只抄文件名规则、把图画成默认浅色。
+5. basename、**每一张 Mermaid 的深彩色配色**、**管道表表头字色** 仍按 **`markdown-export`**（英文文件名；图必须 `theme: dark` **且**节点 `style`/`classDef`，见该 skill §5；表头文字 `#C9A0FF` span，见 §9）。不要只抄文件名规则、把图画成默认浅色或把表头写成纯 `| 列名 |`。
 6. HTML 与 sidecar `*.figures/` 与源 md **同目录**——同在知识库子目录内，不是同在仓库根
 7. 落盘后走 **`markdown-knowledge-maintain`**（`md-toc` + 索引）
 
