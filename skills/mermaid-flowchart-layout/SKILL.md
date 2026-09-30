@@ -601,6 +601,7 @@ flowchart LR
 ## 8. 检查清单（编辑后自检）
 
 - [ ] 写入 `.md` 的图是否有 YAML「实际含义标题」（禁止「流程图」「如图」）？
+- [ ] 图若紧跟 HTML（`<table>` 等）：`</table>` 与 `` ```mermaid `` 之间是否**空了一行**？没有空行时 CommonMark 把围栏当 HTML 原文吐出（乱码 / `{data-source-line=`）。列着色见 `coloring-markdown-table-column`。
 - [ ] 预览中是否还有无箭头灰线？有则不合格（裸 `~~~` 或占位边未隐形）
 - [ ] 层间已有语义边时，是否**没有**额外 `---` / `~~~`？
 - [ ] 无语义边需要分行时，是否 `---` + `linkStyle … opacity:0,stroke-width:0px`？

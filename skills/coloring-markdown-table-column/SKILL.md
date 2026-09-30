@@ -3,8 +3,9 @@ name: coloring-markdown-table-column
 description: >
   Use when the user asks to color or visually distinguish values in one column
   of a Markdown table (某一列上色、列着色、区分颜色、按取值着色、按语义着色),
-  or when table cell text color did not change in preview. Not for Feishu
-  tables, header-only styling, or when the user asks for cell backgrounds.
+  or when table cell text color did not change in preview, or when a Mermaid
+  fence right after an HTML table shows as raw source / 乱码 / `{data-source-line=`.
+  Not for Feishu tables, header-only styling, or when the user asks for cell backgrounds.
 ---
 
 # 给 Markdown 表的某一列加区分字色
@@ -20,6 +21,7 @@ description: >
 - 「给某某列用不同颜色区分」
 - 「按这一列的取值上色」
 - 预览里字色没变化、和改之前一样
+- 给表上色后，紧挨着的 mermaid 变成源码 / 乱码 / `{data-source-line=`
 
 **不要用本 Skill：** 飞书云文档 → `feishu-doc-format` / `feishu-table-format-choice`。只给**表头**上浅紫字 → `markdown-export` §9（继续管道表 + span）。用户明确要**底色/背景**时不要套本 Skill 的「禁止底色」。
 
@@ -36,6 +38,11 @@ description: >
 3. 仅把**这一张表**改成 HTML（已是 HTML 则只改目标列）。其它列、其它表不动。表头字色仍用 `#C9A0FF`。
 4. 目标列每个数据格：`<font color="#……"><b>原文</b></font>`。禁止 `background-color`、禁止给 `<td>` / `<th>` 铺底、禁止文档级 `<style>` 改背景。
 5. 表上方一行图例写**语义桶 → 色**，不是「每种原文 → 色」。提醒用户刷新预览。
+6. **`</table>` 后面必须空一行**，再写任何 Markdown（尤其 `` ```mermaid ``、标题、列表）。CommonMark 把 HTML 块吃到**空行**为止；`</table>` 紧挨围栏时，预览会把 mermaid **当原文吐出来**（一整行源码、`{data-source-line=`、看起来像乱码）。表改成 HTML 后必须看紧随其后的块，不能只改表本身。
+
+反例：`</table>` 下一行直接 `` ```mermaid ``（只有换行、没有空行）→ 预览乱码。
+
+正例：`</table>` 与 `` ```mermaid `` 之间空一行。
 
 ## 目标列单元格（示例：列义是「是否共用同一份源码」）
 
@@ -56,6 +63,8 @@ description: >
 | `td style="color"` 和 span 一样省事 | 用 `<font color>`；`style` 在部分预览里同样无效 |
 | 列不是是/否就套不上本 Skill | 任意列都适用；先按该列语义分桶 |
 | 有几个不同字符串就用几种色 | 按语义归类；同义不同词同色 |
+| 表改完了，后面原来的 mermaid 不用动 | 管道表改成 HTML 后，`</table>` 会把无空行的后续 Markdown 吞进 HTML 块 |
+| 表和围栏之间已经换行了 | 换行不够，必须是**空行**（中间不能只有 `</table>\n```） |
 
 ## 红旗
 
@@ -65,3 +74,5 @@ description: >
 - 把一格里的两类语义涂成单一中间色
 - 把「是/否、共用/分叉」当成唯一允许的分类
 - 忽略列名、按单元格原文各涂一色
+- `</table>` 下一行就是 `` ```mermaid ``（或其它围栏/标题），中间没有空行
+- 预览里 mermaid 变成源码、`{data-source-line=`、或用户说「乱码」却只去改图语法
