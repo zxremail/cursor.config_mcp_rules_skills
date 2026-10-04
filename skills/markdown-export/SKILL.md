@@ -8,7 +8,8 @@ description: >-
   深彩色、暗色主题、theme dark、浅色图、默认配色、文字被遮挡、显示不全、裁切、
   嵌套 subgraph 外框内框同色、套盒糊成一块、层框列框不易区分、
   时序图按向左/向右给箭头上色、实际含义标题、YAML title、
-  表格表头、标题栏颜色、管道表、表头字体颜色、span color。
+  表格表头、标题栏颜色、管道表、表头字体颜色、span color、
+  断句、加逗号、加标点、语义更清晰、只改标点不改措辞。
 ---
 
 # Markdown 文档导出规范
@@ -29,6 +30,8 @@ description: >-
   - [5.5 借口对照（这些想法出现时：停下来补色）](#55-借口对照这些想法出现时停下来补色)
   - [5.6 红旗 — 写出图后立刻自检](#56-红旗--写出图后立刻自检)
 - <a id="toc-pos-6-中英文排版"></a>[6. 中英文排版](#6-中英文排版)
+  - [6.1 中英文空格](#61-中英文空格)
+  - [6.2 断句标点（只加标点、不改措辞）](#62-断句标点只加标点不改措辞)
 - <a id="toc-pos-7-实时保存"></a>[7. 实时保存](#7-实时保存)
 - <a id="toc-pos-8-引脚颜色标记"></a>[8. 引脚颜色标记](#8-引脚颜色标记)
 - <a id="toc-pos-9-表格表头文字颜色"></a>[9. 表格表头文字颜色](#9-表格表头文字颜色)
@@ -220,9 +223,46 @@ flowchart TD
 
 ## 6. 中英文排版 <a id="6-中英文排版"></a> <a href="#toc-pos-6-中英文排版" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
+撰写、润色、编辑中文 Markdown 正文时同时遵守本节。用户说「加逗号 / 加标点断句 / 让语义更清晰」且未要求改写时，**只加标点**，走 §6.2。
+
+### 6.1 中英文空格
+
 - 英文和中文之间**必须**有空格分隔。
 - 正确示例：`使用 Mermaid 语法绘制 Flowchart 流程图`
 - 错误示例：`使用Mermaid语法绘制Flowchart流程图`
+
+### 6.2 断句标点（只加标点、不改措辞）
+
+一口气读完会歧义、两套主语黏在一起、或并列项挤成一串时，用逗号、顿号、分号、冒号把停顿标出来。**不改词、不改语序、不拆成新句（除非缺句号且本就是两句）、不改标题、不动代码块 / Mermaid。** 已经停顿清楚的句子不要为改而改。
+
+| <span style="color:#C9A0FF">情形</span> | <span style="color:#C9A0FF">加什么</span> | <span style="color:#C9A0FF">例</span> |
+|------|------|------|
+| 并列路径、设备名、相对名中间只有空格 | 顿号 | `` `\bar_*` `\mem` `\event` `` → `` `\bar_*`、`\mem`、`\event` `` |
+| 两套主语 / 两件独立事实黏在一句里 | 分号 | 「内核会把第二条当 bypass，用户态仍把 BAR1 当引擎」→ 中间改分号 |
+| 对照、分工、不是 A 而是 B | 分号 | 「ioctl 交页表，MMIO 才写引擎寄存器」→ 「ioctl 交页表；MMIO 才写引擎寄存器」 |
+| 时间、条件状语后面直接接主句 | 逗号 | 「开卡时会拿…」→ 「开卡时，会拿…」；「只有一扇 BAR 时引擎在 BAR0」→ 「只有一扇 BAR 时，引擎在 BAR0」 |
+| 动宾结构被顿号误当成名词并列 | 逗号 | 「改调度改 `xdma_api.cpp`」→ 「改调度，改 `xdma_api.cpp`」；「填描述符、往 BAR 写 RUN」→ 「填描述符，往 BAR 写 RUN」 |
+| 「A、且 B」连接的是条件而不是两项名词 | 逗号 | 「在 **2 个或 3 个 BAR**、且配置 BAR 能被认出来时」→ 顿号改逗号 |
+| 冒号后的原因、步骤是多条并列事实 | 分号隔开各条 | 「仍可能变号：没训练上、BIOS 改了、多了一张卡」→ 各条用分号 |
+| 插入语、补说「再…」 | 逗号 | 「拿到基路径后再拼」→ 「拿到基路径后，再拼」；「写寄存器的同时再 `write(h2c)`」→ 「的同时，再」 |
+
+**不要动：**
+
+- 代码围栏、Mermaid、命令、标识符内部
+- 章节标题（避免无故改目录锚点）
+- 已有分号/逗号已经把层次分开的句子
+- 用户没要求时，不要借「更通顺」去改写、删词、调序
+
+**借口对照：**
+
+| <span style="color:#C9A0FF">借口</span> | <span style="color:#C9A0FF">实际</span> |
+|------|------|
+| 「句子已经能懂，不必加」 | 两套主语或路径名连读会歧义时必须断 |
+| 「加标点等于改写，不如重写整句」 | 用户只要断句时禁止改措辞 |
+| 「表格单元格太短，不加」 | 单元格里同样适用；并列名仍加顿号 |
+| 「顺手把标题/目录也润色一下」 | 未改 `##`～`###` 则不要动目录 |
+
+知识库 `.md` 若只改标点、标题未变：按 **`markdown-knowledge-maintain`** 跳过目录/索引。
 
 ## 7. 实时保存 <a id="7-实时保存"></a> <a href="#toc-pos-7-实时保存" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
