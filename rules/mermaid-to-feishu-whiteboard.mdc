@@ -7,6 +7,8 @@ alwaysApply: false
 
 将 Markdown 中的 Mermaid 图表转换为飞书画板时，必须完整保留原始 Mermaid 中的 `style` 指令（fill、stroke、color 等颜色属性），不得丢弃。
 
+节点若按 `mermaid-flowchart-layout` §12 写成 `<b>模块主题</b><br/><small>（补充描述）</small>`：画板上仍须 **主题加粗、注解缩小**，并且 **换行 + 括号**。不要剥掉 HTML 后糊成一行「主题 注解」。
+
 ```mermaid
 # ❌ 丢失颜色
 flowchart LR
