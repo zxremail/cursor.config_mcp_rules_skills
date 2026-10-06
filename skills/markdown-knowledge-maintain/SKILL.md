@@ -5,7 +5,8 @@ description: >-
   via md-toc CLI (never regenerates existing 目录), formats TOC heading as
   「目录 • <文档标题>」, and syncs <root>/_INDEX_.md per designated-knowledge-index.
   Use when creating or editing .md notes in a knowledge directory, adding/renaming
-  sections, or when the user mentions 目录、TOC、索引、_INDEX_.
+  sections, splitting a long note into multiple files (拆分、拆开文档、按主题拆),
+  or when the user mentions 目录、TOC、索引、_INDEX_.
 ---
 
 # Markdown 知识库文档维护
@@ -19,6 +20,7 @@ description: >-
 - [4. 自动 Hook（用户级）](#4-自动-hook用户级)
 - [5. 何时可跳过](#5-何时可跳过)
 - [6. 工具位置](#6-工具位置)
+- [7. 拆分长文时](#7-拆分长文时)
 
 ---
 
@@ -77,9 +79,10 @@ description: >-
 ## 3. 推荐执行顺序
 
 1. 完成用户对正文的修改。**首次生成或增补中文时按 `markdown-export` §6.2 当场断句、§6.3 当场写清语义**（多层一句改列表，不要分号硬挤），不要等用户事后要求补标点或改结构；用户只要标点时只加标点、不改措辞；用户要拆行/列表时走 §6.3  
-2. 运行 `md-toc` 补充目录，并确认目录标题为 `目录 • <# 标题>`（无 HTML 导航）  
-3. 更新 `<根>/_INDEX_.md`（若适用）  
-4. 若目录或索引有变，在回复中**一句话**说明（例如「已补充目录 2 条、已更新索引」）
+2. 若任务是把一篇长文拆成多篇：切分粒度先按 **`designated-knowledge-index` §7**（按主题合理拆，禁止机械按原 `##` 一节一篇，正文不丢），再跑本 skill 的目录与索引  
+3. 运行 `md-toc` 补充目录，并确认目录标题为 `目录 • <# 标题>`（无 HTML 导航）  
+4. 更新 `<根>/_INDEX_.md`（若适用）  
+5. 若目录或索引有变，在回复中**一句话**说明（例如「已补充目录 2 条、已更新索引」）
 
 ## 4. 自动 Hook（用户级）
 
@@ -105,3 +108,7 @@ description: >-
 | 完整实现 | `~/.cursor/tools/md-toc/md-toc.py`（Python >= 3.7） |
 | 兼容实现 | `~/.cursor/tools/md-toc/md-toc-batch.py`（Python 3.5/3.6） |
 | 说明 | `~/.cursor/tools/md-toc/README.md` |
+
+## 7. 拆分长文时
+
+切分本身不在本 skill：见 **`designated-knowledge-index` §7**。拆完后的每篇新 `.md` 仍按上面 §1–§2 补目录、改索引。
