@@ -4,7 +4,9 @@ description: >
   Use when the user asks to color or visually distinguish values in one column
   of a Markdown table (某一列上色、列着色、区分颜色、按取值着色、按语义着色),
   or when table cell text color did not change in preview, or when a Mermaid
-  fence right after an HTML table shows as raw source / 乱码 / `{data-source-line=`.
+  fence right after an HTML table shows as raw source / 乱码 / `{data-source-line=`,
+  or when a classification column needs short labels with parenthetical details
+  (短标签括号、括号补充细节).
   Not for Feishu tables, header-only styling, or when the user asks for cell backgrounds.
 ---
 
@@ -36,8 +38,8 @@ description: >
    - 语义桶 ≥3 且用户没给色 → 先问，不要按字符串数 mermaid 色板轮询。
    - 两类且无指定时，可用 `#5BE49B` / `#FFB020` 作对比色；哪边用绿哪边用橙仍跟**列义**（肯定/达成/共用偏绿，否定/分叉/失败偏橙），不要对调乱套。
 3. 仅把**这一张表**改成 HTML（已是 HTML 则只改目标列）。其它列、其它表不动。表头字色仍用 `#C9A0FF`。
-4. 目标列每个数据格：`<font color="#……"><b>原文</b></font>`。禁止 `background-color`、禁止给 `<td>` / `<th>` 铺底、禁止文档级 `<style>` 改背景。
-5. 表上方一行图例写**语义桶 → 色**，不是「每种原文 → 色」。提醒用户刷新预览。分类/是否列保持短标签（是、否、声明共用），**不要**为「主谓宾齐全」把格子扩成整句；那是 `markdown-export` §6.4 对解释列的要求，不是对本列。
+4. 目标列每个数据格：`<font color="#……"><b>短标签</b></font>`。需要时在同一 `<font>` 里紧跟括号补短细节，括号不加粗：`<font color="#……"><b>无</b>（握手推流）</font>`。颜色跟短标签的语义桶，不给括号另起一色。禁止 `background-color`、禁止给 `<td>` / `<th>` 铺底、禁止文档级 `<style>` 改背景。
+5. 表上方一行图例写**语义桶 → 色**，不是「每种原文 → 色」。提醒用户刷新预览。分类/是否列保持短标签（是、否、声明共用），细节用括号，**不要**为「主谓宾齐全」把格子扩成整句；那是 `markdown-export` §6.4 对解释列的要求，不是对本列。
 6. **`</table>` 后面必须空一行**，再写任何 Markdown（尤其 `` ```mermaid ``、标题、列表）。CommonMark 把 HTML 块吃到**空行**为止；`</table>` 紧挨围栏时，预览会把 mermaid **当原文吐出来**（一整行源码、`{data-source-line=`、看起来像乱码）。表改成 HTML 后必须看紧随其后的块，不能只改表本身。
 
 反例：`</table>` 下一行直接 `` ```mermaid ``（只有换行、没有空行）→ 预览乱码。
@@ -49,7 +51,11 @@ description: >
 ```html
 <td><font color="#FFB020"><b>否</b></font></td>
 <td><font color="#5BE49B"><b>是</b></font></td>
+<td><font color="#5BE49B"><b>是</b>（整份头文件）</font></td>
 <td><font color="#5BE49B"><b>声明共用</b></font>、<font color="#FFB020"><b>实现不共用</b></font></td>
+<td><font color="#FFB020"><b>无</b>（<code>TVALID</code> / <code>TREADY</code> / <code>TLAST</code> 推流）</font></td>
+<td><font color="#5BE49B"><b>有</b>（卡上地址）</font></td>
+<td><font color="#5BE49B"><b>有偏移</b>（窄事务，通常 32-bit）</font></td>
 ```
 
 ## 借口对照
@@ -63,7 +69,8 @@ description: >
 | `td style="color"` 和 span 一样省事 | 用 `<font color>`；`style` 在部分预览里同样无效 |
 | 列不是是/否就套不上本 Skill | 任意列都适用；先按该列语义分桶 |
 | 有几个不同字符串就用几种色 | 按语义归类；同义不同词同色 |
-| 「是/否」太短，改成完整主谓宾再上色 | 分类列保持短词；颜色跟列义，不跟句长 |
+| 「是/否」太短，改成完整主谓宾再上色 | 分类列保持短词；细节用括号；颜色跟列义，不跟句长 |
+| 括号另涂一色，因为字符串不同 | 括号跟标签同一语义桶、同一字色 |
 | 表改完了，后面原来的 mermaid 不用动 | 管道表改成 HTML 后，`</table>` 会把无空行的后续 Markdown 吞进 HTML 块 |
 | 表和围栏之间已经换行了 | 换行不够，必须是**空行**（中间不能只有 `</table>\n```） |
 
@@ -76,5 +83,6 @@ description: >
 - 把「是/否、共用/分叉」当成唯一允许的分类
 - 忽略列名、按单元格原文各涂一色
 - 把「是 / 否」扩成完整主谓宾再上色
+- 该用括号补细节时写成第二句，或给括号另起一色
 - `</table>` 下一行就是 `` ```mermaid ``（或其它围栏/标题），中间没有空行
 - 预览里 mermaid 变成源码、`{data-source-line=`、或用户说「乱码」却只去改图语法
