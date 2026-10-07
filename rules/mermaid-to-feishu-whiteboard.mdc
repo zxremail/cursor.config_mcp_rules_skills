@@ -7,7 +7,16 @@ alwaysApply: false
 
 将 Markdown 中的 Mermaid 图表转换为飞书画板时，必须完整保留原始 Mermaid 中的 `style` 指令（fill、stroke、color 等颜色属性），不得丢弃。
 
-节点若按 `mermaid-flowchart-layout` §12 写成 `<b>模块主题</b><br/><small>（补充描述）</small>`：画板上仍须 **主题加粗、注解缩小**，并且 **换行 + 括号**。不要剥掉 HTML 后糊成一行「主题 注解」。
+节点若按 `mermaid-flowchart-layout` §12 写成 `<b>模块主题</b><br/><small>（补充描述）</small>`：
+
+- **源码**继续带这些 HTML（Markdown/HTML 预览要靠它们）。
+- **飞书 `--input_format mermaid` 不解析 HTML**。`<small>（上电扫描完成）</small>` 会原样画在卡片上。
+- Mermaid 写入并追加画布标题之后，必须 `+export raw` → 去掉标签、保留两段 → 第一段 bold、第二段 `font_size: 11` 且带括号 → raw `--overwrite` 写回完整文件。
+- 不要剥掉标签后糊成一行「本机箱 （上电扫描完成）」。
+- 不要为了修标签再 mermaid overwrite（标签会回来）。
+- 验收搜 raw/svg，不得有 `<small>` `<b>` `<br`。preview jpg 占位图不等于画板空了。
+
+完整步骤见 `markdown-to-feishu-doc` 的 Step 4b。
 
 ```mermaid
 # ❌ 丢失颜色

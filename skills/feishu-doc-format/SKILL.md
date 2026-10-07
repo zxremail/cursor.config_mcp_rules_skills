@@ -97,6 +97,8 @@ Markdown 导入飞书后若表头/首列无色、未加粗、首列被包成代�
 
 Mermaid 整板 `--overwrite` 之后必须再增量追加标题节点。转换步骤见 `markdown-to-feishu-doc`。预览里标题被裁切时遵守 `feishu-whiteboard-text-visibility`。
 
+源码节点里的 `<b>` / `<small>` / `<br/>` 写入飞书 Mermaid 后会变成字面量。必须按 `markdown-to-feishu-doc` Step 4b 改 raw 富文本：主题加粗、注解 11px 换行带括号，画板上不得出现 `<small>`。
+
 ## 画板时序图标题栏
 
 飞书文档画板中的时序图，参与者标题栏字体必须加粗。

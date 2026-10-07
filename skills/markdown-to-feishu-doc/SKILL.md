@@ -7,7 +7,8 @@ description: >
   or mentions "markdown 转飞书", "md 转飞书文档", "把 md 导入飞书", "markdown 导入飞书",
   "把 markdown 文档转化为飞书文档", "md 文档转化为飞书文档",
   "代码块标题", "代码块描述", "caption", "代码块",
-  "画板标题", "画板增加实际含义标题", "mermaid 实际含义标题".
+  "画板标题", "画板增加实际含义标题", "mermaid 实际含义标题",
+  "small", "<small>", "字面量", "注解缩小", "主题加粗".
 ---
 
 # Markdown → 飞书文档（Mermaid → 画板）
@@ -25,7 +26,8 @@ Step 1: 读取并解析 Markdown
 Step 2: 提取 Mermaid → 生成转化后的 Markdown（非 Mermaid 代码块必须带实际含义 caption）
 Step 3: 创建飞书文档（含空白画板占位）
 Step 4: 填充画板内容（Mermaid → 画板），并为每个画板增加实际含义标题
-Step 5: 验证完成（含代码块标题、画板内标题）
+Step 4b: 把节点里的 HTML 标签改成画板富文本（主题加粗、注解缩小换行）
+Step 5: 验证完成（含代码块标题、画板内标题、节点无字面量 HTML）
 ```
 
 ### Step 1: 读取并解析 Markdown
@@ -149,8 +151,30 @@ lark-cli whiteboard +update \
 2. 用 whiteboard-cli 把一条 DSL `type: text`、`fontSize: 24`、`textAlign: center` 转成 OpenAPI；`font_weight` 改为 `bold`。
 3. `whiteboard +update --input_format raw --source @文件` **不要加 `--overwrite`**（增量追加）。
 4. `+export --output-type preview` 确认标题整行可见、未被裁切。文字露出规则见 `feishu-whiteboard-text-visibility`。
+5. **立刻做 Step 4b**（HTML 标签）。不要等用户截图再说。
 
 从 DSL 一次画成的图：标题作为文档第一个 text 子节点一起写入，不要事后再在文档里加一行加粗段落。
+
+### Step 4b: 节点 HTML 必须改成画板富文本
+
+飞书 `--input_format mermaid` **不解析**节点标签里的 HTML。源码里的 `<b>本机箱</b><br/><small>（上电扫描完成）</small>` 会变成画板上的字面量 `<small>（上电扫描完成）</small>`。Markdown 预览能渲染 HTML ≠ 飞书画板能渲染。
+
+源码仍按 `mermaid-flowchart-layout` 写 `<b>` + `<br/>` + `<small>（…）</small>`。**写入画板之后**必须改 raw，目标形状：
+
+| 行 | 内容 | 样式 |
+|---|---|---|
+| 第 1 段 | 主题，如 `本机箱` | `font_weight: bold`，字号与卡片原文一致（常见 14） |
+| 第 2 段 | 括号注解，如 `（上电扫描完成）` | `font_size: 11`，`font_weight: regular` |
+
+做法（画布标题追加完后立刻做；**不要**再 mermaid `--overwrite`，否则标签会回来）：
+
+1. `whiteboard +export --output-type raw --output ./board.json`（必须落文件）。
+2. 每个节点的 `text.text` / `text.rich_text.paragraphs`：去掉 `<b>` `</b>` `<small>` `</small>` `<br/>`；保留两段，不要糊成一行「主题 注解」。
+3. 第一段 `text_style.font_weight = "bold"`；第二段 `text_style.font_size = 11`。扁平 `text` 改成 `主题\n（注解）`。
+4. `whiteboard +update --input_format raw --source @./board.json --overwrite`，写入**完整** export 文件（配色、连线、父节点都保留）。只改文字字段。
+5. 验收用 raw 或 svg **全文搜索**：不得出现 `<small>`、`<b>`、`<br`。`+export preview` 的 jpg 在 raw 写回后常是占位图，**不能**据此判断画板空了、更不能因此再导一次 Mermaid。
+
+对照工作区规则 `mermaid-to-feishu-whiteboard`。
 
 **非 Mermaid 可视化内容的路由**：如果 Markdown 中包含复杂图表描述（如文字描述的架构图、流程图），参考以下路由决策：
 - 思维导图 / 时序图 / 类图 / 饼图 → Mermaid 格式（`--input_format mermaid`）
@@ -162,6 +186,7 @@ lark-cli whiteboard +update \
 - 确认没有遗漏任何 board_token
 - **代码块标题**：`docs +fetch --detail with-ids` 后，每个 `<pre>` 的 `caption` 都是实际含义；不得为空、不得仅为换行、不得仍是「代码块」
 - **画板标题**：每张画板预览顶部都有实际含义标题；文档里画板正上方不得再留重复加粗段落
+- **节点注解**：raw/svg 中不得出现字面量 `<small>` / `<b>` / `<br`；主题与括号注解仍是两行（加粗 + 11px）
 - 按 [`../feishu-doc-format/SKILL.md`](../feishu-doc-format/SKILL.md) 检查标题是否 `seq="auto"`（无手写序号）、表格是否浅紫表头 + 浅蓝首列、表头与首列是否加粗、首列是否未使用代码格式、代码块 caption 与画板内标题是否为实际含义；Markdown 导入未带上时用 `docs +update` / `whiteboard +update` 补
 - 向用户返回文档链接（`doc_url`）
 
@@ -182,3 +207,5 @@ lark-cli whiteboard +update \
 - 如果原始 Markdown 不包含任何 Mermaid 代码块，可以用 `drive +import --file ./xxx.md --type docx` 简化创建，但**导入后仍必须**为每个代码块补上实际含义 caption（import 不会写 caption）
 - 「代码块」是飞书缺省标题，不是可用文案。转换结束前必须改完，不能留给用户手工点选
 - 「画板」是飞书缺省块名。每个画板增加实际含义标题，写在画布内，不能留给用户手工点选
+- 飞书 Mermaid **不会**渲染 `<small>`。转换结束前必须做 Step 4b，不能留给用户手工改
+- 节点有 HTML 标签时，**禁止**只改源码、再 mermaid overwrite 完事；必须改 raw 富文本
