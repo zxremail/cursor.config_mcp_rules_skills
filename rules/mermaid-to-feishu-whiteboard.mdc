@@ -18,7 +18,7 @@ alwaysApply: false
 
 - **源码**继续带这些 HTML（Markdown/HTML 预览要靠它们）。
 - **飞书 `--input_format mermaid` 不解析 HTML**。`<small>（上电扫描完成）</small>` 会原样画在卡片上。
-- Mermaid 写入并追加画布标题之后，必须 `+export raw` → 去掉标签、保留两段 → 第一段 bold、第二段 `font_size: 11` 且带括号 → raw `--overwrite` 写回完整文件。
+- Mermaid 写入后：`+export raw` 只落盘 → `markdown-to-feishu-doc/scripts/pipeline.py patch-board` → raw `--overwrite` → **再**增量追加斜体画布标题。不要把 board.json 读进对话。不要对整篇文档 `overwrite`。
 - 不要剥掉标签后糊成一行「本机箱 （上电扫描完成）」。
 - 不要为了修标签再 mermaid overwrite（标签会回来）。
 - 验收搜 raw/svg，不得有 `<small>` `<b>` `<br`。preview jpg 占位图不等于画板空了。

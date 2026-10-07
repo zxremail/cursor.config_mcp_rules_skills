@@ -75,7 +75,7 @@ description: >
 </table>
 ```
 
-Markdown 导入飞书后若表头/首列无色、未加粗、首列被包成代码，或标题仍手写序号、标题被包成 `<code>`，用 `docs +update` 按上表补齐：标题改为 `seq="auto"`、去掉手写前缀，并去掉标题上的 `<code>`。
+从 Markdown **新建**飞书文档时走 `markdown-to-feishu-doc`：本地生成已带本表样式与 `seq="auto"` 的 XML，一次 `docs +create --doc-format xml`。不要 Markdown 导入后再 `+fetch` 全文、不要对已有画板的文档 `overwrite`。已有文档缺色或手写序号时，用 `block_replace` 改那一张表或那一条标题。
 
 ## 代码块标题
 

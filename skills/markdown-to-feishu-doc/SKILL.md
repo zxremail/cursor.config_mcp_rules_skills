@@ -1,213 +1,163 @@
 ---
 name: markdown-to-feishu-doc
 description: >
-  将本地 Markdown 文档转化为飞书云文档，自动将 Mermaid 代码块转为飞书画板，
-  并把每个代码块标题、每个画板标题改成实际含义（画板标题用斜体）。
-  Use when the user asks to convert markdown/md files to Feishu (飞书) documents,
-  or mentions "markdown 转飞书", "md 转飞书文档", "把 md 导入飞书", "markdown 导入飞书",
-  "把 markdown 文档转化为飞书文档", "md 文档转化为飞书文档",
-  "代码块标题", "代码块描述", "caption", "代码块",
-  "画板标题", "画板增加实际含义标题", "mermaid 实际含义标题", "画板标题斜体", "斜体",
-  "small", "<small>", "字面量", "注解缩小", "主题加粗".
+  Use when converting a local Markdown/md file to a Feishu/Lark Docx or Wiki,
+  or when the user says markdown 转飞书, md 转飞书文档, 把 md 导入飞书,
+  代码块标题, caption, 画板标题, 画板斜体, 字面量 HTML, small 标签未渲染.
+  Also use when a previous Markdown 导入 left default「代码块」captions, missing
+  seq=auto headings, unstyled tables, or when tempted to docs +update overwrite
+  a document that already has whiteboards.
 ---
 
 # Markdown → 飞书文档（Mermaid → 画板）
 
-**前置条件**：先读取 [`../lark-shared/SKILL.md`](../lark-shared/SKILL.md) 了解认证和权限处理。
+**前置条件**：认证失败时才读 [`../lark-shared/SKILL.md`](../lark-shared/SKILL.md)。排版条见 [`../feishu-doc-format/SKILL.md`](../feishu-doc-format/SKILL.md)，本流程一次写对，不要先导入再整篇回写。
 
-## 🔴 核心原则
+脚本（只向 stdout 打 JSON 摘要）：`scripts/pipeline.py`。
 
-**Mermaid 代码块必须转为飞书画板**，不是普通代码块，也不是图片。画板可编辑、可协作，是飞书原生可视化组件。
+## 核心原则
+
+1. **Mermaid 必须变成飞书画板**，不是代码块、不是图片。
+2. **格式在本地 XML 里一次写齐**：`seq="auto"` 的 `<h1>`/`<h2>`、浅紫表头、浅蓝首列、`<pre caption>`。禁止 `docs +create --doc-format markdown` 再 fetch 全文补样式。
+3. **带画板的文档禁止 `docs +update --command overwrite`**。overwrite 会克隆/打空白画板（常见 `Whiteboard clone failed` / `degrade_code=2105`），然后被迫把五张图再画一遍。漏改用 `block_replace` / `block_insert_after`。
+4. **大文件不准进对话**：不要 `Read` 转换产物 `doc.xml`、`docs +fetch` 全文、画板 `raw` JSON。一律写到 cwd 相对路径，用 `pipeline.py audit-*` 看摘要。源 md 由脚本读取，模型最多 `Read` `manifest.json`。
+
+## 禁止（上次烧 token 的写法）
+
+| 禁止 | 改做 |
+|------|------|
+| `+create --doc-format markdown` 再 `+fetch` 整篇 XML 改表 | `pipeline.py convert` → `+create --doc-format xml` |
+| `+update --command overwrite` 补 `seq`/表色 | 创建时 XML 已带；事后只 `block_replace` 单块 |
+| `Read` 7 万字 fetch / 千行 board.json | `audit-xml` / `patch-board` / `audit-board` |
+| Mermaid 带 `%%{init: theme dark}` | 脚本已剥掉；否则飞书报 `Unsupported color format: "2D3436"` |
+| `whiteboard +update --yes`、`@/tmp/...` | 无 `--yes`；`@file` 必须是 cwd 相对路径 |
+| 正则把 `<thead>` 当成 `<th` | 表样式只由脚本写，勿手写 `<th[^>]*>` |
 
 ## 执行流程
 
 ```
-Step 1: 读取并解析 Markdown
-Step 2: 提取 Mermaid → 生成转化后的 Markdown（非 Mermaid 代码块必须带实际含义 caption）
-Step 3: 创建飞书文档（含空白画板占位）
-Step 4: 填充画板内容（Mermaid → 画板），并为每个画板增加实际含义标题
-Step 4b: 把节点里的 HTML 标签改成画板富文本（主题加粗、注解缩小换行）
-Step 5: 验证完成（含代码块标题、画板内标题、节点无字面量 HTML）
+Step 1  pipeline.py convert → out/doc.xml + out/mermaid/ + manifest.json
+Step 2  只读 manifest（标题、mermaid 张数、画板标题列表）
+Step 3  docs +create --doc-format xml --content @./out/doc.xml --as user
+Step 4  按 token 顺序 mermaid overwrite（用 mN.mmd，无 YAML / 无 init）
+Step 4b export raw 落盘 → patch-board → raw overwrite（浅框 + 去 HTML）
+Step 4c whiteboard-cli 标题 DSL → italic → raw 增量追加（不要 overwrite）
+Step 5  fetch/export 只落盘 + audit-xml / audit-board；向用户给 doc url
 ```
 
-### Step 1: 读取并解析 Markdown
+### Step 1–2：本地转换
 
-1. 使用 Read 工具读取本地 `.md` 文件全文
-2. 识别所有 Mermaid 代码块：以 ` ```mermaid ` 开头、` ``` ` 结尾的围栏代码块
-3. 按出现顺序记录每个 Mermaid 块的内容（含完整的 Mermaid 代码，**保留 style 指令**）。同时记下 YAML `title:`（实际含义标题）；没有则按最近小节 + 图意拟定，转换前不要丢下缺标题的源码。
-
-### Step 2: 生成转化后的 Markdown
-
-将原始 Markdown 中的每个 Mermaid 代码块替换为飞书空白画板标签：
-
-```
-原始：
-  ```mermaid
-  graph TD
-      A --> B
-      style A fill:#2E86AB
-  ```
-
-替换为：
-  <whiteboard type="blank"></whiteboard>
-```
-
-**关键规则**：
-- 每个 Mermaid 块对应一个 `<whiteboard type="blank"></whiteboard>`
-- 保持 Mermaid 块在文档中的相对位置不变
-- 非 Mermaid 的代码块**不得**原样丢进飞书围栏：必须写成带 `caption` 的 `<pre>`（见下节）
-- 其余标准 Markdown 格式原样保留，飞书 `docs +create` 支持标准 Markdown
-
-### 代码块标题必须是实际含义
-
-每个「代码块」的标题都要全部改成实际含义。飞书 `<pre>` 没有 `caption`、或 caption 为空 / 仅换行时，界面统一显示「代码块」，转换后禁止留下这种默认标题。
-
-Markdown 围栏通常只有语言标记（如 c、bash），没有标题。转换时根据**上一节标题 + 代码角色**为每一块单独拟定 caption，写入：
-
-```xml
-<pre lang="c" caption="priv_reboot 函数声明"><code>priv_result_t priv_reboot(void);</code></pre>
-```
-
-拟定规则（`{主题} {体裁}`，同一节内不重复）：
-
-| 代码角色 | 体裁用词 | 示例 |
-|---------|---------|------|
-| 函数/类型声明、签名模板 | 函数声明 / 签名模板 | `priv_reboot 函数声明`、`超时版便捷 API 签名模板` |
-| 调用、判断返回值 | 调用示例 | `priv_reboot 调用示例` |
-| shell / CLI | 命令行示例 | `lcd-brightness 命令行示例` |
-| 配置、JSON、单元片段 | 配置示例 / 报文示例 | `usbtmc.conf 配置示例` |
-
-- 主题取最近的小节标题或代码里的主符号（函数名、命令、文件名），不要只用语言名。
-- caption 短句、无句号；不要写成「如下」「示例」「代码」「c」「bash」。
-- 代码正文放在 `<code>` 内；`<` `>` `&` 按 XML 转义；换行用 `<br/>`。
-- Mermaid 走画板，不给 `<pre>` 加「代码块」标题。
-
-若 `docs +create --markdown` 未能带上 caption：立刻 `docs +fetch --detail with-ids`，对每个 `<pre>` 做 `block_replace`，补上 `caption="实际含义"`。不要等用户再提。
-
-### Step 3: 创建飞书文档
-
-使用 `docs +create` 创建文档：
+在**工作区 cwd**建短时目录（用完删除），不要用绝对 `/tmp` 当 `@file`：
 
 ```bash
-lark-cli docs +create \
-  --title "文档标题" \
-  --markdown '转化后的 Markdown 内容' \
-  --as user
+python3 ~/.cursor/skills/markdown-to-feishu-doc/scripts/pipeline.py convert \
+  ./path/to/src.md ./_feishu_out
 ```
 
-**可选目标位置参数**（按用户指定选择其一）：
-- `--folder-token <TOKEN>` — 放入指定文件夹
-- `--wiki-node <TOKEN>` — 放入知识库节点下
-- `--wiki-space <ID>` — 放入知识空间根目录
+stdout / `manifest.json` 含 `title`、`mermaid_count`、`titles`。缺少 YAML `title:` 时脚本用最近小节凑标题；不对就只改正文 `titleN.txt`，不要为改一个标题去 Read 整份 XML。
 
-**长文档策略**：如果 Markdown 内容超长（>50KB），分段操作：
-1. 先用 `docs +create` 创建文档的前半部分
-2. 再用 `docs +update --mode append` 追加后续内容
-3. 每次追加时记录返回的 `board_tokens`
+非 Mermaid 围栏会写成带实际含义 `caption` 的 `<pre>`（`{主题} {体裁}`：函数声明 / 调用示例 / 命令行示例 / 配置示例）。禁止 caption 为「代码块」「示例」「c」。
 
-**从返回值中记录 `board_tokens`**：
-- `data.board_tokens` 是本次创建的所有空白画板 token 列表
-- token 的顺序与 Markdown 中 `<whiteboard>` 标签的出现顺序一致
-- 将每个 token 与 Step 1 中记录的 Mermaid 代码一一对应
-
-### Step 4: 填充画板内容
-
-对于每个 (board_token, mermaid_code) 配对：
-
-1. 将 Mermaid 代码写入临时文件
+### Step 3：创建
 
 ```bash
-cat > /tmp/mermaid_N.mmd << 'MERMAID_EOF'
-graph TD
-    A[开始] --> B{判断}
-    B -->|是| C[处理]
-    style A fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
-MERMAID_EOF
+lark-cli docs +create --as user --doc-format xml \
+  --title "manifest.title" \
+  --content "@./_feishu_out/doc.xml"
 ```
 
-2. 使用 `whiteboard +update` 更新画板
+用户指定位置时加 `--parent-token`（文件夹或知识库节点）。返回里按出现顺序记下每张白板的 `block_token`，与 `m0.mmd`… 对齐。`new_blocks` 里 `block_type=whiteboard` 即画板。
+
+长文（xml >50KB）仍可先 create 再 **`append`** 后半；**append 不是 overwrite**。每次记下新增 token。
+
+无 Mermaid 时仍走本 XML 路径（表色和 caption 一次到位）。不要用 `drive +import` 当主路径。
+
+### Step 4：填 Mermaid
+
+对每个 token：
 
 ```bash
-lark-cli whiteboard +update \
-  --whiteboard-token <board_token> \
+lark-cli whiteboard +update --as user \
+  --whiteboard-token <token> \
   --input_format mermaid \
-  --source @/tmp/mermaid_N.mmd \
-  --overwrite --yes --as user
+  --source "@./_feishu_out/mermaid/mN.mmd" \
+  --overwrite
 ```
 
-**Mermaid style 保留规则**：原始 Mermaid 中的 `style` 指令（fill、stroke、color 等）必须完整保留，不得丢弃。
+保留 `style` / `classDef`。不要把 `title:` frontmatter 送进飞书。失败且报 `2D3436`：确认 mmd 无 `%%{init` 后重试同一文件（偶发），不要改业务色。
 
-### 每个画板增加实际含义标题
+### Step 4b：raw 去 HTML + 浅色层框
 
-每个画板增加实际含义标题。标题必须写在**画板内部画布顶部**，作为独立 `text` / `text_shape` 节点，不要写在文档正文里，也不要当成代码块那样的 `<whiteboard caption>`（该属性会换掉整块画板）。
+顺序固定：**先 4b overwrite，再 4c 加标题**。4b 的 `--overwrite` 会清掉已有标题节点。
 
-拟定规则：优先用源码 YAML `title:`；没有则取最近小节标题 + 图在讲什么。短句、无句号。例如 `业务进程到特权守护进程的调用关系`、`便捷 API 一次调用内部顺序`。禁止「画板」「如图」「流程图」。
+```bash
+lark-cli whiteboard +export --as user --whiteboard-token <token> \
+  --output-type raw --output "./_feishu_out/boardN.json" --overwrite
+python3 ~/.cursor/skills/markdown-to-feishu-doc/scripts/pipeline.py patch-board \
+  ./_feishu_out/boardN.json
+lark-cli whiteboard +update --as user --whiteboard-token <token> \
+  --input_format raw --source "@./_feishu_out/boardN.json" --overwrite
+```
 
-向飞书画板写入 Mermaid 时，**不要**把 YAML `title:` / `---` 行送进 `whiteboard +update --input_format mermaid`（飞书渲染器常不认，标题也不会变成画布文字）。去掉 frontmatter 后再 overwrite，然后用上面的 YAML `title` 做画布内标题。
+`patch-board` 做：去掉 `<b>`/`<small>`/`<br/>` 且主题/注解仍两段（bold + 11px）；`section` `#F3F4F6`；深色 subgraph 改浅底（紫 `#EDE9FE`、蓝 `#DBEAFE`、橙 `#FFEDD5`、品红 `#FCE7F3`，内层可白）；叶子深彩色 + 白字 `text_color_type: 1`。不要手编 OpenAPI JSON。preview jpg 在 raw 写回后常是占位图，**不能**据此再 mermaid overwrite。
 
-做法（Mermaid `+update --overwrite` 之后立刻做，否则标题会被冲掉）：
+### Step 4c：画布斜体标题
 
-1. `whiteboard +export --output-type raw --output @相对路径`，按节点包围盒取图宽，标题 `x` 与图左对齐、`width` 等于图宽、`y` 在内容上方约 48px。
-2. 用 whiteboard-cli 把一条 DSL `type: text`、`fontSize: 24`、`textAlign: center` 转成 OpenAPI；写回 raw 时 `italic` 改为 `true`，`font_weight` 用 `regular`（斜体，不要加粗）。
-3. `whiteboard +update --input_format raw --source @文件` **不要加 `--overwrite`**（增量追加）。
-4. `+export --output-type preview` 确认标题整行可见、斜体、未被裁切。文字露出规则见 `feishu-whiteboard-text-visibility`。
-5. **立刻做 Step 4b**（HTML 标签）。不要等用户截图再说。
+标题在画板内顶部独立 `text_shape`：24px、`italic: true`、`font_weight: regular`、`#1F2329`、宽与图同宽、`y` 约在内容上方 48px。不要 `<whiteboard caption>`，不要在文档里画板上方再写加粗段。
 
-从 DSL 一次画成的图：标题作为文档第一个 text 子节点一起写入（同样斜体、`italic: true`），不要事后再在文档里加一行加粗段落。
+用 **whiteboard-cli DSL `version: 2`**（缺 version 会校验失败）。脚本：
 
-### Step 4b: 节点 HTML 必须改成画板富文本
+```bash
+python3 ~/.cursor/skills/markdown-to-feishu-doc/scripts/pipeline.py title-dsl \
+  "实际含义标题" <图宽> > ./_feishu_out/titleN.dsl.json
+npx -y @larksuite/whiteboard-cli@^0.2.0 -i ./_feishu_out/titleN.dsl.json \
+  -f dsl -t openapi -o ./_feishu_out/titleN.oa.json -F json
+```
 
-飞书 `--input_format mermaid` **不解析**节点标签里的 HTML。源码里的 `<b>本机箱</b><br/><small>（上电扫描完成）</small>` 会变成画板上的字面量 `<small>（上电扫描完成）</small>`。Markdown 预览能渲染 HTML ≠ 飞书画板能渲染。
+用一小段 Python **只改** oa.json 里 `text.italic=true`（不要把 oa 打印到对话），然后：
 
-源码仍按 `mermaid-flowchart-layout` 写 `<b>` + `<br/>` + `<small>（…）</small>`。**写入画板之后**必须改 raw，目标形状：
+```bash
+lark-cli whiteboard +update --as user --whiteboard-token <token> \
+  --input_format raw --source "@./_feishu_out/titleN.src.json"
+```
 
-| 行 | 内容 | 样式 |
-|---|---|---|
-| 第 1 段 | 主题，如 `本机箱` | `font_weight: bold`，字号与卡片原文一致（常见 14） |
-| 第 2 段 | 括号注解，如 `（上电扫描完成）` | `font_size: 11`，`font_weight: regular` |
+**不要** `--overwrite`。裁切见 `feishu-whiteboard-text-visibility`。
 
-做法（画布标题追加完后立刻做；**不要**再 mermaid `--overwrite`，否则标签会回来）：
+### Step 5：验收（摘要，不是全文）
 
-1. `whiteboard +export --output-type raw --output ./board.json`（必须落文件）。
-2. 每个节点的 `text.text` / `text.rich_text.paragraphs`：去掉 `<b>` `</b>` `<small>` `</small>` `<br/>`；保留两段，不要糊成一行「主题 注解」。
-3. 第一段 `text_style.font_weight = "bold"`；第二段 `text_style.font_size = 11`。扁平 `text` 改成 `主题\n（注解）`。
-4. `whiteboard +update --input_format raw --source @./board.json --overwrite`，写入**完整** export 文件（配色、连线、父节点都保留）。只改文字字段。
-5. **外框浅色、卡片深彩色：** 包住整图的 `section` 填 `#F3F4F6`。所有 subgraph / 层框 / 分组框改为同色相浅底（紫 `#EDE9FE`、蓝 `#DBEAFE`、橙 `#FFEDD5`、品红 `#FCE7F3`，内层分组可用白），标题用对应深色字。不要用 `#0D1117` 整板铺底。叶子卡片保留原 Mermaid `fill`/`stroke`；深色卡片文字改为 `#FFFFFF` 且 `text_color_type: 1`。画布标题 `#1F2329`、斜体。
-6. 验收用 raw 或 svg **全文搜索**：不得出现 `<small>`、`<b>`、`<br`。`section` 不得为深底。`+export preview` 的 jpg 在 raw 写回后常是占位图，**不能**据此判断画板空了、更不能因此再导一次 Mermaid。
+```bash
+lark-cli docs +fetch --as user --doc <id> --detail with-ids --doc-format xml \
+  > ./_feishu_out/fetch.json
+python3 ~/.cursor/skills/markdown-to-feishu-doc/scripts/pipeline.py audit-xml \
+  ./_feishu_out/fetch.json
+lark-cli whiteboard +export --as user --whiteboard-token <token> \
+  --output-type raw --output ./_feishu_out/vN.json --overwrite
+python3 ~/.cursor/skills/markdown-to-feishu-doc/scripts/pipeline.py audit-board \
+  ./_feishu_out/vN.json
+```
 
-对照工作区规则 `mermaid-to-feishu-whiteboard`。
+`audit-xml` 必须 `ok: true`：标题 `seq=auto`、无手写序号、无标题 `<code>`、表头/首列色、pre caption、白板数量 = mermaid 张数。`audit-board`：无 `<small>`/`<b>`/`<br`，有斜体标题。缺一张白板用 `block_insert_after` 插 `<whiteboard type="blank">`，再走 Step 4–4c，**不要 overwrite 整篇**。
 
-**非 Mermaid 可视化内容的路由**：如果 Markdown 中包含复杂图表描述（如文字描述的架构图、流程图），参考以下路由决策：
-- 思维导图 / 时序图 / 类图 / 饼图 → Mermaid 格式（`--input_format mermaid`）
-- 架构图 / 组织架构图 / 泳道图 / 鱼骨图等 → 使用 whiteboard-cli DSL，参见 [`../lark-whiteboard-cli/SKILL.md`](../lark-whiteboard-cli/SKILL.md)
+通过后删 `_feishu_out`，把 `document.url` 给用户。
 
-### Step 5: 验证完成
+## 画板标题与 HTML（格式不降级）
 
-- 确认所有 Mermaid 块都已转为画板并填充内容
-- 确认没有遗漏任何 board_token
-- **代码块标题**：`docs +fetch --detail with-ids` 后，每个 `<pre>` 的 `caption` 都是实际含义；不得为空、不得仅为换行、不得仍是「代码块」
-- **画板标题**：每张画板预览顶部都有实际含义标题，且为斜体（raw 里 `italic: true`、`font_weight: regular`）；文档里画板正上方不得再留重复加粗段落
-- **画板外框**：`section` 与全部层框/分组框均为浅色底；叶子卡片保留深彩色 + 自定义白字
-- **节点注解**：raw/svg 中不得出现字面量 `<small>` / `<b>` / `<br`；主题与括号注解仍是两行（加粗 + 11px）
-- 按 [`../feishu-doc-format/SKILL.md`](../feishu-doc-format/SKILL.md) 检查标题是否 `seq="auto"`（无手写序号）、表格是否浅紫表头 + 浅蓝首列、表头与首列是否加粗、首列是否未使用代码格式、代码块 caption 与画板内标题是否为实际含义；Markdown 导入未带上时用 `docs +update` / `whiteboard +update` 补
-- 向用户返回文档链接（`doc_url`）
+- YAML `title:` 优先；禁止「画板」「如图」「流程图」。
+- 源码 Mermaid 仍可写 `<b>` + `<br/>` + `<small>（注解）</small>` 给 HTML 预览；飞书不解析这些标签，必须 Step 4b。
+- 非 Mermaid 图：思维导图/时序/类图/饼图走 mermaid；架构/泳道等走 [`../lark-whiteboard-cli/SKILL.md`](../lark-whiteboard-cli/SKILL.md)。
 
 ## 快速决策表
 
 | 用户说 | 做什么 |
-|-------|-------|
-| "把这个 md 转成飞书文档" | 完整执行 Step 1-5 |
-| "markdown 导入飞书" | 完整执行 Step 1-5 |
-| "md 转飞书，不用画板" | `drive +import` 后仍须给每个代码块补实际含义 caption |
-| "md 转飞书，放到 XX 文件夹" | Step 3 添加 `--folder-token` |
-| "md 转飞书，放到知识库" | Step 3 添加 `--wiki-node` 或 `--wiki-space` |
+|-------|--------|
+| 把这个 md 转成飞书文档 | Step 1–5 |
+| 放到某文件夹/知识库 | Step 3 `--parent-token` |
+| md 转飞书不用画板 | 仍 XML create（表色/caption）；Mermaid 若存在仍须画板 |
+| 已有文档缺表色/序号 | `block_replace` 目标表或标题；禁止 overwrite |
 
-## 注意事项
+## 格式验收（与 feishu-doc-format 相同，不打折）
 
-- `drive +import` 只能原样导入 Markdown，**不会**将 Mermaid 转为画板。本 Skill 必须使用 `docs +create` + `whiteboard +update` 的组合流程
-- 画板创建后不可逆。如果 Mermaid 语法有误导致画板更新失败，检查错误信息、修正语法后重试
-- 如果原始 Markdown 不包含任何 Mermaid 代码块，可以用 `drive +import --file ./xxx.md --type docx` 简化创建，但**导入后仍必须**为每个代码块补上实际含义 caption（import 不会写 caption）
-- 「代码块」是飞书缺省标题，不是可用文案。转换结束前必须改完，不能留给用户手工点选
-- 「画板」是飞书缺省块名。每个画板增加实际含义标题，写在画布内，不能留给用户手工点选
-- 飞书 Mermaid **不会**渲染 `<small>`。转换结束前必须做 Step 4b，不能留给用户手工改
-- 节点有 HTML 标签时，**禁止**只改源码、再 mermaid overwrite 完事；必须改 raw 富文本
+- 章 `<h1 seq="auto">`、节 `<h2 seq="auto">`，正文标题不从 `<h2>` 起篇
+- 表头 `rgb(236,226,254)` 居中加粗；首列 `rgb(225,234,255)` 加粗且无 `<code>`
+- 每个 `<pre>` 有实际含义 caption
+- 每个画板画布顶部斜体标题；节点无字面量 HTML；section 浅底、叶子深彩色白字
