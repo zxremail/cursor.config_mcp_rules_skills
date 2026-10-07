@@ -12,7 +12,7 @@ alwaysApply: false
 - 包住整图的 `section`：`#F3F4F6`
 - **所有 subgraph / 层框 / 分组框**：同色相浅底（紫 `#EDE9FE`、蓝 `#DBEAFE`、橙 `#FFEDD5`、品红 `#FCE7F3`；内层分组可用白 `#FFFFFF`），标题用对应深色字
 - 叶子卡片仍保留原 Mermaid 深彩色 `fill`/`stroke`，字为自定义白字（`text_color: "#FFFFFF"`、`text_color_type: 1`），避免飞书用主题黑字冲淡填充
-- 画布标题 `#1F2329`
+- 画布标题 `#1F2329`，斜体、常规字重（`italic: true`，不要加粗）
 
 节点若按 `mermaid-flowchart-layout` §12 写成 `<b>模块主题</b><br/><small>（补充描述）</small>`：
 

@@ -2,12 +2,12 @@
 name: markdown-to-feishu-doc
 description: >
   将本地 Markdown 文档转化为飞书云文档，自动将 Mermaid 代码块转为飞书画板，
-  并把每个代码块标题、每个画板标题改成实际含义。
+  并把每个代码块标题、每个画板标题改成实际含义（画板标题用斜体）。
   Use when the user asks to convert markdown/md files to Feishu (飞书) documents,
   or mentions "markdown 转飞书", "md 转飞书文档", "把 md 导入飞书", "markdown 导入飞书",
   "把 markdown 文档转化为飞书文档", "md 文档转化为飞书文档",
   "代码块标题", "代码块描述", "caption", "代码块",
-  "画板标题", "画板增加实际含义标题", "mermaid 实际含义标题",
+  "画板标题", "画板增加实际含义标题", "mermaid 实际含义标题", "画板标题斜体", "斜体",
   "small", "<small>", "字面量", "注解缩小", "主题加粗".
 ---
 
@@ -148,12 +148,12 @@ lark-cli whiteboard +update \
 做法（Mermaid `+update --overwrite` 之后立刻做，否则标题会被冲掉）：
 
 1. `whiteboard +export --output-type raw --output @相对路径`，按节点包围盒取图宽，标题 `x` 与图左对齐、`width` 等于图宽、`y` 在内容上方约 48px。
-2. 用 whiteboard-cli 把一条 DSL `type: text`、`fontSize: 24`、`textAlign: center` 转成 OpenAPI；`font_weight` 改为 `bold`。
+2. 用 whiteboard-cli 把一条 DSL `type: text`、`fontSize: 24`、`textAlign: center` 转成 OpenAPI；写回 raw 时 `italic` 改为 `true`，`font_weight` 用 `regular`（斜体，不要加粗）。
 3. `whiteboard +update --input_format raw --source @文件` **不要加 `--overwrite`**（增量追加）。
-4. `+export --output-type preview` 确认标题整行可见、未被裁切。文字露出规则见 `feishu-whiteboard-text-visibility`。
+4. `+export --output-type preview` 确认标题整行可见、斜体、未被裁切。文字露出规则见 `feishu-whiteboard-text-visibility`。
 5. **立刻做 Step 4b**（HTML 标签）。不要等用户截图再说。
 
-从 DSL 一次画成的图：标题作为文档第一个 text 子节点一起写入，不要事后再在文档里加一行加粗段落。
+从 DSL 一次画成的图：标题作为文档第一个 text 子节点一起写入（同样斜体、`italic: true`），不要事后再在文档里加一行加粗段落。
 
 ### Step 4b: 节点 HTML 必须改成画板富文本
 
@@ -172,7 +172,7 @@ lark-cli whiteboard +update \
 2. 每个节点的 `text.text` / `text.rich_text.paragraphs`：去掉 `<b>` `</b>` `<small>` `</small>` `<br/>`；保留两段，不要糊成一行「主题 注解」。
 3. 第一段 `text_style.font_weight = "bold"`；第二段 `text_style.font_size = 11`。扁平 `text` 改成 `主题\n（注解）`。
 4. `whiteboard +update --input_format raw --source @./board.json --overwrite`，写入**完整** export 文件（配色、连线、父节点都保留）。只改文字字段。
-5. **外框浅色、卡片深彩色：** 包住整图的 `section` 填 `#F3F4F6`。所有 subgraph / 层框 / 分组框改为同色相浅底（紫 `#EDE9FE`、蓝 `#DBEAFE`、橙 `#FFEDD5`、品红 `#FCE7F3`，内层分组可用白），标题用对应深色字。不要用 `#0D1117` 整板铺底。叶子卡片保留原 Mermaid `fill`/`stroke`；深色卡片文字改为 `#FFFFFF` 且 `text_color_type: 1`。画布标题 `#1F2329`。
+5. **外框浅色、卡片深彩色：** 包住整图的 `section` 填 `#F3F4F6`。所有 subgraph / 层框 / 分组框改为同色相浅底（紫 `#EDE9FE`、蓝 `#DBEAFE`、橙 `#FFEDD5`、品红 `#FCE7F3`，内层分组可用白），标题用对应深色字。不要用 `#0D1117` 整板铺底。叶子卡片保留原 Mermaid `fill`/`stroke`；深色卡片文字改为 `#FFFFFF` 且 `text_color_type: 1`。画布标题 `#1F2329`、斜体。
 6. 验收用 raw 或 svg **全文搜索**：不得出现 `<small>`、`<b>`、`<br`。`section` 不得为深底。`+export preview` 的 jpg 在 raw 写回后常是占位图，**不能**据此判断画板空了、更不能因此再导一次 Mermaid。
 
 对照工作区规则 `mermaid-to-feishu-whiteboard`。
@@ -186,7 +186,7 @@ lark-cli whiteboard +update \
 - 确认所有 Mermaid 块都已转为画板并填充内容
 - 确认没有遗漏任何 board_token
 - **代码块标题**：`docs +fetch --detail with-ids` 后，每个 `<pre>` 的 `caption` 都是实际含义；不得为空、不得仅为换行、不得仍是「代码块」
-- **画板标题**：每张画板预览顶部都有实际含义标题；文档里画板正上方不得再留重复加粗段落
+- **画板标题**：每张画板预览顶部都有实际含义标题，且为斜体（raw 里 `italic: true`、`font_weight: regular`）；文档里画板正上方不得再留重复加粗段落
 - **画板外框**：`section` 与全部层框/分组框均为浅色底；叶子卡片保留深彩色 + 自定义白字
 - **节点注解**：raw/svg 中不得出现字面量 `<small>` / `<b>` / `<br`；主题与括号注解仍是两行（加粗 + 11px）
 - 按 [`../feishu-doc-format/SKILL.md`](../feishu-doc-format/SKILL.md) 检查标题是否 `seq="auto"`（无手写序号）、表格是否浅紫表头 + 浅蓝首列、表头与首列是否加粗、首列是否未使用代码格式、代码块 caption 与画板内标题是否为实际含义；Markdown 导入未带上时用 `docs +update` / `whiteboard +update` 补
