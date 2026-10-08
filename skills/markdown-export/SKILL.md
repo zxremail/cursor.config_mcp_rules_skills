@@ -38,7 +38,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 
 ## 2. 内容
 
-详实、需要时用图，不要为凑类型硬画。中文按 **§6**（细则 prose.md）。管道表表头按 **§9**，不要为此改成 HTML `<table>`。列数据着色走 `coloring-markdown-table-column`。
+详实、需要时用图，不要为凑类型硬画。尽量不要外部图片链接或 ASCII 艺术图。中文按 **§6**（细则 prose.md）。管道表表头按 **§9**，不要为此改成 HTML `<table>`。列数据着色走 `coloring-markdown-table-column`。
 
 ## 3. 图表语法（格式）
 
@@ -54,7 +54,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 
 ## 5. 深彩色（硬规则，先于排版）
 
-适用范围：一切 `` ```mermaid ``（flowchart / sequence / class / er / state / gantt / pie / 草稿）。
+适用范围：一切 `` ```mermaid ``（flowchart / sequence / class / er / state / gantt / pie / mindmap / block / C4 / 草稿）。
 
 禁止：无 init dark；无 fill；`fill:#fff/#eee/#f8f8f8/#fafafa`；深底 `color:#000/#333`；嵌套 subgraph 外框内框同一 `fill`（外深内浅，layout §0.1）。
 
@@ -66,7 +66,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 
 - 中英文之间空格。
 - **落笔即断句**：两套主语、并列路径、条件状语当场用逗号/顿号/分号；不要等用户说加标点。用户只要标点时只加标点、不改措辞。
-- **语义**：先结论；写清谁对谁做什么；不是 A 是 B；对照用表、步骤用编号、结构用图。一层定语；同一概念同一叫法。多层一句改列表。不要用「打 / 摸 / 直捅」当万能动词（打开/打印除外）。中文专名用「」，不用 “”。
+- **语义**：先结论；写清谁对谁做什么；不是 A 是 B；对照用表、步骤用编号、结构用图。一层定语；同一概念同一叫法。多层一句改列表。不要用「打 / 摸 / 直捅」当万能动词（「打开」设备、「打印」日志、「打点」计数除外；「打 TLAST」写「置 TLAST」）。中文专名用「」，不用 “」。
 - **表格格内**：先看列义。分类/是否/状态用短标签（可括号补细节）；解释/对照/提要列主谓宾 + `<br>` 分行，禁止分号硬挤。索引「说明」短标签、「提要」完整句。
 
 ## 7. 实时保存
@@ -79,7 +79,7 @@ Input `#E066FF`；Output `#00FF00`；Bidirectional `#FFD700`；Power `#FF0000`�
 
 ## 9. 管道表表头字色
 
-每个表头单元格：`<span style="color:#C9A0FF">列名</span>`。只改字色。例外：飞书走 `feishu-doc-format`；用户明确不要 HTML；冻结表头是另一 skill；数据列着色走 `coloring-markdown-table-column`。
+每个表头单元格：`<span style="color:#C9A0FF">列名</span>`。只改字色。知识库默认给 Cursor 预览看，GitHub 会剥 `style` 也照写。例外：飞书走 `feishu-doc-format`；用户明确不要 HTML；冻结/sticky 走 `freezing-html-table-headers` 或 `freezing-mpe-table-headers`；数据列着色走 `coloring-markdown-table-column`。
 
 ## 交付
 

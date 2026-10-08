@@ -79,6 +79,7 @@ linkStyle N opacity:0,stroke-width:0px
 | 配置慢路径 | `-.->` | `#3B82F6` dash 4 4 |
 | 物理信号 | `-.->` | `#67E8F9` dash 12 4 |
 | 外部延伸 | `-->` 实线 | `#94A3B8` 2.5px |
+| 跨边界衔接（可选第三色） | `-->` 实线 | `#22D3EE` 2px |
 
 占位边计入序号。先隐形占位，语义色从 k 起算。
 
@@ -96,7 +97,7 @@ linkStyle N opacity:0,stroke-width:0px
 
 ## 10. 小图
 
-决策/三五步：`useMaxWidth:false`，禁止独立图例。
+决策/三五步：`useMaxWidth:false`（可加 `nodeSpacing:16,rankSpacing:28,padding:8`），禁止独立图例。图例方案 D 的 init 固定 `padding:6,nodeSpacing:12,rankSpacing:18,useMaxWidth:false`，见 layout.md §6.3。
 
 ## 11. 文字露出
 
