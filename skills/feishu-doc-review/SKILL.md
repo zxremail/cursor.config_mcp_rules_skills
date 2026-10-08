@@ -5,106 +5,53 @@ description: >-
   or when the user says 飞书文档review、评审意见、审一下这份飞书、帮我review这篇文档、文档评审,
   or pastes a feishu.cn / larksuite.com /docx/ or /wiki/ URL to review.
   Not for code PR/Bugbot/security review, dual-doc FAQ, or AI成果说明填报.
+  Also: fetch 落盘、extract 大纲、写进 SKILL、改 extract。
 ---
 
 # 飞书文档 Review
 
 审**别人写的**飞书云文档。默认产出独立「评审意见」，不改源文档、不发飞书评论。
 
-**REQUIRED SUB-SKILL:** 读文档用 `lark-doc`。认证 / scope 失败再读 `lark-shared`。
+**未 extract 不评审。** 禁止凭标题、记忆或对话摘要下结论。表、次数、截图、版本、外链以切片为准；读不到写「未见 / 无法复核」。**评文档，不重写文档。** 回复用简体中文。
 
-## 何时不用
+**大文件不准进对话。** `+fetch` 重定向落盘；不要 `Read` fetch JSON / markdown 全文 / `source.txt`。只读 extract 的 JSON；核对主张时再 `Read` `sections/*.txt`。评审正文和 P0/P1 判断**仍由模型写**。认证失败才 Read `lark-doc` / `lark-shared`。
 
-| 用户意图 | 改走 |
-|----------|------|
-| 改自己的飞书正文、插图、画板 | `lark-doc` |
-| 主文档 + FAQ 答疑 | `dual-doc-faq` |
-| 按飞书链接填成果说明四段 | `ai-work-result-report` |
-| 代码 diff / PR / Bugbot | `review-bugbot` 等代码审查技能 |
+```bash
+lark-cli docs +fetch --doc "<URL>" --as user --doc-format markdown \
+  > ./_review_out/src0.json
+python3 ~/.cursor/skills/feishu-doc-review/scripts/pipeline.py extract \
+  ./_review_out/src0.json -o ./_review_out --url "<同一条原始 URL>"
+```
 
-## 硬规则
+stdout：`title`、`revision_id`、`headings`、`empty_or_short_headings`、`priority_section_files`（结论/风险/附录/变更/WIP）、表/图/画板计数。配套 FRS 同样落盘再 extract，不要把第二份全文灌进对话。工作目录 `_review_out`，用完删除。
 
-1. **未 fetch 不评审。** 禁止凭标题、记忆或对话摘要下结论。
-2. **不编造。** 表、次数、截图、版本、外链内容以读到的为准；读不到就写「未见 / 无法复核」。
-3. **默认只读。** 不 `docs +update`、不 `drive +add-comment`。用户明确说「写回原文 / 发评论 / 贴到文档」才进入回写。
-4. **先找打架。** 结论 vs 附录、表 vs 正文、图 vs 图注、主张 vs 证据，必须显式点出。
-5. **评文档，不重写文档。** 指出问题与改法，不要另写一版正文冒充评审。
-6. 回复用**简体中文**。
+用户要加/改本 skill 硬格式：**不要只改本页。** 可扫描的（unwrap、空章节、优先节名）→ `scripts/pipeline.py extract` + 单测。书脊/分级/类型重点 → `template.md` 与 [references/review.md](references/review.md)，extract 不能代替评审。
+
+## 执行顺序
+
+1. 用户给 `/docx/` 或 `/wiki/` URL（含 `doubao.com`）。无链接则先问，不要审本地臆造稿冒充飞书评审。
+2. `+fetch` **必须 `>` 落盘**（可另存一份 `--scope outline` 到 `outline-cli.json`，同样不打进对话）。截断则分页再 extract。
+3. 看 extract JSON。优先 Read `priority_section_files` 切片，再按主张补读其它节。画板/图只有 token 时：结论若依赖图，标「证据不可复核」并降级主张；需要核对再 `+media-preview`，预览也不要把 raw 读进对话。
+4. 写评审前 **Read** [template.md](template.md)。类型重点、P0/P1/P2 定义、回写步骤 → [references/review.md](references/review.md)。领域专节可插在总体评价之后，**书脊 1～7 不能缺**。
+5. 评审 md 存工作区：`{英文短名}-review.md`（kebab-case）。图表默认不加；仅成熟度分叉/选型/会后顺序才用 Mermaid（走 `markdown-export`）。
+6. 聊天只给：**总体判断 + P0 列表 + 优先三件事 + 短摘要** + 本地路径。全文不必再贴，除非用户要粘贴。
+
+默认只读：不 `docs +update`、不 `drive +add-comment`。用户明确说「写回原文 / 发评论 / 贴到文档」才按 review.md §3 回写。
 
 | 借口 | 实际 |
 |------|------|
-| 「先总结再慢慢挑刺」 | 总结不是评审。先给总体判断和 P0。 |
-| 「作者更熟，不宜质疑结论」 | 评审对象就是主张是否被证据撑住。 |
-| 「没图/外链打不开就算了」 | 若结论依赖它，标「证据不可复核」并降级主张。 |
-| 「帮忙把文档改好」 | 除非用户要求回写，否则只出评审意见。 |
-| 「问题都是建议，不用分级」 | 必须有 P0/P1/P2，避免全是「建议完善」。 |
+| 「短文档直接看 fetch stdout」 | 一律落盘 + extract |
+| 「先总结再挑刺」 | 先总体判断和 P0 |
+| 「作者更熟不宜质疑」 | 评的就是主张是否被证据撑住 |
+| 「没图就算了」 | 结论依赖它则标不可复核 |
+| 「帮忙把文档改好」 | 未要求回写则只出意见 |
+| 「问题都是建议」 | 必须有 P0/P1/P2；确无 P0 写「未见 P0」及依据 |
 
-## 工作流
+红旗：fetch 没重定向；或开始写评审却还没打开 template.md。
 
-```
-URL → fetch（大文档先 outline）→ 判类型 → 按书脊写评审 → 存 {topic}-review.md
-```
+## 硬规则（不得降级）
 
-### 1. 拿到源
-
-- 用户给 `/docx/` 或 `/wiki/` URL（含 `doubao.com` 同类路径）。无链接则先问，不要审本地臆造稿冒充飞书评审。
-- 配套参考（FRS / 前序文档）用户点名或源文档当作 closure 依据时，一并 fetch。
-
-### 2. 读取
-
-身份：`--as user`。命令细节以 `lark-doc` 的 `+fetch` 参考为准。
-
-```bash
-lark-cli docs +fetch --doc "<URL>" --as user --scope outline --max-depth 3
-lark-cli docs +fetch --doc "<URL>" --as user --doc-format markdown
-```
-
-- 短文档可省略 `outline`，直接 markdown 全文。
-- 长文档按目录 `section` 分段读；结论 / 风险表 / 附录 / 变更日志优先读完。
-- 记下 `revision_id`、标题。有可见评论时纳入「他人已提、本文未改」。
-- 主张依赖截图 / 画板时，用 `docs +media-preview`（或下载）核对图文是否同一件事。
-- 结论依赖 `<synced_reference>` 或外链文档时，跟读最小必要范围。
-
-### 3. 判类型，定检查重点
-
-| 类型（可并存） | 重点 |
-|----------------|------|
-| 排查 / 压测 / 实验记录 | 矛盾、控制变量、样本与措辞（「概率下降」）、配置指纹、冷热启/对照是否单机 |
-| 整机 / 模块技术方案 | 章节成熟度是否匀、数字自洽、风险表是否覆盖正文已暴露风险、选型有无验收门限 |
-| 方案草稿 / 实现说明 | 图证是否撑住「已测通」、示例能否上产品、空章节、平台/范围是否写完 |
-| 需求 / FRS / 设计 | 条目可测性、口径分叉、责任边界、与外链指标是否闭环 |
-
-### 4. 写评审并落盘
-
-按 [template.md](template.md) 填书脊。领域专节（结构 / 硬件 / Linux…）插在「总体评价」之后、「问题清单」前后均可，**书脊七段不能缺**。
-
-保存到当前工作区：`{英文短名}-review.md`（kebab-case，如 `nvme-reboot-drop-review.md`）。文件名规则对齐 `markdown-export` 的英文连字符命名。
-
-图表：默认不加。仅当成熟度分叉、选型决策或会后顺序需要一张图时用 Mermaid；节点换行用 `<br>`。不要为「丰富」硬加图。
-
-### 5. 回复用户
-
-聊天里给出：**总体判断 + P0 列表 + 优先三件事 + 短摘要**，并指出本地评审文件路径。全文不必再贴一遍，除非用户要直接粘贴。
-
-## 分级与证据
-
-**P0** 必须先改：内部矛盾、图文证伪、安全/不可上仪器、关键数字自洽失败、未完成却当基线。  
-**P1** 证据链弱、变量纠缠、归因过强、对照不足。  
-**P2** 结构、术语、空节、工程化缺口。
-
-证据强度用：可复现 / 强 / 中 / 弱 / 无。把「方向对」和「已验证结论」拆开；附录机理默认当**假说**，除非有独立数据。
-
-主张核对表每行三列：**主张 | 支撑 | 评注**。支撑写文档里实际有什么，评注写能推多远。
-
-## 回写（仅显式要求时）
-
-- **发评论**：`lark-drive` 的 `drive +add-comment`；优先贴「短摘要」，P0 可拆条评论。
-- **改原文**：走 `lark-doc` `+update`；高风险写入按 `lark-shared` 确认，禁止静默改别人的文档。
-
-## 常见错误
-
-- 只有摘要没有问题清单。
-- 用「建议再完善」代替具体矛盾与应补矩阵。
-- 把作者的下一步计划当成已经完成的验证。
-- 忽略空标题、WIP 章节仍出现在结论里。
-- 评审写得比源文档还长，却没给出「优先改三件事」。
+1. 不编造；先找打架（结论 vs 附录、表 vs 正文、图 vs 图注、主张 vs 证据）。
+2. P0：内部矛盾、图文证伪、安全/不可上仪器、数字自洽失败、未完成却当基线。P1 证据弱。P2 结构/空节。
+3. 「优先改三件事」必须能独立执行。短摘要无表、无 Mermaid。
+4. 不要把作者的下一步计划当成已经完成的验证；空标题/WIP 不得当结论依据。
