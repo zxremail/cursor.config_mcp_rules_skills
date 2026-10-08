@@ -16,7 +16,8 @@ description: >-
   主题加粗、注解缩小、换行括号、斜体区分中文节点、
   或要按向左/向右给时序图箭头上色时应用。
   每一张图还必须用深彩色节点配色（见文首硬规则），嵌套套盒必须外深内浅（§0.1），且每一处文字都要完整露出（§11）。
-  Markdown 文档中的每个 mermaid 图也要有实际含义标题。
+  Markdown 文档中的每个 mermaid 图也要有实际含义标题、
+  新增排版格式、写进 SKILL、改 audit。
 ---
 
 # Mermaid 流程图排版与架构图连线
@@ -24,6 +25,8 @@ description: >-
 不确定图种 → `diagram-style-catalog`。
 
 **格式不准降级。** 完整做法、合格/反例、图例方案 D 以 [references/layout.md](references/layout.md) 为准（原 §0–§12 全文）。
+
+用户要加/改本 skill 硬格式（写进 Skill、以后画图都要…）：**不要只改本页。** 可扫描的（`theme: dark`、节点 `fill`、浅色 fill、表头色、`useMaxWidth`、禁止字面量标题）→ `layout.md` 一条 + **`markdown-export` 的 `audit_mermaid.py` + 其单测**（本 skill 与它共用验收脚本）；本页只加清单一行。不能扫的排版（一图一问、同列下落、方案 D 间距、文字露出）→ 只进 `layout.md`，出现条件时 Read，不要假装 audit 能验。禁止只改 SKILL 散文导致旧 audit 误拦或放行。
 
 ## 执行顺序（先 Read，再画围栏）
 

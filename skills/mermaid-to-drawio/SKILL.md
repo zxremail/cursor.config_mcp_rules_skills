@@ -4,6 +4,7 @@ description: >-
   Use when converting a Mermaid sequenceDiagram to Draw.io (.drawio),
   or the user says 时序图转 drawio、sequenceDiagram 转 drawio、生命线/角色栏转 drawio.
   Not for flowchart、分层卡片、胶囊图, or a generic 「转 drawio」 with no sequence diagram.
+  Also: 新增时序 drawio 格式、写进 SKILL、改 audit。
 ---
 
 # Mermaid 时序图 → Draw.io
@@ -20,6 +21,8 @@ python3 ~/.cursor/skills/mermaid-to-drawio/scripts/pipeline.py audit-drawio \
 ```
 
 `ok: true` 才交差。输入可以是 `.mmd` 或 Markdown 里的 ` ```mermaid ` 围栏（只处理 `sequenceDiagram`）。
+
+用户要加/改本 skill 硬格式：**不要只改本页。** 可扫描的（矩形参与者、虚线生命线、方向色、`fillColor=none`、禁 `curved=1`、禁日期前缀）→ `sequence-drawio.md` 一条 + `scripts/pipeline.py` 的 `audit-drawio` + `test_pipeline.py`；`convert` 必须一起改。尚未脚本化的（`Note` / `alt` / `loop`）→ reference 后改 convert，禁止手写 XML。本页只加清单一行。
 
 ## 执行顺序
 

@@ -5,7 +5,8 @@ description: >-
   分层卡片替代；推荐两阶段：先基本 sidecar + md2html build，再按需打磨单张图。
   Use when the user asks to convert markdown to HTML, md2html, sidecar,
   customfig, or mentions "md 转 html", "生成 html", "导出 html", "markdown to html".
-  时序图向右箭头 #3370FF、向左虚线 #00A870。
+  时序图向右箭头 #3370FF、向左虚线 #00A870、
+  新增 HTML 格式、写进 SKILL、改 audit。
 ---
 
 # Markdown 转 HTML 规范
@@ -13,6 +14,8 @@ description: >-
 选 sidecar 布局前先读 `diagram-style-catalog`。本 skill 管 HTML 交卷与深色分层卡片（§3 / §7.6）；浅色行动胶囊走 `layer-action-capsule-diagram`；贴顶泳道时序走 `html-sequence-swimlane`。
 
 **格式不准降级。** 完整条文、卡片 HTML/CSS 模板、命令说明以 [references/html.md](references/html.md) 为准。转换用已有 **md2html**，不要手写整页、不要 `Read` 生成的 `.html` 全文。
+
+用户要加/改本 skill 硬格式：**不要只改本页。** 可扫描的（深色主题类名、slug 双 id、sidecar 约定、禁读特征）→ `html.md` 一条 + `scripts/audit_html.py` + 其单测；骨架/卡片 HTML 仍由 **md2html** 生成，改模板不改「手写整页」。不能扫的（卡片分层怎么排）→ `html.md` §3/§7.6，写 sidecar 前 Read。本页只加清单一行。改完跑 audit 单测。
 
 源 `.md` 的 Mermaid 深彩色走 **`markdown-export`** + `audit_mermaid.py`。有 `ai.cursor/` 时 **REQUIRED** **`ai-cursor-doc-output`**（html / sidecar 与源 md 同知识库子目录）。
 

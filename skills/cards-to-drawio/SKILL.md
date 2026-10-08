@@ -4,6 +4,7 @@ description: >-
   Use when converting layered colored-card architecture HTML (.layer / .halbox / customfig)
   to Draw.io (.drawio), or the user says 分层卡片转 drawio、彩色卡片图转 drawio、卡片布局转 drawio.
   Not for Mermaid sequence、胶囊图, or a generic 「转 drawio」 with no layered cards.
+  Also: 新增卡片 drawio 格式、写进 SKILL、改 audit。
 ---
 
 # 分层彩色卡片图 → Draw.io
@@ -20,6 +21,8 @@ python3 ~/.cursor/skills/cards-to-drawio/scripts/pipeline.py audit-drawio \
 ```
 
 `ok: true` 才交差。多张卡片图多次 convert（不同 `--stem`），**不要 `--merge`**。
+
+用户要加/改本 skill 硬格式：**不要只改本页。** 可扫描的（画布宽、背景色、禁 `edge`、禁日期前缀、禁 `--merge`）→ `cards-drawio.md` 一条 + `scripts/pipeline.py` 的 `audit-drawio` + `test_pipeline.py`；`convert` 必须一起改，禁止只改规范仍手写 XML。尚未脚本化的（最右支柱加宽）→ reference，改 convert 或拒手改 XML。本页只加清单一行。
 
 ## 执行顺序
 

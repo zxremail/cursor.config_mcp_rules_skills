@@ -3,12 +3,15 @@ name: weekly-report-table
 description: >
   Use when 用户提供驱动小组周报（朱兴瑞、王霆、朱日芃）并要求汇总为小组总结表格、
   分类表格、weekly summary，或给出飞书周报文档链接要求生成飞书文档；
-  以及tempted to docs +fetch 全文进对话、手写 DocxXML、或再输出「调试测试文档」第四行.
+  以及tempted to docs +fetch 全文进对话、手写 DocxXML、或再输出「调试测试文档」第四行;
+  新增周报表格格式、写进 SKILL、改 audit。
 ---
 
 # 驱动小组周报总结表格
 
 脚本（stdout 只打 JSON 摘要）：`scripts/pipeline.py`。分类/合并仍由模型做；**XML/MD/cite 验收禁止手写**。
+
+用户要加/改本 skill 硬格式（列、cite、三行限制、表头色）：**不要只改本页。** 可扫描的（第四行、姓名、下周 `<cite>`、表头/首列色）→ `scripts/pipeline.py` 的 `audit-xml` + 单测，`convert` 一起改。分类/合并规则（人读、扫不干净）→ 本页核心原则，不要假装 XML 扫描能代替模型分类。禁止只改散文、不改脚本。
 
 ## 核心原则
 
