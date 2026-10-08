@@ -10,443 +10,91 @@ description: >-
 
 # Markdown 转 HTML 规范
 
-选 sidecar 布局（深色卡片 / 时序 / 时间表 / 胶囊图）前，先读 `diagram-style-catalog`。本 skill 管 HTML 交卷与 §7.6 深色分层卡片；浅色行动胶囊走 `layer-action-capsule-diagram`。
+选 sidecar 布局前先读 `diagram-style-catalog`。本 skill 管 HTML 交卷与深色分层卡片（§3 / §7.6）；浅色行动胶囊走 `layer-action-capsule-diagram`；贴顶泳道时序走 `html-sequence-swimlane`。
 
+**格式不准降级。** 完整条文、卡片 HTML/CSS 模板、命令说明以 [references/html.md](references/html.md) 为准。转换用已有 **md2html**，不要手写整页、不要 `Read` 生成的 `.html` 全文。
 
+源 `.md` 的 Mermaid 深彩色走 **`markdown-export`** + `audit_mermaid.py`。有 `ai.cursor/` 时 **REQUIRED** **`ai-cursor-doc-output`**（html / sidecar 与源 md 同知识库子目录）。
 
-## 目录 • Markdown 转 HTML 规范
+## 执行顺序（先命令，再按需 Read）
 
-- <a id="toc-pos-1-基本结构"></a>[1. 基本结构](#1-基本结构)
-  - <a id="toc-pos-11-正文目录锚点必须兼容-github-slug"></a>[1.1 正文目录锚点必须兼容 GitHub slug](#11-正文目录锚点必须兼容-github-slug)
-- <a id="toc-pos-2-mermaid-图表处理"></a>[2. Mermaid 图表处理](#2-mermaid-图表处理)
-  - <a id="toc-pos-21-正常情况"></a>[2.1 正常情况](#21-正常情况)
-  - <a id="toc-pos-22-触发降级的条件必须自动判断"></a>[2.2 触发降级的条件（必须自动判断）](#22-触发降级的条件必须自动判断)
-  - <a id="toc-pos-23-小流程图不要拉满栏宽"></a>[2.3 小流程图不要拉满栏宽](#23-小流程图不要拉满栏宽)
-- <a id="toc-pos-3-分层彩色卡片布局规范"></a>[3. 分层彩色卡片布局规范](#3-分层彩色卡片布局规范)
-  - <a id="toc-pos-31-配色体系深色主题"></a>[3.1 配色体系（深色主题）](#31-配色体系深色主题)
-  - <a id="toc-pos-32-层级配色分配"></a>[3.2 层级配色分配](#32-层级配色分配)
-  - <a id="toc-pos-33-html-结构模板"></a>[3.3 HTML 结构模板](#33-html-结构模板)
-  - <a id="toc-pos-34-css-基础类"></a>[3.4 CSS 基础类](#34-css-基础类)
-  - <a id="toc-pos-35-复杂布局扩展"></a>[3.5 复杂布局扩展](#35-复杂布局扩展)
-- <a id="toc-pos-4-template-注入机制"></a>[4. `<template>` 注入机制](#4-template-注入机制)
-- <a id="toc-pos-5-文件命名"></a>[5. 文件命名](#5-文件命名)
-- <a id="toc-pos-6-不要做的事"></a>[6. 不要做的事](#6-不要做的事)
-- <a id="toc-pos-7-cli-工具md2html"></a>[7. CLI 工具（md2html）](#7-cli-工具md2html)
-  - <a id="toc-pos-71-安装"></a>[7.1 安装](#71-安装)
-  - <a id="toc-pos-72-常用命令"></a>[7.2 常用命令](#72-常用命令)
-  - <a id="toc-pos-73-sidecar-是什么"></a>[7.3 Sidecar 是什么](#73-sidecar-是什么)
-  - <a id="toc-pos-74-sidecar-目录约定"></a>[7.4 Sidecar 目录约定](#74-sidecar-目录约定)
-  - <a id="toc-pos-75-两阶段工作流推荐"></a>[7.5 两阶段工作流（推荐）](#75-两阶段工作流推荐)
-  - <a id="toc-pos-76-布局模式速查"></a>[7.6 布局模式速查](#76-布局模式速查)
-  - <a id="toc-pos-77-命令速查"></a>[7.7 命令速查](#77-命令速查)
+1. `md2html analyze doc.md`（stdout 已是块清单，不要 Read 源里每张图的围栏全文来「再判断一遍」，以 analyze 为准）。
+2. **仅当** analyze 标了「建议降级」：先 `Read` [references/html.md](references/html.md) §3 与 §7.6，再写 `doc.figures/mermaid-N.html`。  
+   `sequenceDiagram` 降级 → `html-sequence-swimlane`，不要改成蓝/绿卡片墙。
+3. `md2html build doc.md`（可 `--strict-figures`）。
+4. `python3 ~/.cursor/skills/markdown-to-html/scripts/audit_html.py doc.html --md doc.md`  
+   `ok: true` 才交差。禁止 `Read` `doc.html`。
+5. 提醒用户浏览器预览。阶段 B（打磨单张）只改那一个 sidecar 再 build + audit。
 
----
+可跳过 html.md 的唯一条件：analyze **零**「建议降级」，且不写任何 sidecar。
 
-将 Markdown 文档转换为可在浏览器中独立打开的 HTML 页面，支持 Mermaid 渲染，并在 Mermaid 表达力不足时自动降级为分层彩色卡片布局。
-
----
-
-## 1. 基本结构 <a id="1-基本结构"></a> <a href="#toc-pos-1-基本结构" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-生成的 HTML 必须是**单文件、零依赖**的独立页面（CDN 引用除外）：
-
-```html
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>文档标题</title>
-  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
-  <style>/* 内嵌全部样式 */</style>
-</head>
-<body>
-  <div id="layout">
-    <nav id="sidebar"><!-- 自动生成目录 --></nav>
-    <main><article id="content"></article></main>
-  </div>
-  <script>/* Markdown 解析 + Mermaid 初始化 + TOC 生成 */</script>
-</body>
-</html>
-```
-
-要求：
-- 深色主题（GitHub Dark 风格），参考色板见下方"配色体系"
-- 左侧固定侧边栏（自动从 h1/h2 生成目录）
-- 响应式布局（`@media max-width:900px` 时侧边栏收起）
-- Markdown 内容通过 `marked.js` 在客户端解析渲染
-- 正文 `md-toc` 目录链接必须能跳转，见 [§1.1](#11-正文目录锚点必须兼容-github-slug)
-
-### 1.1 正文目录锚点必须兼容 GitHub slug <a id="11-正文目录锚点必须兼容-github-slug"></a> <a href="#toc-pos-11-正文目录锚点必须兼容-github-slug" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-`.md` 正文目录由 `md-toc` 生成，锚点是 **github-slugger**（与 VS Code / GitHub 预览一致），例如 `[1. 怎么验证](#1-怎么验证)`、`[2.1 正常情况](#21-正常情况)`。侧栏 TOC 仍用 `h-1` / `h-2-1`。
-
-标题必须**两套 id 都有**，缺 GitHub slug 时正文目录会点了没反应：
-
-```html
-<h2 id="h-1"><span id="1-怎么验证"></span>1. 怎么验证</h2>
-```
-
-实现已写入模板，**不要改回去**：
-
-| 文件 | 作用 |
+| 借口 | 实际 |
 |------|------|
-| `md2html/templates/anchor.js` | `mdGithubSlug` / `mdHeadingHtml` / `mdFindHashTarget` |
-| `md2html/templates/runtime.js` | heading 渲染与正文 `#` 点击走上述函数 |
-| `md2html/builder.py` | 把 `anchor.js` **拼在** `runtime.js` 前面再嵌入页面 |
+| 「先看一眼生成页再改」 | audit 看摘要；不要把 HTML 灌进对话 |
+| 「卡片结构我记得」 | 未 Read §3 不得写 `.layer` / `.customfig` |
+| 「简单图也做成卡片」 | 未触发降级则保留 Mermaid |
 
-改这三处后必须跑：
+红旗：将写 `mermaid-N.html` 却还没打开 html.md §3。停下来先 Read。
 
 ```bash
-node ~/.cursor/skills/markdown-to-html/tests/test_anchor.js
-```
-
-正文 `#` 点击：先解析目标，找不到就**不要** `preventDefault`（否则默认锚点也被吞掉）。
-
-## 2. Mermaid 图表处理 <a id="2-mermaid-图表处理"></a> <a href="#toc-pos-2-mermaid-图表处理" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-### 2.1 正常情况 <a id="21-正常情况"></a> <a href="#toc-pos-21-正常情况" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-Markdown 中的 ` ```mermaid ` 代码块由 `mermaid.js` 在客户端渲染，无需特殊处理。
-
-**源 `.md` 里的图必须已经是深彩色**：HTML 全局 `theme:'dark'` **不能代替**节点 `style`/`classDef`。若源图是默认浅色节点，导出页在暗色主题里同样难看。写或改源文档时遵循 **`markdown-export`** §5 与 **`mermaid-flowchart-layout`** §0。
-
-写图前再读三遍：
-
-1. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
-2. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
-3. 所有的 Mermaid 图表都使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
-
-时序图请求用实线 `->>`、返回用虚线 `-->>`，按 `mermaid-flowchart-layout` §4.1 上色。页面样式把实线消息描成 `#3370FF`、虚线消息描成 `#00A870`（已写入 `base.css`）。自调用要单独用浅色时，降级为 `html-sequence-swimlane` 的 `.seq-self`。流程图步骤箭头不用这组颜色。
-
-### 2.2 触发降级的条件（必须自动判断） <a id="22-触发降级的条件必须自动判断"></a> <a href="#toc-pos-22-触发降级的条件必须自动判断" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-遇到以下任一情况时，**禁止使用 Mermaid**，必须改用分层彩色卡片布局：
-
-| 信号 | 说明 |
-|------|------|
-| 节点 > 15 个 | 单个 Mermaid 代码块中节点数超过 15 |
-| 层级 > 4 层 | 架构图存在 4 层以上的纵向分层 |
-| 并列 subgraph > 3 | 同一层级有 3 个以上并列 subgraph |
-| 节点含多行文本 | 节点内需要标题 + 描述 + 注释等多行信息 |
-| 双向/复杂连接 | 层间存在大量双向箭头或交叉连接 |
-| 表格/列表嵌套 | 节点内需要展示列表或表格形式的子项 |
-
-**判断原则**：如果 Mermaid 渲染后可能出现节点重叠、文字截断、箭头交叉、需要横向滚动，就必须降级。
-
-### 2.3 小流程图不要拉满栏宽 <a id="23-小流程图不要拉满栏宽"></a> <a href="#toc-pos-23-小流程图不要拉满栏宽" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-`useMaxWidth: true`（或 CSS `width:100%`）会把小 `flowchart` 拉满正文栏；正方形 viewBox 跟着变成近一屏高，四周大片空白。
-
-**HTML 模板（已写入 `base.css` / `anchor.js` / `runtime.js`，不要改回去）：**
-
-```css
-.mermaid svg{
-  max-width:100% !important;
-  width:auto !important;
-  height:auto !important;
-  display:block;
-  margin:0 auto;
-}
-```
-
-```js
-flowchart:{htmlLabels:true,curve:'basis',useMaxWidth:false,nodeSpacing:20,rankSpacing:32,padding:8}
-```
-
-**Markdown 源里的小图**（预览不走上述 CSS）在 fence 内写：
-
-```
-%%{init: {'theme':'dark','flowchart':{'useMaxWidth':false,'nodeSpacing':16,'rankSpacing':28,'padding':8}}}%%
-flowchart TB
-```
-
-禁止 `.mermaid svg { max-width: none }`。宽架构图仍可靠 `overflow-x:auto` 横向滚动，不要靠撑满栏宽放大节点。
-
-## 3. 分层彩色卡片布局规范 <a id="3-分层彩色卡片布局规范"></a> <a href="#toc-pos-3-分层彩色卡片布局规范" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-当 Mermaid 不适用时，使用纯 HTML/CSS 绘制分层架构图。
-
-### 3.1 配色体系（深色主题） <a id="31-配色体系深色主题"></a> <a href="#toc-pos-31-配色体系深色主题" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-```css
-:root {
-  --bg:#0d1117; --panel:#161b22; --panel2:#21262d; --border:#30363d;
-  --text:#c9d1d9; --muted:#8b949e; --dim:#484f58;
-  --blue:#58a6ff;    --bluebg:#0d2137;    --bluetxt:#79c0ff;
-  --green:#3fb950;   --greenbg:#122117;   --greentxt:#7ee787;   --greenborder:#238636;
-  --orange:#f0883e;  --orangebg:#1a150d;  --orangetxt:#ffcc80;
-  --purple:#a371f7;  --purplebg:#1a1428;  --purpletxt:#d2a8ff;  --purpleborder:#6e40c9;
-  --red:#f85149;     --redbg:#2d1215;     --redtxt:#ffa198;     --redborder:#da3633;
-}
-```
-
-### 3.2 层级配色分配 <a id="32-层级配色分配"></a> <a href="#toc-pos-32-层级配色分配" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-每一层使用不同颜色主题，从上到下推荐：
-
-| 层级 | 语义 | 颜色 | border | 背景 | 文字 |
-|------|------|------|--------|------|------|
-| 应用层 | 用户态进程 | 灰 | `--dim` | `--panel2` | `--muted` |
-| 库/SDK 层 | 链接库 | 蓝 | `--blue` | `--bluebg` | `--bluetxt` |
-| 服务层 | Daemon | 橙 | `--orange` | `--orangebg` | `--orangetxt` |
-| 内核层 | 驱动/模块 | 紫 | `--purple` | `--purplebg` | `--purpletxt` |
-| 硬件层 | FPGA/芯片 | 灰暗 | `--dim` | `--panel` | `--muted` |
-| 固件层 | MCU/FW | 橙虚线 | `--orange` dashed | `--orangebg` | `--orangetxt` |
-| 管理面 | 监控/告警 | 红 | `--red` | `--redbg` | `--redtxt` |
-| 数据面 | 高速数据通路 | 绿 | `--green` | `--greenbg` | `--greentxt` |
-
-如果实际层级语义与上表不匹配，可灵活选择颜色，但必须保持**相邻层颜色有明显区分**。
-
-### 3.3 HTML 结构模板 <a id="33-html-结构模板"></a> <a href="#toc-pos-33-html-结构模板" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-每一层使用 `.layer` 容器：
-
-```html
-<div class="customfig">
-  <!-- 一层 -->
-  <div class="layer layer-xxx">
-    <div class="layer-header">
-      <span class="layer-label">层级名称</span>
-      <span class="layer-sub">层级简要说明</span>
-    </div>
-    <div class="layer-body">
-      <span class="node xxx">节点名称<br><span class="note">附注信息</span></span>
-      <span class="node xxx">节点名称</span>
-    </div>
-  </div>
-
-  <!-- 层间箭头 -->
-  <div class="arrow">↓ 通信方式说明 ↓</div>
-
-  <!-- 下一层 -->
-  <div class="layer layer-yyy">
-    ...
-  </div>
-
-  <!-- 图例（可选） -->
-  <div class="legend">
-    <div><span class="swatch" style="border-color:var(--blue);background:var(--bluebg)"></span> 库层</div>
-    <div><span class="swatch" style="border-color:var(--orange);background:var(--orangebg)"></span> 服务层</div>
-  </div>
-</div>
-```
-
-### 3.4 CSS 基础类 <a id="34-css-基础类"></a> <a href="#toc-pos-34-css-基础类" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-```css
-.customfig {
-  background: #0d1117; border-radius: 12px; padding: 28px; margin: 18px 0;
-  font-family: "SF Mono","Cascadia Code",monospace; font-size: 13px;
-  line-height: 1.55; color: var(--text); border: 1px solid var(--border);
-}
-.layer {
-  border: 2px solid var(--dim); border-radius: 8px;
-  padding: 12px 14px; margin: 0 0 4px 0; background: #0d1117;
-}
-.layer-header {
-  display: flex; justify-content: space-between;
-  align-items: center; margin-bottom: 10px; gap: 10px;
-}
-.layer-label { font-weight: bold; font-size: 14px; }
-.layer-sub   { color: var(--dim); font-size: 11px; }
-.layer-body  { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
-.node {
-  padding: 6px 12px; border-radius: 5px; font-size: 12px;
-  display: inline-block; line-height: 1.4;
-}
-.node .note { font-size: 10px; opacity: .8; }
-.arrow { text-align: center; color: var(--dim); margin: 2px 0; font-size: 11px; }
-```
-
-### 3.5 复杂布局扩展 <a id="35-复杂布局扩展"></a> <a href="#toc-pos-35-复杂布局扩展" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-当单层内有子分组（如"管理面 vs 数据面"并列）时，使用 flex 分栏：
-
-```html
-<div class="layer-split">
-  <div class="subpanel panel-mgmt">
-    <div class="panel-header">管理面</div>
-    <div class="panel-tags"><span>功能项 A</span><span>功能项 B</span></div>
-  </div>
-  <div class="panel-bridge">
-    <span class="bridge-arrow">◄──►</span>
-    <span class="bridge-label">通信方式</span>
-  </div>
-  <div class="subpanel panel-data">
-    <div class="panel-header">数据面</div>
-    <div class="panel-tags"><span>功能项 C</span><span>功能项 D</span></div>
-  </div>
-</div>
-```
-
-当需要网格布局（如多列功能矩阵）时，使用 CSS Grid：
-
-```css
-.layer-body.grid-4 {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-}
-```
-
-## 4. `<template>` 注入机制 <a id="4-template-注入机制"></a> <a href="#toc-pos-4-template-注入机制" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-将自绘图放在 `<template>` 标签中，通过占位符注入 Markdown 渲染结果：
-
-1. 在 Markdown 源文本中放置占位符：`<!-- FIGURE: fig-id -->`
-2. 在 HTML 的 `<template id="fig-id">` 中定义图形
-3. JS 渲染完成后，将占位符替换为 template 内容
-
-```javascript
-document.querySelectorAll('[data-figure]').forEach(el => {
-  const tpl = document.getElementById(el.dataset.figure);
-  if (tpl) el.replaceWith(tpl.content.cloneNode(true));
-});
-```
-
-## 5. 文件命名 <a id="5-文件命名"></a> <a href="#toc-pos-5-文件命名" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-- 与源 Markdown 同名，扩展名改为 `.html`
-- 放在与源文件相同的目录下
-- 例：`architecture-design.md` → `architecture-design.html`
-- 工作区根存在 `ai.cursor/` 且正在**新建**说明文档时，**REQUIRED：** 先按 **`ai-cursor-doc-output`** 放置源 md，再把 html / sidecar 放在**同一知识库子目录**；不要单独把 `.html` 写到仓库根「方便打开」
-
-## 6. 不要做的事 <a id="6-不要做的事"></a> <a href="#toc-pos-6-不要做的事" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-- **不要**把所有图都降级为卡片——简单的 Mermaid 图保留 Mermaid
-- **不要**把 `.mermaid svg` 设为 `max-width:none` 或默认 `useMaxWidth:true`——小流程图会被拉满栏宽
-- **不要**使用外部 CSS 文件——所有样式内嵌
-- **不要**使用外部图片——图表全部用 HTML/CSS 绘制
-- **不要**生成后不检查——生成后应提醒用户在浏览器中预览确认
-- **不要**只给标题 `id="h-N"`、丢掉 GitHub slug——正文目录（`#1-怎么验证`）会无法跳转；**不要**从 `builder.py` 拿掉 `anchor.js` 拼接
-
----
-
-## 7. CLI 工具（md2html） <a id="7-cli-工具md2html"></a> <a href="#toc-pos-7-cli-工具md2html" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-本技能目录下提供可复用的 Python CLI，Agent 与人工均可调用。
-
-### 7.1 安装 <a id="71-安装"></a> <a href="#toc-pos-71-安装" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-```bash
-pip install -e ~/.cursor/skills/markdown-to-html
-# 无 pip：~/.cursor/skills/markdown-to-html/bin/md2html build doc.md
-```
-
-### 7.2 常用命令 <a id="72-常用命令"></a> <a href="#toc-pos-72-常用命令" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-见 [§7.7 命令速查](#77-命令速查)。工作流见 [§7.5 两阶段工作流](#75-两阶段工作流推荐)。
-
-### 7.3 Sidecar 是什么 <a id="73-sidecar-是什么"></a> <a href="#toc-pos-73-sidecar-是什么" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-**Sidecar**（边车）：与主 Markdown **配套挂载**、**不写入 `.md` 正文**的 HTML 图稿目录。
-
-```
-doc.md                    ← 主文档
-doc.figures/              ← sidecar 目录
-  mermaid-0.html            ← 替换第 0 个「应降级」的 Mermaid 块
-  mermaid-1.html
-  extra.css                 ← 可选，追加页面样式
-```
-
-`md2html build` 将 sidecar 合并进单页 HTML 的 `<template>`，正文通过 `customfig:mermaid-N` 或 `<!-- FIGURE: id -->` 引用。
-
-### 7.4 Sidecar 目录约定 <a id="74-sidecar-目录约定"></a> <a href="#toc-pos-74-sidecar-目录约定" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-| 规则 | 说明 |
-|------|------|
-| 默认路径 | 与 `doc.md` 同级：`doc.figures/` |
-| Mermaid 替换 | 第 N 个应降级块 → `mermaid-N.html`（从 0 起） |
-| 自定义图 | 任意 `fig-id.html`，Markdown 用 `<!-- FIGURE: fig-id -->` |
-| extra.css | 追加页面内嵌样式。长表冻结标题行用 **freezing-html-table-headers**（页面级 sticky，禁止 `overflow`+`max-height` 内嵌框） |
-| 文件内容 | 片段 HTML（`.customfig` 根元素）；可含 scoped `<style>` |
-| 输出 HTML | 与 `doc.md` 同目录、`doc.html` |
-
-### 7.5 两阶段工作流（推荐） <a id="75-两阶段工作流推荐"></a> <a href="#toc-pos-75-两阶段工作流推荐" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-**原则：先批量铺基本 sidecar，再按需精修单张图。** 不要一上来就把每张图都打磨到出版级。
-
-#### 阶段 A — 基本 sidecar + 构建（铺底）
-
-适用于：知识库整批转 HTML、新文档首次导出。
-
-1. **分析**（单篇或批量）  
-   ```bash
-   md2html analyze path/to/doc.md
-   ```
-   记录：块编号 N、是否建议降级、对应 `doc.figures/mermaid-N.html` 路径。
-
-2. **为每个「建议降级」的块写基本 sidecar**  
-   - 覆盖原 Mermaid 的**节点与层次**，结构正确即可。  
-   - 使用 §3 配色 + §7.6 布局模式之一。  
-   - 复杂连线用底部 **deps** 文字概括，不必画全箭头。  
-   - **暂不**追求与旧 Mermaid 像素级一致。
-
-3. **无 Mermaid 或 analyze 未触发降级**  
-   - 直接 `md2html build`，保留客户端 Mermaid 渲染。
-
-4. **构建并预览**  
-   ```bash
-   md2html build path/to/doc.md
-   # 或批量：md2html build docs/*.md
-   ```
-   提醒用户在浏览器打开 `.html` 通读；列出仍缺 sidecar 的块（若有警告）。
-
-5. **阶段 A 完成标准**  
-   - 应降级的块均有 `mermaid-N.html`，构建无「缺少 sidecar」警告。  
-   - 版面可读、无严重重叠；允许文案略简、版式略糙。
-
-#### 阶段 B — 针对性打磨（按需）
-
-适用于：用户点名某节、某张图「惨不忍睹」或要对外汇报的「推荐图」。
-
-1. **只改一个文件**：`doc.figures/mermaid-N.html`（或具名 `fig-id.html`）。  
-2. **对照**同文档中该 Mermaid 代码块 + 相邻正文表格/说明。  
-3. **可参考**同库已打磨范例（如 `01-platform-overview.figures/mermaid-1.html`、`01-platform-framework-diagram.figures/mermaid-0.html`）。  
-4. **重建单篇**：`md2html build path/to/doc.md`，浏览器只复查该节。  
-5. **不要**为打磨一张图而批量重绘全库 sidecar。
-
-```mermaid
-flowchart LR
-  A[analyze] --> B{应降级?}
-  B -->|否| C[build 保留 Mermaid]
-  B -->|是| D[写基本 mermaid-N.html]
-  D --> E[build + 预览]
-  E --> F{用户要精修?}
-  F -->|否| G[完成]
-  F -->|是| H[只改该 mermaid-N.html]
-  H --> E
-```
-
-> Agent 执行 md 转 html 任务时：**默认走阶段 A**；仅当用户明确要求或预览反馈某图不合格时，进入阶段 B。
-
-### 7.6 布局模式速查 <a id="76-布局模式速查"></a> <a href="#toc-pos-76-布局模式速查" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-阶段 A 优先选用下表，避免每张图从零设计：
-
-| 模式 | 适用场景 | 结构要点 |
-|------|----------|----------|
-| **platform-stack** | L5→L1 软件分层、PPS 职责 | `.layer` 纵叠 + `.arrow` + 可选 `.deps` |
-| **phys-map** | 物理实体 ↔ 软件栈 对照 | 三列：物理 \| 映射 \| 软件 |
-| **cfg-data-flow** | 配置流 / 数据流 / 同步 并列 | 三列 `.lane` 纵链 + 跨路 deps |
-| **multi-stack** | 控制器 + 机箱双列 + 分布式 | 见 `09`/`10` 计算单元图 |
-| **link-legend** | 仅线型图例 | 五色横条，无架构节点 |
-| **seq-flow** | 简化的时序/步骤 | 水平步骤条（非 Mermaid sequence） |
-| **seq-swimlane** | 多角色 `sequenceDiagram`、要贴顶角色栏 | 见个人 skill `html-sequence-swimlane`（sidecar + extra.css） |
-
-### 7.7 命令速查 <a id="77-命令速查"></a> <a href="#toc-pos-77-命令速查" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
-
-```bash
-# 安装（有 pip）
-pip install -e ~/.cursor/skills/markdown-to-html
-
-# 无 pip
+~/.cursor/skills/markdown-to-html/bin/md2html analyze doc.md
 ~/.cursor/skills/markdown-to-html/bin/md2html build doc.md
-
-md2html analyze doc.md              # 阶段 A：清单
-md2html build doc.md                # 合并 sidecar → HTML
-md2html build doc.md --open         # 构建并打开浏览器
-md2html build doc.md --strict-figures   # CI：缺 sidecar 即失败
+python3 ~/.cursor/skills/markdown-to-html/scripts/audit_html.py doc.html --md doc.md
 ```
 
-更多示例见 [README.md](./README.md)。
+有 pip：`pip install -e ~/.cursor/skills/markdown-to-html` 后直接 `md2html …`。
+
+## 1. 基本结构（格式）
+
+单文件、零依赖（CDN 除外）：深色 GitHub Dark、`#layout` + 左栏 `#sidebar`、`marked.js` + `mermaid.js`、`@media max-width:900px` 收起侧栏。骨架见 html.md §1。
+
+### 1.1 GitHub slug
+
+正文目录锚点是 **github-slugger**（`#1-怎么验证`）。标题必须两套 id：`id="h-1"` **加上** `<span id="github-slug">`。实现：`md2html/templates/anchor.js` 拼在 `runtime.js` 前。**不要改回去、不要从 builder.py 拿掉拼接。** 改这三处后跑 `node ~/.cursor/skills/markdown-to-html/tests/test_anchor.js`。正文 `#` 找不到目标时不要 `preventDefault`。
+
+## 2. Mermaid
+
+源图必须已是深彩色；页面 `theme:'dark'` 不能代替节点 `fill`。时序：`->>` / `-->>`；页面把实线描成 `#3370FF`、虚线 `#00A870`（`base.css`）。自调用浅色 → 泳道 `.seq-self`。流程图步骤箭头不用这组色。
+
+### 2.2 必须降级（analyze 已实现）
+
+任一：节点 >15；层级 >4；并列 subgraph >3；节点多行标题+描述；大量双向/交叉；节点内列表/表。渲染会重叠、截断、交叉、横滑 → 降级。
+
+### 2.3 小图不要拉满栏宽
+
+模板已是 `.mermaid svg { max-width:100%; width:auto }` 且 `useMaxWidth:false`。**禁止** `max-width:none`。源里小图 fence 仍写 `useMaxWidth:false`。宽图用横向滚动，不要撑满放大。
+
+## 3. 分层卡片（写 sidecar 前 Read html.md §3）
+
+`.customfig` > `.layer` > `.layer-header`（`.layer-label` + `.layer-sub`）> `.layer-body` > `.node` / `.note`；层间 `.arrow`；可选 `.legend`。相邻层颜色必须明显区分。
+
+色板：`--bg:#0d1117`；应用/硬件灰 `--dim`/`--panel`；库蓝 `--blue/#58a6ff`；服务/固件橙 `--orange/#f0883e`；内核紫 `--purple/#a371f7`；管理红 `--red/#f85149`；数据绿 `--green/#3fb950`。结构模板、CSS、`.layer-split` / grid 只在 html.md §3.3–3.5。
+
+## 4. template 注入
+
+Markdown：`<!-- FIGURE: fig-id -->` 或 `customfig:mermaid-N`。sidecar 片段根元素 `.customfig`，build 打进 `<template>`。
+
+## 5. 文件名
+
+与源同目录、同 stem、`.html`。sidecar：`doc.figures/mermaid-N.html`（N 与 analyze 编号一致，从 0）。自定义 `fig-id.html`。`extra.css` 可追加；长表冻结走 `freezing-html-table-headers`（页面 sticky，禁止 overflow+max-height 内框）。
+
+## 6. 不要
+
+全部降级；改回 `useMaxWidth:true` / `max-width:none`；外链 CSS（CDN 除外）；外链图片当图；不预览；丢掉 GitHub slug / 拿掉 `anchor.js`；`Read` 整页生成 HTML。
+
+## 7. 两阶段 + 布局速查
+
+- **A（默认）**：analyze → 建议降级则基本 sidecar（覆盖节点与层次即可，复杂连线用 `.deps` 文字）→ build → audit。  
+- **B**：用户点名某图才精修那一个 `mermaid-N.html`，不要全库重绘。
+
+| 模式 | 场景 |
+|------|------|
+| platform-stack | 软件分层纵叠 `.layer` + `.arrow` |
+| phys-map | 物理 \| 映射 \| 软件 三列 |
+| cfg-data-flow | 配置/数据/同步三列 `.lane` |
+| multi-stack | 双列+分布式 |
+| link-legend | 仅线型图例 |
+| seq-flow | 水平步骤条 |
+| seq-swimlane | 贴顶角色栏 → `html-sequence-swimlane` |
+
+`--strict-figures`：缺 sidecar 即失败。更多命令见 html.md §7.7 与 [README.md](README.md)。
