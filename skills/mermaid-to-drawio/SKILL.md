@@ -6,118 +6,46 @@ description: >-
   Not for flowchart、分层卡片、胶囊图, or a generic 「转 drawio」 with no sequence diagram.
 ---
 
-# Mermaid 时序图转换为 Draw.io 格式
+# Mermaid 时序图 → Draw.io
 
-flowchart / 分层卡片 / 胶囊图不要走本转换；分诊见 `diagram-style-catalog`。
-分层卡片 HTML → drawio 走 `cards-to-drawio`。
+flowchart / 分层卡片 / 胶囊图不要走本转换；分诊见 `diagram-style-catalog`。分层卡片 HTML → drawio 走 `cards-to-drawio`。产出可被 `drawio-to-feishu-canvas` 导入。
 
-当用户要求将 Mermaid 语法的时序图转换为 Draw.io 格式时，必须遵循以下所有规则。
+**格式不准降级。** 箭头色、生命线、标签分离、矩形参与者以 [references/sequence-drawio.md](references/sequence-drawio.md) 为准。XML **禁止手写、禁止 `Read` 整份 `.drawio`**。转换用脚本：
 
----
-
-## 1. 输出格式
-
-- 必须以 `.drawio` 格式保存为文件。
-- 文件名使用英文，小写连字符风格，例如：`i2c-init-sequence.drawio`
-
-## 2. 语言规范
-
-- 技术术语使用**英文**（如 `I2C`、`SDA`、`ACK`、`NACK`、`Reset`、`Init` 等）。
-- 说明文字使用**中文**（如 "发送启动信号"、"等待应答"、"初始化完成" 等）。
-
-## 3. 箭头规则
-
-### 3.1 移除环形箭头
-
-- 原 Mermaid 中的自循环箭头（`participant ->> participant`）或自调用箭头，**不使用环形箭头**。
-- 改为简洁的**垂直向下箭头**，表示自身内部操作。
-
-### 3.2 箭头颜色
-
-| 箭头方向 | 颜色 | 色值 |
-|---------|------|------|
-| 垂直向下（自调用） | 黑色 | `#000000` |
-| 向右（调用） | 蓝色 | `#0000FF` |
-| 向左（返回） | 绿色 | `#00AA00` |
-
-### 3.3 分离文本标签
-
-- 操作描述文字**不直接放在箭头上**。
-- 将文字作为**独立的文本元素**，放置在箭头旁边。
-- 所有文字标签**不要有背景颜色**（`fillColor=none`）。
-- 消息箭头上的描述文字也**不要有背景颜色**。
-
-## 4. 参与者样式
-
-### 4.1 形状
-
-- 参与者使用**矩形框**表示（不使用圆角、圆形或其他形状）。
-
-### 4.2 配色方案
-
-采用**明亮、丰富多彩**的配色方案，不同参与者使用不同色系加以区分。推荐配色：
-
-| 参与者序号 | 填充色 | 边框色 | 文字色 |
-|-----------|--------|--------|--------|
-| 第 1 个 | `#2E86AB` | `#1B4965` | `#FFFFFF` |
-| 第 2 个 | `#E63946` | `#B52D38` | `#FFFFFF` |
-| 第 3 个 | `#2D936C` | `#1E6B4E` | `#FFFFFF` |
-| 第 4 个 | `#F18F01` | `#C67500` | `#FFFFFF` |
-| 第 5 个 | `#A23B72` | `#7B2D55` | `#FFFFFF` |
-| 第 6 个 | `#6A4C93` | `#4A3566` | `#FFFFFF` |
-| 更多 | 从上述色板循环使用 | | |
-
-## 5. 生命线与布局
-
-### 5.1 生命线
-
-- 每个参与者下方有一条垂直虚线作为生命线。
-- **垂直向下的自调用箭头**必须在生命线内部**居中显示**。
-
-### 5.2 整体布局原则
-
-- **简洁**：去除不必要的装饰和冗余元素。
-- **多彩**：通过色彩区分不同参与者和交互方向。
-- **层次分明**：消息之间保持合理间距，文本标签清晰可读。
-
-## 6. Draw.io XML 结构参考
-
-生成的 `.drawio` 文件应遵循标准的 Draw.io XML 结构：
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<mxfile>
-  <diagram name="Sequence Diagram">
-    <mxGraphModel>
-      <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <!-- 参与者矩形框 -->
-        <mxCell id="participant_1" value="参与者名称"
-          style="shape=rectangle;fillColor=#2E86AB;strokeColor=#1B4965;fontColor=#FFFFFF;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="..." y="..." width="120" height="40" as="geometry"/>
-        </mxCell>
-        <!-- 生命线（虚线） -->
-        <mxCell id="lifeline_1"
-          style="endArrow=none;dashed=1;strokeColor=#888888;"
-          edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <!-- 消息箭头（向右，蓝色） -->
-        <mxCell id="msg_1"
-          style="endArrow=block;strokeColor=#0000FF;endFill=1;"
-          edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <!-- 消息文本标签（无背景） -->
-        <mxCell id="label_1" value="描述文字"
-          style="text;fillColor=none;strokeColor=none;align=left;"
-          vertex="1" parent="1">
-          <mxGeometry x="..." y="..." width="..." height="20" as="geometry"/>
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
-</mxfile>
+```bash
+python3 ~/.cursor/skills/mermaid-to-drawio/scripts/pipeline.py convert \
+  ./doc.md -o . --stem i2c-init-sequence
+python3 ~/.cursor/skills/mermaid-to-drawio/scripts/pipeline.py audit-drawio \
+  ./i2c-init-sequence.drawio
 ```
+
+`ok: true` 才交差。输入可以是 `.mmd` 或 Markdown 里的 ` ```mermaid ` 围栏（只处理 `sequenceDiagram`）。
+
+## 执行顺序
+
+1. 确认输入是 Mermaid **sequenceDiagram**。flowchart → `mermaid-flowchart-layout` / catalog；分层卡片 → `cards-to-drawio`。不是时序 → 停。
+2. `--stem` = 主体+视角（英文小写连字符，如 `i2c-init-sequence`）。禁止 `YYYY-MM-DD-` 前缀。术语英文、说明中文：转换前把消息文案按此改好再喂脚本。
+3. `convert` → `audit-drawio`。
+4. 告诉用户打开方式：draw.io Desktop / VS Code Draw.io Integration / [app.diagrams.net](https://app.diagrams.net)。
+
+可跳过 sequence-drawio.md 的条件：脚本已 convert 且 audit `ok`（色板/箭头/生命线由脚本执行）。要改自调用几何、Note/alt/loop、或色板时 **必须 Read** sequence-drawio.md。
+
+| 借口 | 实际 |
+|------|------|
+| 「XML 不长，手写更快」 | 走 convert；漏虚线生命线/标签分离/自调用竖箭 |
+| 「自调用画个小环好看」 | 禁止环形；垂直向下、落在生命线中心 |
+| 「Read 一下 drawio 检查」 | audit-drawio 看摘要 |
+
+## 格式（脚本已实现，不得改掉）
+
+- 文件 `.drawio`；stem 英文小写连字符。
+- 自调用：**垂直向下**实线 `#000000`，居中在生命线上；禁止环形 / `curved=1`。
+- 向右调用 `#0000FF`；向左返回 `#00AA00`。
+- 消息文字是独立 `mxCell`，`fillColor=none`，不写在箭头 `value` 上。
+- 参与者 **矩形** `rounded=0`，白字；色板循环：`#2E86AB` / `#E63946` / `#2D936C` / `#F18F01` / `#A23B72` / `#6A4C93`（及对应描边，见 reference）。
+- 生命线：参与者下方垂直 **虚线** `dashed=1`。
+- 脚本暂不渲染 `Note` / `alt` / `loop` / `opt`（解析时跳过）。需要这些块时 Read sequence-drawio.md 后改脚本，不要手写 XML。
+
+## 不要
+
+flowchart/卡片当本 skill；环形自调用；箭头上带底色标签；圆角/圆形参与者；文件名加日期；生成后不说怎么打开；`Read` 整份 `.drawio`。
