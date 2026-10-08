@@ -94,7 +94,8 @@ lark-cli docs +create --as user --doc-format xml \
   --title "驱动小组周报表格_MMDD" \
   --content "@./_weekly_out/doc.xml"
 # 已有文档：+update --command overwrite --doc-format xml --content @doc.xml
-lark-cli docs +fetch --doc <id> --as user --doc-format xml \
+# simple 会丢掉单元格 background-color，audit 会误报缺浅紫/浅蓝
+lark-cli docs +fetch --doc <id> --as user --doc-format xml --detail full \
   > ./_weekly_out/fetch.json
 python3 ~/.cursor/skills/weekly-report-table/scripts/pipeline.py audit-xml \
   ./_weekly_out/fetch.json --expect-cites ./_weekly_out/extract.json
@@ -122,3 +123,4 @@ python3 ~/.cursor/skills/weekly-report-table/scripts/pipeline.py audit-xml \
 | 「XML 就几行，手写更快」 | 漏色/漏 cite；走 convert |
 | 「下周也挂文档方便点开」 | 下周禁止链接 |
 | 「文档单独成行更清楚」 | 并入三行里对应项目 |
+| 「默认 fetch 就能 audit」 | 必须 `--detail full`；simple 无底色 |
