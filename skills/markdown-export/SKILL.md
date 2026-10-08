@@ -15,7 +15,8 @@ description: >-
   拆成多行、子行缩进、符号前缀、多层一句、分号硬挤、列表拆段、
   表格单元格、br 分行、主谓宾齐全、短标签列、是/否着色、括号补充、听 X 实际是 Y、对照表残句、
   语义清晰化、万能口语动词、打完成中断、打用户 Slave、打 TLAST、
-  摸 BAR、直捅、一并改掉、专名标记、直角引号、通道完成中断。
+  摸 BAR、直捅、一并改掉、专名标记、直角引号、通道完成中断、
+  新增格式要求、写进 SKILL、改 audit、自优化、格式写进 skill。
 ---
 
 # Markdown 文档导出规范
@@ -49,6 +50,32 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 `ok: true` 才算图和表头合格。排版/连线另遵 **`mermaid-flowchart-layout`**（细则 [layout.md](../mermaid-flowchart-layout/references/layout.md)）。有 `ai.cursor/` 时 **REQUIRED** **`ai-cursor-doc-output`**。
 
 工作区根存在 `ai.cursor/` 时，目录由该 skill 决定；本文件约束 basename、正文格式、每一张 Mermaid 的深彩色。
+
+## 0. 维护新政（用户改「生成 md」格式时）
+
+用户说「写进 Skill / 新增格式要求 / 以后生成 md 都要…」，**不要只改本页散文**。先分类，再落盘。未分类就改 SKILL = 未完成。
+
+| 类型 | 落哪里 | 还要做什么 |
+|------|--------|------------|
+| **可扫描**（色值、围栏字段、`theme`、表头字色、禁止某字面量、`useMaxWidth`、`</table>` 后空行） | `references/export.md` 一条硬规则 | `scripts/audit_mermaid.py` 加 `issues[].code` + `scripts/test_audit_mermaid.py` 正反例。`SKILL.md` **只加清单一行**，禁止把长示例贴回本页 |
+| **每次写中文都要用**（断句、专名「」、格内列义、动词表） | `references/prose.md` | 本页 §6 最多补半行指针。脚本**不要**假装能验 |
+| **偶发 / 某类图才用**（复杂 subgraph、图例方案 D、名+注） | 对应 reference（export 或 `mermaid-flowchart-layout` 的 layout.md） | 本页只写「出现 X 时 Read」。排版细则仍以 layout skill 为准 |
+| **用户当场只要这一篇、以后不守** | 不改 Skill | 只改那份业务 md |
+
+禁止：
+
+- 只改 `SKILL.md`、不改脚本，导致 audit 仍按旧规则放行或误拦。
+- 把可扫描规则写成「模型自己 Read 全文检查」。
+- 把 `prose.md` 类规则塞进 audit（脚本代替不了断句）。
+- 新政导致本页明显变长：长对照表进 references，本页保持编排。
+
+改完脚本必须跑 `python3 ~/.cursor/skills/markdown-export/scripts/test_audit_mermaid.py`。向用户交代：这条进了 audit / prose / 按需 Read 哪一层。
+
+| 借口 | 实际 |
+|------|------|
+| 「用户只说写进 Skill」 | 写进 Skill 包含分流；可扫描的必须改 audit |
+| 「先改规范，脚本下次再说」 | 同一次交付改完；否则下次生成会被旧 audit 拽回去 |
+| 「10 条新政都写进本页才不会忘」 | 本页只留分类后的一行；忘了靠 audit 和 Read 门，不靠把手册堆回来 |
 
 ## 1. 文件命名
 
@@ -101,4 +128,4 @@ Input `#E066FF`；Output `#00FF00`；Bidirectional `#FFD700`；Power `#FF0000`�
 
 ## 交付
 
-写完跑 `audit_mermaid.py`。`ok: false` 按 `issues[].code` 改，不要带着浅色图/无色表头结束。知识库维护走 `markdown-knowledge-maintain`。
+写完跑 `audit_mermaid.py`。`ok: false` 按 `issues[].code` 改，不要带着浅色图/无色表头结束。知识库维护走 `markdown-knowledge-maintain`。用户在改本 skill 的格式要求时走 **§0**，不要只改散文。
