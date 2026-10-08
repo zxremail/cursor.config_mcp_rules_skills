@@ -22,7 +22,25 @@ description: >-
 
 **格式不准降级。** 完整条文与示例：[references/export.md](references/export.md)（§1–§5、§7–§9）、[references/prose.md](references/prose.md)（§6）。SKILL 变短只去掉重复目录/长示例，**禁止**因此省略 YAML `title`、`theme: dark`、节点 `fill`、表头 `#C9A0FF`、断句、专名「」、格内列义。
 
-验收（不要 `Read` 整份 md 自检配色）：
+## 执行顺序（先 Read，再落笔）
+
+本页是清单，**对照表在 references**。未 Read 就写 = 未遵守本 skill。
+
+1. **要写或改中文句子 / 列表 / 表格**（含格内）：先 `Read` [references/prose.md](references/prose.md)，再 Write。  
+   可跳过的唯一可观察条件：本次交付**零**中文句子（纯英文或纯代码）。
+2. **流程图排版**走 `mermaid-flowchart-layout`（其 Step 0 决定是否 Read layout.md）。
+3. 落盘后跑 `audit_mermaid.py`（只验收图和表头，**代替不了** prose.md）。
+
+| 借口 | 实际 |
+|------|------|
+| 「§6 摘要已经够用」 | 摘要没有对照表；未 Read prose.md 不得写中文 |
+| 「赶时间，写完再读」 | 读是落笔前的步骤，不是验收 |
+| 「只改一句 / 和上次一样」 | 仍要 Read；凭记忆会漏格内列义、「」和动词表 |
+| 「audit 过了就行」 | 脚本不检查断句和专名 |
+
+红旗：还没打开 `prose.md` 就开始 Write `.md` 正文。出现则停下来先 Read，不要接着写。
+
+验收（不要 `Read` 整份业务 md 自检配色）：
 
 ```bash
 python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md

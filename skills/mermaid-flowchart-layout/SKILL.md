@@ -23,7 +23,29 @@ description: >-
 
 不确定图种 → `diagram-style-catalog`。
 
-**格式不准降级。** 完整做法、合格/反例、图例方案 D 以 [references/layout.md](references/layout.md) 为准（原 §0–§12 全文）。多 subgraph、跨域架构、独立图例时 **必须 Read layout.md**，不要只凭本页省略隐形 `linkStyle`、同列下落、节点 `<b>/<small>`。
+**格式不准降级。** 完整做法、合格/反例、图例方案 D 以 [references/layout.md](references/layout.md) 为准（原 §0–§12 全文）。
+
+## 执行顺序（先 Read，再画围栏）
+
+本页是清单。出现下列**任一**可观察条件，必须先 `Read` [references/layout.md](references/layout.md) **全文**，再写 ` ```mermaid `：
+
+- 围栏里将出现 **2 个及以上** `subgraph`，或嵌套 subgraph
+- 架构 / 分层协作 / 跨列 / 主通路小图
+- 独立图例块（方案 D）
+- 节点同时有主题和注解（将写 `<b>` + `<small>`）
+- 用户抱怨交叉、幽灵线、图例、文字被挡
+
+可跳过 layout.md 的唯一条件：单链或单决策小图，**零** `subgraph`、**不**附图例、节点**没有**名+注。仍须本页 §0 配色 + `audit_mermaid.py`。
+
+未 Read 就画架构 / 多 subgraph / 图例 / 名+注 = 违规。不要凭本页省略隐形 `linkStyle`、同列下落、方案 D 间距。
+
+| 借口 | 实际 |
+|------|------|
+| 「本页已有 TB/LR 和色表」 | 合格/反例和方案 D 只在 layout.md |
+| 「先画结构，细则以后对照」 | 和「先无色占位」同类；Read 在围栏之前 |
+| 「audit 过了」 | 脚本不检查一图一问、同列下落、方案 D |
+
+红旗：将写第二个 `subgraph` 或 `LEG["图例"]` 或 `<small>`，却还没打开 layout.md。停下来先 Read。
 
 配色条文见 **`markdown-export`** §5（完整 [export.md](../markdown-export/references/export.md)）。交付前：
 
