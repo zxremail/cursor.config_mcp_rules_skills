@@ -8,7 +8,7 @@ description: >-
   深彩色、暗色主题、theme dark、浅色图、默认配色、文字被遮挡、显示不全、裁切、
   嵌套 subgraph 外框内框同色、套盒糊成一块、层框列框不易区分、
   时序图按向左/向右给箭头上色、实际含义标题、YAML title、
-  表格表头、标题栏颜色、管道表、表头字体颜色、span color、
+  表格表头、标题栏颜色、管道表、表头字体颜色、span color、图例色名、蓝绿紫橙上色、类似处理、模块底色、
   断句、加逗号、加标点、语义更清晰、只改标点不改措辞、
   首次生成 markdown、增补章节、黏连长句、事后补标点、
   先结论、施事不明、不是 A 是 B、碰巧与绑定、一层定语、同一叫法、
@@ -21,7 +21,7 @@ description: >-
 
 # Markdown 文档导出规范
 
-**格式不准降级。** 完整条文与示例：[references/export.md](references/export.md)（§1–§5、§7–§9）、[references/prose.md](references/prose.md)（§6）。SKILL 变短只去掉重复目录/长示例，**禁止**因此省略 YAML `title`、`theme: dark`、节点 `fill`、表头 `#C9A0FF`、断句、专名「」、格内列义。
+**格式不准降级。** 完整条文与示例：[references/export.md](references/export.md)（§1–§5、§7–§10）、[references/prose.md](references/prose.md)（§6）。SKILL 变短只去掉重复目录/长示例，**禁止**因此省略 YAML `title`、`theme: dark`、节点 `fill`、表头 `#C9A0FF`、图例色名对齐 fill、断句、专名「」、格内列义。
 
 ## 执行顺序（先 Read，再落笔）
 
@@ -30,7 +30,8 @@ description: >-
 1. **要写或改中文句子 / 列表 / 表格**（含格内）：先 `Read` [references/prose.md](references/prose.md)，再 Write。  
    可跳过的唯一可观察条件：本次交付**零**中文句子（纯英文或纯代码）。
 2. **流程图排版**走 `mermaid-flowchart-layout`（其 Step 0 决定是否 Read layout.md）。
-3. 落盘后跑 `audit_mermaid.py`（只验收图和表头，**代替不了** prose.md）。
+3. 落盘后跑 `audit_mermaid.py`（验收图、表头、图例色名，**代替不了** prose.md）。
+4. 图下用「蓝 / 绿 / 紫 / 橙」指节点底色时，色名字色必须等于该图 `classDef` `fill`（[export.md](references/export.md) **§10**）。同类图例自动套。
 
 | 借口 | 实际 |
 |------|------|
@@ -47,7 +48,7 @@ description: >-
 python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 ```
 
-`ok: true` 才算图和表头合格。排版/连线另遵 **`mermaid-flowchart-layout`**（细则 [layout.md](../mermaid-flowchart-layout/references/layout.md)）。有 `ai.cursor/` 时 **REQUIRED** **`ai-cursor-doc-output`**。
+`ok: true` 才算图、表头、图例色名合格。排版/连线另遵 **`mermaid-flowchart-layout`**（细则 [layout.md](../mermaid-flowchart-layout/references/layout.md)）。有 `ai.cursor/` 时 **REQUIRED** **`ai-cursor-doc-output`**。
 
 工作区根存在 `ai.cursor/` 时，目录由该 skill 决定；本文件约束 basename、正文格式、每一张 Mermaid 的深彩色。
 
@@ -92,6 +93,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 - **每张图**同时：`%%{init: {'theme': 'dark'}}%%` **加上**每个可见节点 `style`/`classDef`（深彩色 `fill` + `color:#FFFFFF`）。只写 `theme: dark` = 未完成。对话里的图同样适用。
 - 换行用 `<br>`，禁止 `\n`。文字必须完整露出；flowchart 排法见 layout skill。
 - 转飞书时 YAML `title` 作画板标题，见 `markdown-to-feishu-doc`。
+- 图例色名对齐节点 fill：见 export.md **§10**。
 
 ## 4. 密度
 
@@ -128,4 +130,4 @@ Input `#E066FF`；Output `#00FF00`；Bidirectional `#FFD700`；Power `#FF0000`�
 
 ## 交付
 
-写完跑 `audit_mermaid.py`。`ok: false` 按 `issues[].code` 改，不要带着浅色图/无色表头结束。知识库维护走 `markdown-knowledge-maintain`。用户在改本 skill 的格式要求时走 **§0**，不要只改散文。
+写完跑 `audit_mermaid.py`。`ok: false` 按 `issues[].code` 改，不要带着浅色图/无色表头/未上色的图例色名结束。知识库维护走 `markdown-knowledge-maintain`。用户在改本 skill 的格式要求时走 **§0**，不要只改散文。

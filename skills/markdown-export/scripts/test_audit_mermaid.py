@@ -72,6 +72,28 @@ class AuditTests(unittest.TestCase):
         self.assertIn("th-color", codes)
         self.assertEqual(code, 2)
 
+    def test_legend_bare_color_name(self):
+        text = GOOD + "\n- **绿**：拓扑服务\n"
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("legend-color-name", codes)
+        self.assertEqual(code, 2)
+
+    def test_legend_span_matches_fill(self):
+        text = GOOD + '\n- **<span style="color:#2D936C">绿</span>**：拓扑服务\n'
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("legend-color-name", codes)
+        self.assertNotIn("legend-hex", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
+    def test_legend_hex_not_in_fills(self):
+        text = GOOD + '\n- **<span style="color:#00A870">绿</span>**：拓扑服务\n'
+        data, _ = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("legend-hex", codes)
+
     def test_html_fence(self):
         text = "</table>\n```mermaid\n%%{init: {'theme':'dark'}}%%\nflowchart TB\nA-->B\nstyle A fill:#2E86AB,stroke:#1B4965,color:#FFFFFF\nstyle B fill:#2E86AB,stroke:#1B4965,color:#FFFFFF\n```\n"
         data, _ = run_audit("---\ntitle: 某调用关系\n---\n" + text)

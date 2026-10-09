@@ -21,6 +21,14 @@ LIGHT_FILLS = {
 }
 HEADER_COLOR = "#C9A0FF"
 FENCE_RE = re.compile(r"^```mermaid[^\n]*\n(.*?)```", re.M | re.S)
+LEGEND_BARE_RE = re.compile(
+    r"^\s*[-*]\s+\*\*(蓝|绿|紫|橙|青)\*\*[：:]"
+)
+LEGEND_SPAN_RE = re.compile(
+    r'^\s*[-*]\s+\*\*<span\s+style="color:\s*(#[0-9A-Fa-f]{3,8})"\s*>'
+    r"\s*(蓝|绿|紫|橙|青)\s*</span>\*\*[：:]",
+    re.I,
+)
 SUBGRAPH_RE = re.compile(r"^\s*subgraph\s+([^\s\[]+)")
 STYLE_FILL_RE = re.compile(
     r"style\s+(\w+)\s+[^;\n]*fill:\s*(#[0-9A-Fa-f]{3,8})", re.I
@@ -203,6 +211,46 @@ def audit_tables(file: str, text: str) -> list[dict]:
     return issues
 
 
+def mermaid_fills(text: str) -> set[str]:
+    found: set[str] = set()
+    for _, _, body in iter_fences(text):
+        _, src = split_yaml(body)
+        found.update(f.lower() for f in FILL_ANY_RE.findall(src))
+    return found
+
+
+def audit_legend_color_names(file: str, text: str) -> list[dict]:
+    issues: list[dict] = []
+    fills = mermaid_fills(text)
+    if not fills:
+        return issues
+    masked = strip_fences(text)
+    for i, line in enumerate(masked.splitlines(), 1):
+        if LEGEND_BARE_RE.match(line):
+            issues.append(
+                issue(
+                    file,
+                    i,
+                    None,
+                    "legend-color-name",
+                    "图例色名须 span 且字色等于节点 fill",
+                )
+            )
+            continue
+        sm = LEGEND_SPAN_RE.match(line)
+        if sm and sm.group(1).lower() not in fills:
+            issues.append(
+                issue(
+                    file,
+                    i,
+                    None,
+                    "legend-hex",
+                    f"图例色名 {sm.group(1)} 未出现在本文 mermaid fill",
+                )
+            )
+    return issues
+
+
 def audit_file(path: Path) -> list[dict]:
     text = path.read_text(encoding="utf-8")
     in_md = path.suffix.lower() in {".md", ".markdown"}
@@ -217,6 +265,7 @@ def audit_file(path: Path) -> list[dict]:
         issues.extend(audit_diagram(str(path), i, line, body, in_md))
     if in_md:
         issues.extend(audit_tables(str(path), text))
+        issues.extend(audit_legend_color_names(str(path), text))
     return issues
 
 

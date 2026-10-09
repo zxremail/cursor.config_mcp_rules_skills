@@ -50,7 +50,7 @@ description: >-
 
 红旗：将写第二个 `subgraph` 或 `LEG["图例"]` 或 `<small>`，却还没打开 layout.md。停下来先 Read。
 
-配色条文见 **`markdown-export`** §5（完整 [export.md](../markdown-export/references/export.md)）。交付前：
+配色条文见 **`markdown-export`** §5（完整 [export.md](../markdown-export/references/export.md)）。图下用「蓝 / 绿 / 紫 / 橙」指节点底色时走该 skill **§10**。交付前：
 
 ```bash
 python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
