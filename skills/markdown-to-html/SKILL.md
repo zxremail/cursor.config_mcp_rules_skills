@@ -23,7 +23,7 @@ description: >-
 
 1. `md2html analyze doc.md`（stdout 已是块清单，不要 Read 源里每张图的围栏全文来「再判断一遍」，以 analyze 为准）。
 2. **仅当** analyze 标了「建议降级」：先 `Read` [references/html.md](references/html.md) §3 与 §7.6，再写 `doc.figures/mermaid-N.html`。  
-   `sequenceDiagram` 降级 → `html-sequence-swimlane`，不要改成蓝/绿卡片墙。
+   `sequenceDiagram` 降级 → `html-sequence-swimlane`，不要改成蓝/绿卡片墙。源 `.md` 长图阶段带须原样进 sidecar（`阶段 N：因果`），细则 `html-sequence-swimlane` 与 layout.md §4.2。
 3. `md2html build doc.md`（可 `--strict-figures`）。本机有桌面时可再加 `--open`；无显示器、远程 SSH、或 Agent 会话里不要 `--open`（会抢焦点或失败）。
 4. `python3 ~/.cursor/skills/markdown-to-html/scripts/audit_html.py doc.html --md doc.md`  
    `ok: true` 才交差。禁止 `Read` `doc.html`。

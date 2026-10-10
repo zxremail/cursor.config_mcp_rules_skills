@@ -7,7 +7,8 @@ description: >-
   dark background. Triggers: 生成 markdown、写文档、导出 md、Mermaid 配色、
   深彩色、暗色主题、theme dark、浅色图、默认配色、文字被遮挡、显示不全、裁切、
   嵌套 subgraph 外框内框同色、套盒糊成一块、层框列框不易区分、
-  时序图按向左/向右给箭头上色、时序图 Note over、实际含义标题、YAML title、
+  时序图按向左/向右给箭头上色、时序图 Note over、长时序阶段带、阶段 0、阶段 1、
+  实际含义标题、YAML title、
   表格表头、标题栏颜色、管道表、表头字体颜色、span color、图例色名、蓝绿紫橙上色、类似处理、模块底色、
   断句、加逗号、加标点、语义更清晰、只改标点不改措辞、
   首次生成 markdown、增补章节、黏连长句、事后补标点、
@@ -29,7 +30,7 @@ description: >-
 
 1. **要写或改中文句子 / 列表 / 表格**（含格内）：先 `Read` [references/prose.md](references/prose.md)，再 Write。  
    可跳过的唯一可观察条件：本次交付**零**中文句子（纯英文或纯代码）。
-2. **流程图排版**走 `mermaid-flowchart-layout`（其 Step 0 决定是否 Read layout.md）。画 `sequenceDiagram` 时必读该 skill 的 layout.md **§4.1**（`Note over` 标内部动作与约束）。
+2. **流程图排版**走 `mermaid-flowchart-layout`（其 Step 0 决定是否 Read layout.md）。画 `sequenceDiagram` 时必读该 skill 的 layout.md **§4.1–§4.2**（`Note over` 标内部动作与约束；长图段首 `阶段 N：因果`）。
 3. 落盘后跑 `audit_mermaid.py`（验收图、表头、图例色名，**代替不了** prose.md）。
 4. 图下用「蓝 / 绿 / 紫 / 橙」指节点底色时，色名字色必须等于该图 `classDef` `fill`（[export.md](references/export.md) **§10**）。同类图例自动套。
 

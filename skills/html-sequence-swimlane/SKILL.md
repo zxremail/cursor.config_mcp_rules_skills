@@ -50,6 +50,8 @@ Windows：`PYTHONIOENCODING=utf-8 py -3 -m md2html build doc.md`
 
 对照：`come_x86_complete_power_on_sequence.md` §7 端到端冷启动主图。阶段带是**扫读分隔**，让读者在长图里知道「现在讲到哪一段」，不是 MCU/`enum`、也不是每条消息的旁注。
 
+**Markdown 围栏**的同源规则在 `mermaid-flowchart-layout` 的 layout.md **§4.2**（写 `.md` 时走那条，不要只改 HTML）。本页管 sidecar 几何。
+
 ### 何时必须加
 
 出现任一条就加阶段带，不要等用户再点名：
