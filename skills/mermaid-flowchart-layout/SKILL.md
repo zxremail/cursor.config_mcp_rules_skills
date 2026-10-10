@@ -14,7 +14,7 @@ description: >-
   Markdown 文档 mermaid 实际含义标题、YAML title、
   节点主题和补充描述糊成一行、对照注解、模块名与括号说明、
   主题加粗、注解缩小、换行括号、斜体区分中文节点、
-  或要按向左/向右给时序图箭头上色时应用。
+  或要按向左/向右给时序图箭头上色、时序图加 Note over 注释内部动作与约束时应用。
   每一张图还必须用深彩色节点配色（见文首硬规则），嵌套套盒必须外深内浅（§0.1），且每一处文字都要完整露出（§11）。
   Markdown 文档中的每个 mermaid 图也要有实际含义标题、
   新增排版格式、写进 SKILL、改 audit。
@@ -37,8 +37,9 @@ description: >-
 - 独立图例块（方案 D）
 - 节点同时有主题和注解（将写 `<b>` + `<small>`）
 - 用户抱怨交叉、幽灵线、图例、文字被挡
+- 围栏是 `sequenceDiagram`（`Note over` 写内部动作与约束，见 layout.md §4.1）
 
-可跳过 layout.md 的唯一条件：单链或单决策小图，**零** `subgraph`、**不**附图例、节点**没有**名+注。仍须本页 §0 配色 + `audit_mermaid.py`。
+可跳过 layout.md 的唯一条件：单链或单决策小图，**零** `subgraph`、**不**附图例、节点**没有**名+注、**不是**时序图。仍须本页 §0 配色 + `audit_mermaid.py`。
 
 未 Read 就画架构 / 多 subgraph / 图例 / 名+注 = 违规。不要凭本页省略隐形 `linkStyle`、同列下落、方案 D 间距。
 
@@ -46,9 +47,9 @@ description: >-
 |------|------|
 | 「本页已有 TB/LR 和色表」 | 合格/反例和方案 D 只在 layout.md |
 | 「先画结构，细则以后对照」 | 和「先无色占位」同类；Read 在围栏之前 |
-| 「audit 过了」 | 脚本不检查一图一问、同列下落、方案 D |
+| 「audit 过了」 | 脚本不检查一图一问、同列下落、方案 D、时序图 Note |
 
-红旗：将写第二个 `subgraph` 或 `LEG["图例"]` 或 `<small>`，却还没打开 layout.md。停下来先 Read。
+红旗：将写第二个 `subgraph` 或 `LEG["图例"]` 或 `<small>` 或 `sequenceDiagram`，却还没打开 layout.md。停下来先 Read。
 
 配色条文见 **`markdown-export`** §5（完整 [export.md](../markdown-export/references/export.md)）。图下用「蓝 / 绿 / 紫 / 橙」指节点底色时走该 skill **§10**。交付前：
 
@@ -110,7 +111,7 @@ linkStyle N opacity:0,stroke-width:0px
 
 ### 4.1 时序方向（不要用上表）
 
-向右请求实线 `#3370FF`；向左返回虚线 `#00A870`；暗底自调用 `#E8EAED`。`sequenceDiagram`：请求 `->>`、返回 `-->>`（不能单条 `linkStyle`；HTML 导出由 md2html 补蓝/绿）。边上说明文字不改成蓝/绿。
+向右请求实线 `#3370FF`；向左返回虚线 `#00A870`；暗底自调用 `#E8EAED`。`sequenceDiagram`：请求 `->>`、返回 `-->>`（不能单条 `linkStyle`；HTML 导出由 md2html 补蓝/绿）。边上说明文字不改成蓝/绿。箭头上看不见的内部动作、约束用 `Note over`，细则 Read layout.md §4.1。
 
 ## 5. 箭头说明
 
@@ -140,4 +141,4 @@ ID["<b>模块主题</b><br/><small>（补充描述）</small>"]
 
 ## 交付清单
 
-YAML 标题、theme dark、节点 fill、嵌套分色、无 `~~~`、占位已隐形、一图一问、小图 `useMaxWidth:false`、主题注解 HTML、`audit_mermaid.py ok`。文字露出靠预览，脚本扫不了。
+YAML 标题、theme dark、节点 fill、嵌套分色、无 `~~~`、占位已隐形、一图一问、小图 `useMaxWidth:false`、主题注解 HTML、时序图 `Note over`、`audit_mermaid.py ok`。文字露出和 Note 该不该加，脚本扫不了。

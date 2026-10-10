@@ -515,6 +515,25 @@ flowchart TB
 
 `sequenceDiagram` 不能给单条消息写 `linkStyle`。请求写实线 `->>`，返回写虚线 `-->>`。导出 HTML 时由 `markdown-to-html` 按线型补上蓝/绿。自调用在纯 Mermaid 里也是实线，要单独留浅色时改用 HTML 泳道时序的 `.seq-self`。
 
+**时序图必须用 `Note` 标出箭头上看不见的东西。** 消息箭头只写谁对谁做什么。下面这些不要只靠读者猜，写在 `Note over`（或 `Note left of` / `Note right of`）里：
+
+- 进程内部动作（自调用旁）：先建 memfd、再 `mmap`、组描述符
+- 约束与禁止：buffer 不是 NULL、此后不再 alloc、完成前不要读该区间、不换 fd
+- 状态提醒：作业排队、实际长度以返回值为准
+
+合格：
+
+```text
+Note over MGR: 先建 memfd 或 POSIX SHM
+MGR->>MGR: mmap，得到 mgr_va
+MGR->>API: fpga_alloc_dma(..., mgr_va)
+Note over API: buffer 不是 NULL；此后不再 alloc
+```
+
+禁止：整张时序只有箭头、关键步骤写在心里；把整段协议抄进 Note；空 Note；Note 里用 `\n` 换行（用 `<br>`）。三五步、每步都已是参与者之间的显式消息、没有内部动作也没有约束时，可以不加。有自调用或「复用 / 不要 / 不再」这类约束时必须加。
+
+`audit_mermaid.py` 扫不了「该不该加」；漏 Note = 时序图没画完。
+
 **节点**必须用深彩色 `classDef`/`style`（**`markdown-export`** §5），与连线色是两件事。`themeVariables` 不要改回浅色底。产品品牌色可以叠加在深彩色原则上，**不能**拿「skill 不写死产品色板」当借口输出默认浅色图。
 
 ---
@@ -656,6 +675,7 @@ flowchart LR
 - [ ] 嵌套 subgraph：外框与内框 `fill` 是否不同、外深内浅？同色则不合格（§0.1）
 - [ ] 节点文字、subgraph 标题、边标签是否都完整可读？被框裁掉、被内层节点盖住、被箭头穿过则不合格（§11）
 - [ ] 节点同时有模块主题和补充描述时：是否 **主题加粗、注解缩小**，并且 **换行 + 括号**？糊成一行、只斜体、无括号、用 `classDef` 整格斜体则不合格（§12）
+- [ ] `sequenceDiagram`：内部动作、复用/禁止等约束是否写了 `Note over`？只靠箭头让读者猜则不合格（§4.1）。脚本扫不了。
 
 ---
 
