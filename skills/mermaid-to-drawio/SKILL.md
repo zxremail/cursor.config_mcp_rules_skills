@@ -47,7 +47,7 @@ python3 ~/.cursor/skills/mermaid-to-drawio/scripts/pipeline.py audit-drawio \
 - 消息文字是独立 `mxCell`，`fillColor=none`，不写在箭头 `value` 上。
 - 参与者 **矩形** `rounded=0`，白字；色板循环：`#2E86AB` / `#E63946` / `#2D936C` / `#F18F01` / `#A23B72` / `#6A4C93`（及对应描边，见 reference）。
 - 生命线：参与者下方垂直 **虚线** `dashed=1`。
-- 脚本暂不渲染 `Note` / `alt` / `loop` / `opt`（解析时跳过）。需要这些块时 Read sequence-drawio.md 后改脚本，不要手写 XML。
+- 脚本暂不渲染 `Note` / `alt` / `loop` / `opt`（解析时跳过）。长图阶段带（`Note over … 阶段 N：`）写在 Mermaid 源里，惯例见 `html-sequence-swimlane` §长时序图阶段带；转 drawio 在脚本支持 Note 之前会丢阶段带，不要手写 XML 补。需要这些块时 Read sequence-drawio.md 后改脚本。
 
 ## 不要
 

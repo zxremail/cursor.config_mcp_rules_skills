@@ -37,7 +37,7 @@ description: >-
 | 浅色层底 + 白底分组框 + 饱和色内卡片；层名在左、层间↓、底栏色块图例 | `fig-tinted-layer-cards` |
 | Mermaid `flowchart`、多 subgraph、跨层连线、暗色节点 | `mermaid-flowchart-layout` |
 | 深色分层彩色卡片墙（HTML）；`.layer` / `.halbox` / `customfig` | `markdown-to-html` §3 / §7.6 |
-| HTML 时序：贴顶彩色角色栏、生命线、橙色 Note | `html-sequence-swimlane` |
+| HTML 时序：贴顶彩色角色栏、生命线、橙色 Note；长时序「阶段 0 / 阶段 1」分隔带 | `html-sequence-swimlane` |
 | 左栏阶段 × 顶栏季度；里程碑横条、菱形节点 | `task-roadmap-timeline` |
 | 人员泳道、人力胶囊、Git 式分支合入、底栏星星 | `task-assignment-timeline` |
 
@@ -152,6 +152,8 @@ subgraph / 层（上→下）：
 **HTML 贴顶角色时序**
 ```
 角色（左→右）：
+阶段带（长图必填，段首 Note）：
+  - 阶段 N：一句因果（覆盖哪些角色）
 消息（谁 → 谁：内容）：
 .md 路径：
 ```
