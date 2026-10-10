@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""扫描 .md / .mmd：Mermaid 硬格式 + 管道表表头字色。stdout 只打 JSON。"""
+"""扫描 .md / .mmd：Mermaid 硬格式 + 管道表表头字色 + 内联 SVG 空行。stdout 只打 JSON。"""
 from __future__ import annotations
 
 import argparse
@@ -21,6 +21,8 @@ LIGHT_FILLS = {
 }
 HEADER_COLOR = "#C9A0FF"
 FENCE_RE = re.compile(r"^```mermaid[^\n]*\n(.*?)```", re.M | re.S)
+ANY_FENCE_RE = re.compile(r"^```[^\n]*\n.*?^```", re.M | re.S)
+SVG_RE = re.compile(r"<svg\b[^>]*>.*?</svg>", re.I | re.S)
 LEGEND_BARE_RE = re.compile(
     r"^\s*[-*]\s+\*\*(蓝|绿|紫|橙|青)\*\*[：:]"
 )
@@ -171,6 +173,32 @@ def strip_fences(text: str) -> str:
     return FENCE_RE.sub(lambda m: "\n" * m.group(0).count("\n"), text)
 
 
+def strip_any_fences(text: str) -> str:
+    return ANY_FENCE_RE.sub(lambda m: "\n" * m.group(0).count("\n"), text)
+
+
+def audit_svg_blanks(file: str, text: str) -> list[dict]:
+    """`.md` 内联 SVG 禁止空行：CommonMark 在空行截断 HTML 块。"""
+    issues: list[dict] = []
+    masked = strip_any_fences(text)
+    for m in SVG_RE.finditer(masked):
+        block = m.group(0)
+        lines = block.splitlines()
+        for j, line in enumerate(lines):
+            if line.strip() == "":
+                issues.append(
+                    issue(
+                        file,
+                        text[: m.start()].count("\n") + j + 1,
+                        None,
+                        "svg-blank",
+                        ".md 内联 SVG 禁止空行（Markdown 会截断 HTML）",
+                    )
+                )
+                break
+    return issues
+
+
 def audit_tables(file: str, text: str) -> list[dict]:
     issues: list[dict] = []
     raw_lines = text.splitlines()
@@ -258,6 +286,8 @@ def audit_file(path: Path) -> list[dict]:
     if path.suffix.lower() in {".mmd"}:
         issues.extend(audit_diagram(str(path), 0, 1, text, in_md=False))
         return issues
+    if in_md:
+        issues.extend(audit_svg_blanks(str(path), text))
     if not FENCE_RE.search(text) and in_md:
         issues.extend(audit_tables(str(path), text))
         return issues

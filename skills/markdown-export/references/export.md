@@ -92,6 +92,7 @@ description: >-
 
 - 所有图表必须使用 **Mermaid** 语法绘制。
 - **HTML 块后面必须空一行再写围栏。** `<table>…</table>`（以及其它 HTML 块）会吃到空行为止；`</table>` 紧挨 `` ```mermaid `` 时，预览把图源当原文吐出（乱码、`{data-source-line=`）。管道表改成 HTML 上色时见 `coloring-markdown-table-column`。
+- **`.md` 内联 `<svg>…</svg>` 内部禁止空行。** CommonMark 把 HTML 块吃到空行为止；SVG 里一空行，后面的 `<rect>` / `<text>` 当正文吐出（色带还在、节点变源码）。分组用注释 `<!-- -->`，不要空行。`</svg>` 之后可以空行。`audit_mermaid.py` 的 `svg-blank` 扫这一条。
 - Markdown 文档中的每个 mermaid 图也要有「实际含义标题」：围栏开头写 YAML `title`（取最近小节 + 图意，禁止「流程图」「如图」），然后再写 `%%{init}`。不要在围栏外再重复一行标题。
 - 每一张图都必须遵守 §5 深彩色配色硬规则（`theme: dark` **加上**节点 `style`/`classDef`）。无配色的图视为未完成，不得写入文件。
 - 尽量不要使用外部图片链接或 ASCII 艺术图。

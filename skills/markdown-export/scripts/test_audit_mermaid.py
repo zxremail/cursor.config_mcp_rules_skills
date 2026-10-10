@@ -100,6 +100,45 @@ class AuditTests(unittest.TestCase):
         codes = {i["code"] for i in data["issues"]}
         self.assertIn("html-fence", codes)
 
+    def test_svg_blank_inside(self):
+        text = (
+            GOOD
+            + "\n<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\">\n"
+            + "<title>短句图意</title>\n"
+            + "\n"
+            + "<rect x=\"0\" y=\"0\" width=\"10\" height=\"10\"/>\n"
+            + "</svg>\n"
+        )
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("svg-blank", codes)
+        self.assertEqual(code, 2)
+
+    def test_svg_no_blank_ok(self):
+        text = (
+            GOOD
+            + "\n<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\">\n"
+            + "<title>短句图意</title>\n"
+            + "<rect x=\"0\" y=\"0\" width=\"10\" height=\"10\"/>\n"
+            + "</svg>\n"
+        )
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("svg-blank", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
+    def test_svg_blank_in_fence_ignored(self):
+        text = (
+            GOOD
+            + "\n```svg\n<svg xmlns=\"http://www.w3.org/2000/svg\">\n\n<rect/>\n</svg>\n```\n"
+        )
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("svg-blank", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
