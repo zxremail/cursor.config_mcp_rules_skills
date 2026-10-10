@@ -28,7 +28,8 @@ description: >-
 ## 几何（截图式样）
 
 ```
-┌────────┬─────────────────────────────────────────────┐
+┌ 实际含义标题 ─────────────────────────────────────────┐
+├────────┬─────────────────────────────────────────────┤
 │ 角色 A │  (起) 步骤                                    │
 │ 角色 B │        [步骤] ──→ [步骤]                      │
 │ 角色 C │                         [步骤]                │
@@ -36,6 +37,7 @@ description: >-
 └────────┴─────────────────────────────────────────────┘
 ```
 
+- **标题**：图顶 40px 栏里必须有**可见**短句（`<text>`），与 `<title>` 同文。取最近小节 + 图意，无句号。禁止「流程图」「如图」「示意图」「水平泳道图」。只写无障碍 `<title>`、图上看不见 = 未完成。
 - **左栏**：每道一个短名（单行）。左侧再加 6px 饱和色条。
 - **横带**：等高（默认每道 100px）。外框 + 横线 + 左栏竖线。
 - **时间**：左 → 右。同一时刻的跨层交接画在**同一列**，箭头竖直穿过带。
@@ -67,6 +69,8 @@ description: >-
 | 箭头 / 普通边标 | `#E8EAED` |
 | 约束边标 | `#F18F01` |
 | 左栏角色名 | `#FFFFFF` |
+| 标题栏底 | `#161B22` |
+| 标题字 | `#FFFFFF` |
 
 图下若用「橙 / 紫 / 绿 / 蓝」指节点，色名字色必须等于该图节点 `fill`（`markdown-export` §10）。
 
@@ -77,8 +81,9 @@ description: >-
 1. 用户点了 `.md` → **原地**把该图换成内联 `<svg>`（`viewBox` 固定，`max-width` 100%）。
 2. 有 `ai.cursor/` 时路径走 `ai-cursor-doc-output`。
 3. 不要另存 PNG；不要为了「像 Mermaid」再留一份 subgraph。
-4. `title` 写在 `<title>`，短句、无「流程图/如图」。
+4. `<title>` 与顶栏可见标题同文；短句、无「流程图/如图」。
 5. `marker id` 按文档唯一，避免同页多图箭头错绑。
+6. 泳道本体放在 `translate(0,40)` 里，`viewBox` 高度 = 泳道高 + 40。
 
 ## 工作流
 
@@ -98,19 +103,25 @@ description: >-
 | 副标题不写括号更干净 | 注释放在括号内 |
 | 贴顶时序也叫泳道 | 角色在顶、时间向下 → `html-sequence-swimlane` |
 | 颜色区分模块就够，不必左栏 | 用户要水平泳道就是因为只靠颜色不够直观 |
+| `<title>` 已经有了 | 那是无障碍属性；读者要看见顶栏标题 |
 
 ## 骨架
 
 节点第二行必须带 `（）`。色值抄上表，不要另选浅色。
 
 ```svg
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 400" role="img"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 440" role="img"
      style="max-width:920px;width:100%;background:#0D1117;border-radius:8px;">
   <title>短句图意</title>
-  <!-- 每道：带底 rect + 左栏 rect + 6px 色条 + 角色名 -->
-  <!-- 步骤：rect/ellipse，fill=该道饱和色，字 #FFFFFF -->
-  <!-- 主题一行；下一行 （注释） -->
-  <!-- 箭头 stroke=#E8EAED + marker -->
+  <rect x="0" y="0" width="920" height="40" fill="#161B22"/>
+  <text x="460" y="26" text-anchor="middle" font-size="16" font-weight="600"
+        fill="#FFFFFF" font-family="sans-serif">短句图意</text>
+  <g transform="translate(0,40)">
+    <!-- 每道：带底 rect + 左栏 rect + 6px 色条 + 角色名 -->
+    <!-- 步骤：rect/ellipse，fill=该道饱和色，字 #FFFFFF -->
+    <!-- 主题一行；下一行 （注释） -->
+    <!-- 箭头 stroke=#E8EAED + marker -->
+  </g>
 </svg>
 ```
 
