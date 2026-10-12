@@ -128,6 +128,46 @@ class AuditTests(unittest.TestCase):
         self.assertTrue(data["ok"], data)
         self.assertEqual(code, 0)
 
+    def test_svg_open_split(self):
+        text = (
+            GOOD
+            + "\n<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\"\n"
+            + "     style=\"width:100%\">\n"
+            + "<title>短句图意</title>\n"
+            + "<rect x=\"0\" y=\"0\" width=\"10\" height=\"10\"/>\n"
+            + "</svg>\n"
+        )
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("svg-open-split", codes)
+        self.assertEqual(code, 2)
+
+    def test_swimlane_png_forbidden(self):
+        text = (
+            "左栏是层，应用在上、硬件在下。\n\n"
+            "![未劫持时 SIGSEGV 应进 debuggerd](foo.figures/unhijacked.png)\n"
+        )
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("swimlane-png", codes)
+        self.assertEqual(code, 2)
+
+    def test_swimlane_inline_svg_ok(self):
+        text = (
+            GOOD
+            + "\n左栏是层，应用在上、硬件在下。\n"
+            + "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\">\n"
+            + "<title>短句图意</title>\n"
+            + "<rect x=\"0\" y=\"0\" width=\"10\" height=\"10\"/>\n"
+            + "</svg>\n"
+        )
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("swimlane-png", codes)
+        self.assertNotIn("svg-open-split", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
     def test_svg_blank_in_fence_ignored(self):
         text = (
             GOOD

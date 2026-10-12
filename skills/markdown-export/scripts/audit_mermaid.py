@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""扫描 .md / .mmd：Mermaid 硬格式 + 管道表表头字色 + 内联 SVG 空行。stdout 只打 JSON。"""
+"""扫描 .md / .mmd：Mermaid 硬格式 + 管道表表头字色 + 内联 SVG 空行/开标签 + 泳道禁止 PNG。stdout 只打 JSON。"""
 from __future__ import annotations
 
 import argparse
@@ -199,6 +199,51 @@ def audit_svg_blanks(file: str, text: str) -> list[dict]:
     return issues
 
 
+SVG_OPEN_LINE_RE = re.compile(r"<svg\b[^>]*>", re.I)
+SWIM_HINT_RE = re.compile(r"左栏是层")
+SWIM_IMG_RE = re.compile(
+    r"!\[[^\]]*\]\([^)]+\.(?:png|jpe?g|svg|gif)\)", re.I
+)
+
+
+def audit_svg_open_tag(file: str, text: str) -> list[dict]:
+    """内联 `<svg>` 开标签必须同一行写完，禁止折到下一行。"""
+    issues: list[dict] = []
+    masked = strip_any_fences(text)
+    for m in SVG_RE.finditer(masked):
+        first = m.group(0).splitlines()[0]
+        if not SVG_OPEN_LINE_RE.search(first):
+            issues.append(
+                issue(
+                    file,
+                    text[: m.start()].count("\n") + 1,
+                    None,
+                    "svg-open-split",
+                    "内联 <svg> 开标签必须同一行写完（对照 01 泳道写法）",
+                )
+            )
+    return issues
+
+
+def audit_swimlane_png(file: str, text: str) -> list[dict]:
+    """水平泳道禁止用 Markdown 图片引用 PNG/SVG 代替内联 SVG。"""
+    issues: list[dict] = []
+    masked = strip_any_fences(text)
+    if not SWIM_HINT_RE.search(masked):
+        return issues
+    for m in SWIM_IMG_RE.finditer(masked):
+        issues.append(
+            issue(
+                file,
+                masked[: m.start()].count("\n") + 1,
+                None,
+                "swimlane-png",
+                "水平泳道必须内联 SVG，禁止改 PNG/图片引用迁就预览",
+            )
+        )
+    return issues
+
+
 def audit_tables(file: str, text: str) -> list[dict]:
     issues: list[dict] = []
     raw_lines = text.splitlines()
@@ -288,6 +333,8 @@ def audit_file(path: Path) -> list[dict]:
         return issues
     if in_md:
         issues.extend(audit_svg_blanks(str(path), text))
+        issues.extend(audit_svg_open_tag(str(path), text))
+        issues.extend(audit_swimlane_png(str(path), text))
     if not FENCE_RE.search(text) and in_md:
         issues.extend(audit_tables(str(path), text))
         return issues

@@ -9,6 +9,7 @@ description: >-
   或左栏写成 cpp/h/ko 文件名、色条用文件拼盘（「蓝是应用与寄存器头」）；
   或箭头先竖到框底再横滑、折线多余、第4轨很奇怪、为凑侧入多折；
   或 SVG 内部空行、泳道只剩色带、节点变成源码、Markdown 截断 HTML；
+  或预览空白、改 PNG、sidecar 图片引用、开标签折行；
   或应用要在上、硬件要在下、硬件画在顶上、泳道层序颠倒、上下颠倒泳道。
   不要用：贴顶角色栏时序、人员分工时间表、Mermaid flowchart subgraph 冒充泳道。
 ---
@@ -21,7 +22,7 @@ description: >-
 整个底色使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
 
 不确定是不是这种图 → 先读 `diagram-style-catalog`。
-交卷：写入目标 `.md` 的**内联 SVG**。禁止用 Mermaid `flowchart` / `gantt` / `sequenceDiagram` 硬凑。
+交卷：写入目标 `.md` 的**内联 SVG**（开标签同一行、内部无空行；对照 `01.object-graph-and-lifetime.md`）。禁止用 Mermaid `flowchart` / `gantt` / `sequenceDiagram` 硬凑。禁止改 PNG / `![](图)` 迁就预览。
 
 ## 何时用 / 不用
 
@@ -183,11 +184,11 @@ description: >-
 
 1. 用户点了 `.md` → **原地**把该图换成内联 `<svg>`（`viewBox` 固定，`max-width` 100%）。
 2. 有 `ai.cursor/` 时路径走 `ai-cursor-doc-output`。
-3. 不要另存 PNG；不要为了「像 Mermaid」再留一份 subgraph。
+3. 不要另存 PNG，不要 `![](….png)` / `![](….svg)`，不要 sidecar 图文件来迁就预览。预览空白时修开标签单行与内部无空行（对照 `01.object-graph-and-lifetime.md`），不要改媒介。不要为了「像 Mermaid」再留一份 subgraph。交卷跑 `audit_mermaid.py`（`svg-blank` / `svg-open-split` / `swimlane-png`）。
 4. `<title>` 与顶栏可见标题同文；短句、无「流程图/如图」。
 5. `marker id` 按文档唯一，避免同页多图箭头错绑。
 6. 泳道本体放在 `translate(0,40)` 里，`viewBox` 高度 = 泳道高 + 40。
-7. `<svg>` 到 `</svg>` **之间禁止空行**（CommonMark 截断 HTML，节点变源码）。分组用 `<!-- -->`。交卷跑 `audit_mermaid.py`（`svg-blank`）。
+7. `<svg>` 到 `</svg>` **之间禁止空行**（CommonMark 截断 HTML，节点变源码）。分组用 `<!-- -->`。开标签同一行。交卷跑 `audit_mermaid.py`（`svg-blank` / `svg-open-split` / `swimlane-png`）。
 
 ## 工作流
 
@@ -226,6 +227,9 @@ description: >-
 | 色条按节点 fill 罗列文件 | 色条写「谁家」：`橙是同一用户态库`。跨层拼文件 = 未完成 |
 | 同一库就并成一道少占行 | 库内层仍分道；同色表示同一家，不是少画层 |
 | SVG 里空行分组更易读 | Markdown 在空行截断 HTML；色带还在、节点变源码。禁止空行 |
+| 预览吃不下内联 SVG，改 PNG 引用 | 未完成。始终内联 SVG；空白就修开标签单行、去掉内部空行 |
+| Cursor 剥掉子节点所以改图片 | 未完成。媒介仍是内联 SVG，不以预览器为借口换 PNG |
+| `<svg>` 属性折到下一行更整齐 | 开标签必须同一行；折行预览常只剩空壳。`svg-open-split` |
 | 架构海报 / 截图硬件在上 | 泳道跟调用方向，不跟海报；未指定时硬件贴顶 = 未完成 |
 | 色板第一行以前是硬件 | 现表上→下是应用→硬件；抄旧道序 = 未完成 |
 | OSI 物理层在下所以应用也贴底 | 物理层在下对，应用应在上；不要整栈倒置 |

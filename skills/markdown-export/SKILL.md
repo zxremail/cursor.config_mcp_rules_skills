@@ -90,7 +90,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 
 ## 3. 图表语法（格式）
 
-- 用 Mermaid。`</table>` 与 `` ```mermaid `` 之间必须空一行。`.md` 内联 `<svg>` 内部禁止空行（CommonMark 截断 HTML），见 export.md §3、`svg-blank`。
+- 用 Mermaid。`</table>` 与 `` ```mermaid `` 之间必须空一行。`.md` 内联 `<svg>` 内部禁止空行、开标签必须同一行；水平泳道禁止改 PNG 引用。见 export.md §3、`svg-blank` / `svg-open-split` / `swimlane-png`。
 - 每个围栏开头 YAML `title`（最近小节 + 图意，短句无句号），然后 `%%{init}`。禁止「流程图」「如图」「示意图」。围栏外不要再写一行标题。`sequenceDiagram` 只用 YAML `title`，不要再写 `title xxx`。
 - **每张图**同时：`%%{init: {'theme': 'dark'}}%%` **加上**每个可见节点 `style`/`classDef`（深彩色 `fill` + `color:#FFFFFF`）。只写 `theme: dark` = 未完成。对话里的图同样适用。
 - 换行用 `<br>`，禁止 `\n`。文字必须完整露出；flowchart 排法见 layout skill。
