@@ -17,7 +17,16 @@ LAYER_FILL = {
     "#3d2a10": ("#FFEDD5", "#C67500"),
     "#1b4965": ("#FFFFFF", "#1B4965"),
     "#163044": ("#FFFFFF", "#1B4965"),
-    "#0d1117": ("#F3F4F6", "#1F2329"),
+    "#0d1117": ("#F8FAFC", "#1F2329"),
+    "#161b22": ("#E2E8F0", "#1F2329"),
+    "#163a4d": ("#93C5FD", "#1F2329"),
+    "#0d241c": ("#D1FAE5", "#1F2329"),
+    "#16382c": ("#86EFAC", "#1F2329"),
+    "#1e1530": ("#EDE9FE", "#1F2329"),
+    "#2a1f40": ("#DDD6FE", "#1F2329"),
+    "#3d2a00": ("#FFEDD5", "#1F2329"),
+    "#5a3d00": ("#FDBA74", "#1F2329"),
+    "#30363d": ("#94A3B8", "#1F2329"),
 }
 LEAF_FILL = {
     "#6a4c93",
@@ -189,8 +198,39 @@ def parse_html_table(lines: list[str], i: int) -> tuple[str, int]:
     return table_xml(rows), i
 
 
+def lighten_svg_for_feishu(svg: str) -> str:
+    """暗色水平泳道（fig-horizontal-swimlane）→ 白底画板可读的浅色。节点饱和填色保持，白字保留。"""
+    fill_map = {k.lstrip("#"): v for k, (v, _) in LAYER_FILL.items()}
+
+    def color_repl(m: re.Match) -> str:
+        attr, q, col = m.group(1), m.group(2), m.group(3)
+        key = col.lstrip("#")
+        if len(key) == 3:
+            key = "".join(ch * 2 for ch in key)
+        mapped = fill_map.get(key.lower())
+        return f"{attr}={q}{mapped}{q}" if mapped else m.group(0)
+
+    svg = re.sub(
+        r"""\b(fill|stroke|stop-color)=(["'])(#[0-9A-Fa-f]{3,8})\2""",
+        color_repl,
+        svg,
+    )
+    svg = re.sub(r"background:\s*#0[Dd]1117", "background:#F8FAFC", svg)
+
+    def text_open(m: re.Match) -> str:
+        tag = m.group(0)
+        if re.search(r'font-size="(14|16)"', tag) and re.search(
+            r'fill="#(?:FFFFFF|fff)"', tag, re.I
+        ):
+            return re.sub(r'fill="#(?:FFFFFF|fff)"', 'fill="#1F2329"', tag, flags=re.I)
+        return tag
+
+    return re.sub(r"<text\b[^>]*>", text_open, svg)
+
+
 def parse_svg(lines: list[str], i: int, out_dir: Path, svg_n: list[int]) -> tuple[str, int]:
     html, i = take_until(lines, i, r"</svg>")
+    html = lighten_svg_for_feishu(html)
     n = svg_n[0]
     (out_dir / f"fig{n}.svg").write_text(html, encoding="utf-8")
     svg_n[0] += 1
@@ -492,6 +532,9 @@ def patch_board(path: Path) -> None:
     data = json.loads(path.read_text(encoding="utf-8"))
     nodes = data.get("nodes") or []
     for n in nodes:
+        if n.get("type") == "group":
+            n.pop("style", None)
+            continue
         st = n.setdefault("style", {})
         if n.get("type") == "section":
             st["fill_color"] = "#F3F4F6"
@@ -508,6 +551,16 @@ def patch_board(path: Path) -> None:
                 set_text_color(n["text"], tc)
         elif fc in LEAF_FILL and isinstance(n.get("text"), dict):
             set_text_color(n["text"], "#FFFFFF")
+        bc = (st.get("border_color") or "").lower()
+        if bc in LAYER_FILL:
+            st["border_color"] = LAYER_FILL[bc][0]
+            st["border_color_type"] = 1
+        t = n.get("text")
+        if isinstance(t, dict):
+            fs = t.get("font_size")
+            tc = (t.get("text_color") or "").lower()
+            if fs in (14, 16) and tc in {"#ffffff", "#fff"}:
+                set_text_color(t, "#1F2329")
 
     def rec(o):
         if isinstance(o, dict):

@@ -130,6 +130,57 @@ def test_audit_flags_escaped_html_table():
     assert any("源码" in i or "table" in i.lower() or "HTML" in i for i in r["issues"])
 
 
+
+def test_dark_swimlane_svg_lightened_for_feishu():
+    md = """# 标题
+
+## 图
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" style="background:#0D1117;"><rect width="200" height="80" fill="#0D1117"/><rect width="200" height="40" fill="#0D2433"/><rect width="50" height="40" fill="#163A4D"/><text x="25" y="24" font-size="14" fill="#FFFFFF">业务进程</text><rect x="70" y="8" width="80" height="24" rx="6" fill="#2E86AB"/><text x="110" y="24" font-size="13" fill="#FFFFFF">crash_handler</text></svg>
+"""
+    xml, _, out = run_convert(md)
+    svg = (out / "fig0.svg").read_text(encoding="utf-8")
+    assert "#0D1117" not in svg.upper().replace("0D1117", "0D1117")
+    assert "#0D1117" not in svg and "#0d1117" not in svg
+    assert "#0D2433" not in svg and "#0d2433" not in svg
+    assert "#F8FAFC" in svg or "#F3F4F6" in svg or "#DBEAFE" in svg
+    assert 'fill="#2E86AB"' in svg or "fill='#2E86AB'" in svg or 'fill="#2e86ab"' in svg.lower()
+    assert 'font-size="14"' in svg and "#1F2329" in svg
+    assert "crash_handler" in svg
+
+
+def test_patch_board_lightens_swimlane_raw():
+    raw = {
+        "nodes": [
+            {"type": "shape", "style": {"fill_color": "#0D2433"}},
+            {"type": "shape", "style": {"fill_color": "#161B22"}},
+            {"type": "shape", "style": {"fill_color": "#2E86AB"}},
+            {
+                "type": "text",
+                "text": {"text": "业务进程", "font_size": 14, "text_color": "#FFFFFF"},
+            },
+            {
+                "type": "text",
+                "text": {"text": "crash_handler", "font_size": 13, "text_color": "#FFFFFF"},
+            },
+        ]
+    }
+    tmp = Path(tempfile.mkdtemp()) / "board.json"
+    tmp.write_text(json.dumps(raw), encoding="utf-8")
+    subprocess.check_call(
+        [sys.executable, str(PIPELINE), "patch-board", str(tmp)],
+        stdout=subprocess.DEVNULL,
+    )
+    d = json.loads(tmp.read_text(encoding="utf-8"))
+    fills = [n["style"]["fill_color"].upper() for n in d["nodes"] if n.get("style")]
+    assert "#0D2433" not in fills
+    assert "#DBEAFE" in fills
+    assert "#2E86AB" in fills
+    texts = {n["text"]["text"]: n["text"] for n in d["nodes"] if n.get("type") == "text"}
+    assert texts["业务进程"]["text_color"].upper() == "#1F2329"
+    assert texts["crash_handler"]["text_color"].upper() == "#FFFFFF"
+
+
 def test_audit_ok_on_real_table():
     good = (
         '<title>x</title><h1 seq="auto">排除项</h1>'
@@ -154,6 +205,8 @@ if __name__ == "__main__":
         test_nested_backticks_in_link_no_nul,
         test_audit_flags_escaped_html_table,
         test_audit_ok_on_real_table,
+        test_dark_swimlane_svg_lightened_for_feishu,
+        test_patch_board_lightens_swimlane_raw,
     ]:
         try:
             fn()

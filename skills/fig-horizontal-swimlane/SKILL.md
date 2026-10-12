@@ -20,6 +20,7 @@ description: >-
 **软件栈默认：应用层在上、硬件层在下。** 下发（调用）同列向下，上报（中断/完成）同列向上。
 
 整个底色使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
+**转成飞书画板时不要原样贴深底**：白底画板走 `markdown-to-feishu-doc` 的浅色映射（浅道带 + 饱和节点 + 深色左栏字），Markdown 源图保持本表深色。
 
 不确定是不是这种图 → 先读 `diagram-style-catalog`。
 交卷：写入目标 `.md` 的**内联 SVG**（开标签同一行、内部无空行；对照 `01.object-graph-and-lifetime.md`）。禁止用 Mermaid `flowchart` / `gantt` / `sequenceDiagram` 硬凑。禁止改 PNG / `![](图)` 迁就预览。
@@ -189,6 +190,7 @@ description: >-
 5. `marker id` 按文档唯一，避免同页多图箭头错绑。
 6. 泳道本体放在 `translate(0,40)` 里，`viewBox` 高度 = 泳道高 + 40。
 7. `<svg>` 到 `</svg>` **之间禁止空行**（CommonMark 截断 HTML，节点变源码）。分组用 `<!-- -->`。开标签同一行。交卷跑 `audit_mermaid.py`（`svg-blank` / `svg-open-split` / `swimlane-png`）。
+8. 用户要飞书画板：深色源 SVG 只给 MD 预览；导入/修已有画板用 `markdown-to-feishu-doc`（浅色化）。禁止为迁就飞书改掉 `.md` 里的暗色图。
 
 ## 工作流
 
