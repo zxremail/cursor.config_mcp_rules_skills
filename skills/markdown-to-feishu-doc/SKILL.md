@@ -107,7 +107,7 @@ lark-cli whiteboard +update --as user --whiteboard-token <token> \
   --input_format raw --source "@./_feishu_out/boardN.json" --overwrite
 ```
 
-`patch-board` 做：去掉 `<b>`/`<small>`/`<br/>` 且主题/注解仍两段（bold + 11px）；`section` `#F3F4F6`；深色 subgraph **和深色水平泳道带**改浅底（蓝 `#DBEAFE`、绿 `#D1FAE5`、紫 `#EDE9FE`、橙 `#FFEDD5`）；叶子/节点饱和填色 + 白字；14/16px 左栏与图内标题白字改 `#1F2329`。禁止给 `type=group` 写 `style`（否则 `group can not set style`）。不要手编 OpenAPI JSON。preview jpg 在 raw 写回后常是占位图，**不能**据此再 mermaid overwrite。已上云的深色泳道画板走本步 raw 写回，不要 SVG 导出再导回。
+`patch-board` 做：去掉 `<b>`/`<small>`/`<br/>` 且主题/注解仍两段（bold + 11px）；`section` `#F3F4F6`；深色 subgraph **和深色水平泳道带**改浅底（蓝 `#DBEAFE`、绿 `#D1FAE5`、紫 `#EDE9FE`、橙 `#FFEDD5`）；叶子/节点饱和填色 + 白字；14/16px 左栏与图内标题白字改 `#1F2329`。禁止给 `type=group` 写 `style`（否则 `group can not set style`）。`fit_overlay_text` 加宽被裁的 `text_shape`（框内注释放满节点宽，边标按字宽扩并抬到框顶上方），禁止缩小字号。不要手编 OpenAPI JSON。preview jpg 在 raw 写回后常是占位图，**不能**据此再 mermaid overwrite。已上云的深色泳道画板走本步 raw 写回，不要 SVG 导出再导回。
 
 ### Step 4c：画布斜体标题
 

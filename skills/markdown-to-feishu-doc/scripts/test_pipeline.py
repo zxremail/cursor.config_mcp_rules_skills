@@ -181,6 +181,57 @@ def test_patch_board_lightens_swimlane_raw():
     assert texts["crash_handler"]["text_color"].upper() == "#FFFFFF"
 
 
+
+
+def test_patch_board_widens_clipped_text():
+    raw = {
+        "nodes": [
+            {
+                "type": "composite_shape",
+                "x": 716,
+                "y": 62,
+                "width": 148,
+                "height": 56,
+                "style": {"fill_color": "#2E86AB"},
+            },
+            {
+                "type": "text_shape",
+                "x": 754,
+                "y": 91,
+                "width": 72,
+                "height": 16,
+                "text": {
+                    "text": "（logcat libc）",
+                    "font_size": 11,
+                    "text_color": "#FFFFFF",
+                },
+            },
+            {
+                "type": "text_shape",
+                "x": 666,
+                "y": 67,
+                "width": 55,
+                "height": 16,
+                "text": {
+                    "text": "交给 bionic",
+                    "font_size": 11,
+                    "text_color": "#06B6D4",
+                },
+            },
+        ]
+    }
+    tmp = Path(tempfile.mkdtemp()) / "board.json"
+    tmp.write_text(json.dumps(raw), encoding="utf-8")
+    subprocess.check_call(
+        [sys.executable, str(PIPELINE), "patch-board", str(tmp)],
+        stdout=subprocess.DEVNULL,
+    )
+    d = json.loads(tmp.read_text(encoding="utf-8"))
+    by = {n["text"]["text"]: n for n in d["nodes"] if n.get("type") == "text_shape"}
+    assert by["（logcat libc）"]["width"] >= 96, by["（logcat libc）"]["width"]
+    assert by["交给 bionic"]["width"] >= 70, by["交给 bionic"]["width"]
+
+
 def test_audit_ok_on_real_table():
     good = (
         '<title>x</title><h1 seq="auto">排除项</h1>'
@@ -207,6 +258,7 @@ if __name__ == "__main__":
         test_audit_ok_on_real_table,
         test_dark_swimlane_svg_lightened_for_feishu,
         test_patch_board_lightens_swimlane_raw,
+        test_patch_board_widens_clipped_text,
     ]:
         try:
             fn()

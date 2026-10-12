@@ -528,6 +528,74 @@ def set_text_color(tobj: dict, color: str) -> None:
             ts["text_color_type"] = 1
 
 
+def estimate_text_px(s: str, font_size: float) -> float:
+    w = 0.0
+    for ch in s:
+        if ch.isspace():
+            w += 0.4 * font_size
+        elif "\u4e00" <= ch <= "\u9fff" or ch in "（）·，、：；《》":
+            w += 1.12 * font_size
+        else:
+            w += 0.78 * font_size
+    return w
+
+
+def fit_overlay_text(nodes: list) -> None:
+    """加宽被裁切的 text_shape：框内注释放到节点宽，边标按字宽扩，不缩小字号。"""
+    boxes = [
+        n
+        for n in nodes
+        if n.get("type") == "composite_shape"
+        and 40 <= (n.get("height") or 0) <= 80
+        and (n.get("width") or 0) >= 80
+        and (n.get("style") or {}).get("fill_color", "").lower() in LEAF_FILL
+    ]
+    canvas = max(
+        (n.get("x", 0) + n.get("width", 0) for n in nodes if (n.get("width") or 0) > 400),
+        default=920,
+    )
+    for n in nodes:
+        if n.get("type") not in {"text_shape", "text"}:
+            continue
+        tobj = n.get("text") if isinstance(n.get("text"), dict) else {}
+        s = (tobj or {}).get("text") or ""
+        fs = float((tobj or {}).get("font_size") or 11)
+        if not s or fs >= 20:
+            continue
+        need = estimate_text_px(s, fs) + 22
+        x, y, w, h = n.get("x") or 0, n.get("y") or 0, n.get("width") or 0, n.get("height") or 0
+        cx, cy = x + w / 2, y + h / 2
+        parent = next(
+            (
+                b
+                for b in boxes
+                if b["x"] <= cx <= b["x"] + b["width"] and b["y"] <= cy <= b["y"] + b["height"]
+            ),
+            None,
+        )
+        if parent:
+            pw = parent["width"]
+            if need > pw - 4:
+                extra = need + 8 - pw
+                parent["x"] = parent["x"] - extra / 2
+                parent["width"] = pw + extra
+                pw = parent["width"]
+            new_w = min(max(need, w), pw - 4)
+            n["width"] = new_w
+            n["x"] = parent["x"] + (pw - new_w) / 2
+        else:
+            n["width"] = max(need, w)
+            n["x"] = cx - n["width"] / 2
+            if n["x"] + n["width"] > canvas:
+                n["x"] = canvas - n["width"]
+            if n["x"] < 0:
+                n["x"] = 0
+            # 同道水平边标不要塞进 44px 节点缝，抬到框顶上方
+            if fs <= 12 and x > 120 and 60 <= y <= 100:
+                n["y"] = 44
+        n["height"] = max(h, fs * 1.5)
+
+
 def patch_board(path: Path) -> None:
     data = json.loads(path.read_text(encoding="utf-8"))
     nodes = data.get("nodes") or []
@@ -572,6 +640,7 @@ def patch_board(path: Path) -> None:
             for x in o:
                 rec(x)
 
+    fit_overlay_text(nodes)
     rec(data)
     blob = json.dumps(data, ensure_ascii=False)
     path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
