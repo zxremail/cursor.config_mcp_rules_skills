@@ -27,6 +27,8 @@ description: >
 
 **不要用本 Skill：** 飞书云文档 → `feishu-doc-format` / `feishu-table-format-choice`。只给**表头**上浅紫字 → `markdown-export` §9（继续管道表 + span）。用户明确要**底色/背景**时不要套本 Skill 的「禁止底色」。
 
+Markdown 转飞书 → **REQUIRED:** `markdown-to-feishu-doc`。本 Skill 的 HTML `<table>` / `<font color>` 只为 MD 预览；`pipeline.py convert` 必须把它解析成飞书 `<table>`。飞书正文若出现字面量 `<table>`、`<th>`、`<font>`，是转换漏了，用 `block_replace` 修，不要当成「飞书不吃 HTML 表」放过。
+
 ## 步骤
 
 1. 定位 `.md`、表格（邻近标题或表头）、列名。多表时只改用户点名的那张。

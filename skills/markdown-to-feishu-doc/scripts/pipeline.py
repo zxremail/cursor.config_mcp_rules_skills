@@ -55,26 +55,68 @@ def strip_heading_num(text: str) -> str:
     return re.sub(r"^\d+(?:\.\d+)*\.?\s+", "", text).strip()
 
 
+FONT_TEXT_COLOR = {
+    "#5BE49B": "green",
+    "#FFB020": "orange",
+}
+FONT_UNWRAP = {"#C9A0FF"}
+PH_L, PH_R = "\uFFF0", "\uFFF1"
+
+
+def restore_ph(text: str, placeholders: list[str]) -> str:
+    pat = re.compile(re.escape(PH_L) + r"(\d+)" + re.escape(PH_R))
+    prev = None
+    while prev != text:
+        prev = text
+        text = pat.sub(lambda m: placeholders[int(m.group(1))], text)
+    return text
+
+
 def inline_md(text: str) -> str:
-    text = re.sub(r'<span\s+style="[^"]*">(.*?)</span>', r"\1", text, flags=re.S)
-    text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
-    placeholders = []
+    placeholders: list[str] = []
 
     def hold(s: str) -> str:
         placeholders.append(s)
-        return f"\x00{len(placeholders) - 1}\x00"
+        return f"{PH_L}{len(placeholders) - 1}{PH_R}"
 
-    text = re.sub(r"`([^`]+)`", lambda m: hold(f"<code>{xml_esc(m.group(1))}</code>"), text)
+    def font_repl(m: re.Match) -> str:
+        named = FONT_TEXT_COLOR.get(m.group(1).strip().upper())
+        inner = inline_md(m.group(2))
+        if m.group(1).strip().upper() in FONT_UNWRAP or named is None:
+            return inner
+        return hold(f'<span text-color="{named}">{inner}</span>')
+
+    text = re.sub(r'<span\s+style="[^"]*">(.*?)</span>', r"\1", text, flags=re.S)
+    text = re.sub(
+        r"""<font\s+color=["']([^"']+)["']>(.*?)</font>""",
+        font_repl,
+        text,
+        flags=re.S | re.I,
+    )
+    text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
+    text = re.sub(
+        r"<code>(.*?)</code>",
+        lambda m: hold(f"<code>{xml_esc(m.group(1))}</code>"),
+        text,
+        flags=re.S | re.I,
+    )
+    text = re.sub(
+        r"<b>(.*?)</b>",
+        lambda m: hold(f"<b>{xml_esc(m.group(1))}</b>"),
+        text,
+        flags=re.S | re.I,
+    )
     text = re.sub(r"\*\*(.+?)\*\*", lambda m: hold(f"<b>{xml_esc(m.group(1))}</b>"), text)
     text = re.sub(
         r"\[([^\]]+)\]\(([^)]+)\)",
         lambda m: hold(
-            f'<a href="{xml_esc(m.group(2))}">{xml_esc(strip_heading_num(m.group(1)))}</a>'
+            f'<a href="{xml_esc(m.group(2))}">{inline_md(strip_heading_num(m.group(1)))}</a>'
         ),
         text,
     )
+    text = re.sub(r"`([^`]+)`", lambda m: hold(f"<code>{xml_esc(m.group(1))}</code>"), text)
     text = xml_esc(text)
-    text = re.sub(r"\x00(\d+)\x00", lambda m: placeholders[int(m.group(1))], text)
+    text = restore_ph(text, placeholders)
     return text.replace("\n", "<br/>")
 
 
@@ -126,6 +168,36 @@ def parse_table(lines: list[str], i: int) -> tuple[str, int]:
     return table_xml(rows), i
 
 
+def take_until(lines: list[str], i: int, end_re: str) -> tuple[str, int]:
+    buf = [lines[i]]
+    i += 1
+    while i < len(lines) and not re.search(end_re, buf[-1], re.I):
+        buf.append(lines[i])
+        i += 1
+    if i < len(lines) and not re.search(end_re, buf[-1], re.I):
+        buf.append(lines[i])
+        i += 1
+    return "\n".join(buf), i
+
+
+def parse_html_table(lines: list[str], i: int) -> tuple[str, int]:
+    html, i = take_until(lines, i, r"</table>")
+    rows = []
+    for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", html, flags=re.S | re.I):
+        cells = re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, flags=re.S | re.I)
+        rows.append([re.sub(r"\s+", " ", c).strip() for c in cells])
+    return table_xml(rows), i
+
+
+def parse_svg(lines: list[str], i: int, out_dir: Path, svg_n: list[int]) -> tuple[str, int]:
+    html, i = take_until(lines, i, r"</svg>")
+    n = svg_n[0]
+    (out_dir / f"fig{n}.svg").write_text(html, encoding="utf-8")
+    svg_n[0] += 1
+    rel = f"@./{out_dir.name}/fig{n}.svg"
+    return f'<whiteboard type="svg" path="{xml_esc(rel)}"></whiteboard>', i
+
+
 def fence_caption(lang: str, heading: str, code: str) -> str:
     theme = strip_heading_num(heading) or ""
     first = ""
@@ -167,6 +239,7 @@ def convert(md_path: Path, out_dir: Path) -> dict:
     mermaid_dir.mkdir(exist_ok=True)
     titles = []
     mermaid_n = [0]
+    svg_n = [0]
     heading = "文档"
 
     def take_mermaid(m):
@@ -209,6 +282,19 @@ def convert(md_path: Path, out_dir: Path) -> dict:
             text_h = strip_heading_num(rest)
             level = min(len(hashes) - 1, 6)  # ## → h1, ### → h2
             chunks.append(f'<h{level} seq="auto">{xml_esc(text_h)}</h{level}>')
+            i += 1
+            continue
+        if re.match(r"^\s*<table\b", line, re.I):
+            flush_list()
+            tbl, i = parse_html_table(lines, i)
+            chunks.append(tbl)
+            continue
+        if re.match(r"^\s*<svg\b", line, re.I):
+            flush_list()
+            wb, i = parse_svg(lines, i, out_dir, svg_n)
+            chunks.append(wb)
+            continue
+        if re.match(r"^\s*</?p\b[^>]*>\s*$", line, re.I):
             i += 1
             continue
         if line.startswith("|") and i + 1 < len(lines) and re.match(r"^\|?\s*:?-+:?", lines[i + 1]):
@@ -324,6 +410,10 @@ def audit_xml(path: Path) -> None:
             unstyled += 1
     if unstyled:
         issues.append(f"{unstyled}/{len(tables)} 张表缺浅紫表头或浅蓝首列")
+    if "&lt;table" in content or "&lt;thead" in content or "&lt;svg" in content:
+        issues.append("HTML 表或 SVG 被转义成源码，应分别为 table / whiteboard")
+    if "\x00" in content:
+        issues.append("XML 含 NUL，飞书会截断正文")
     wbs = re.findall(r"<whiteboard[^>]*>", content)
     tokens = re.findall(r'token="([^"]+)"', "".join(wbs))
     print(

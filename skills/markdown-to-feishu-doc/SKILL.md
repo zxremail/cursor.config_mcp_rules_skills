@@ -3,7 +3,10 @@ name: markdown-to-feishu-doc
 description: >
   Use when converting a local Markdown/md file to a Feishu/Lark Docx or Wiki,
   or when the user says markdown 转飞书, md 转飞书文档, 把 md 导入飞书,
-  代码块标题, caption, 画板标题, 画板斜体, 字面量 HTML, small 标签未渲染.
+  代码块标题, caption, 画板标题, 画板斜体, 字面量 HTML, small 标签未渲染,
+  HTML table 变成源码, 飞书里出现 &lt;table&gt; / &lt;thead&gt; / &lt;svg&gt;,
+  coloring-markdown-table-column 的 HTML 表, 内嵌 SVG 变成标签文字,
+  文档正文被截断、XML 含 NUL.
   Also use when a previous Markdown 导入 left default「代码块」captions, missing
   seq=auto headings, unstyled tables, or when tempted to docs +update overwrite
   a document that already has whiteboards.
@@ -32,6 +35,7 @@ description: >
 | Mermaid 带 `%%{init: theme dark}` | 脚本已剥掉；否则飞书报 `Unsupported color format: "2D3436"` |
 | `whiteboard +update --yes`、`@/tmp/...` | 无 `--yes`；`@file` 必须是 cwd 相对路径 |
 | 正则把 `<thead>` 当成 `<th` | 表样式只由脚本写，勿手写 `<th[^>]*>` |
+| HTML `<table>` / `<svg>` 逐行 `xml_esc` 进 `<p>` | `pipeline.py convert` 解析成飞书 `<table>` / `whiteboard`；已导入的用 `block_replace` |
 
 ## 执行流程
 
@@ -57,6 +61,8 @@ python3 ~/.cursor/skills/markdown-to-feishu-doc/scripts/pipeline.py convert \
 stdout / `manifest.json` 含 `title`、`mermaid_count`、`titles`。缺少 YAML `title:` 时脚本用最近小节凑标题；不对就只改正文 `titleN.txt`，不要为改一个标题去 Read 整份 XML。
 
 非 Mermaid 围栏会写成带实际含义 `caption` 的 `<pre>`（`{主题} {体裁}`：函数声明 / 调用示例 / 命令行示例 / 配置示例）。禁止 caption 为「代码块」「示例」「c」。
+
+源 md 里 **`coloring-markdown-table-column` 的 HTML `<table>`**（含 `<font color>` 的是/否列）必须变成飞书 `<table>`（浅紫表头、浅蓝首列、`span text-color`），禁止 `&lt;table&gt;` 段落。内嵌 `<svg>...</svg>` 写成 `figN.svg` + `<whiteboard type="svg" path="@./_feishu_out/figN.svg">`。`audit-xml` 若报「被转义成源码」或 NUL，先修 XML 再 create；已上云且有画板则只 `block_replace` 那一段。
 
 ### Step 3：创建
 
@@ -136,7 +142,9 @@ python3 ~/.cursor/skills/markdown-to-feishu-doc/scripts/pipeline.py audit-board 
   ./_feishu_out/vN.json
 ```
 
-`audit-xml` 必须 `ok: true`：标题 `seq=auto`、无手写序号、无标题 `<code>`、表头/首列色、pre caption、白板数量 = mermaid 张数。`audit-board`：无 `<small>`/`<b>`/`<br`，有斜体标题。缺一张白板用 `block_insert_after` 插 `<whiteboard type="blank">`，再走 Step 4–4c，**不要 overwrite 整篇**。
+`audit-xml` 必须 `ok: true`：标题 `seq=auto`、无手写序号、无标题 `<code>`、表头/首列色、pre caption、无 `&lt;table`/`&lt;svg`、无 NUL、白板数量 ≥ mermaid 张数（另加内嵌 SVG）。`audit-board`：无 `<small>`/`<b>`/`<br`，有斜体标题。缺一张白板用 `block_insert_after` 插 `<whiteboard type="blank">`，再走 Step 4–4c，**不要 overwrite 整篇**。
+
+用户截图若满屏 `<table>` / `<th>` / `<font>`：那是 HTML 表没解析。对已有画板的文档用 `block_replace` 换成真正 `<table>`，禁止 overwrite。
 
 通过后删 `_feishu_out`，把 `document.url` 给用户。
 
@@ -154,10 +162,12 @@ python3 ~/.cursor/skills/markdown-to-feishu-doc/scripts/pipeline.py audit-board 
 | 放到某文件夹/知识库 | Step 3 `--parent-token` |
 | md 转飞书不用画板 | 仍 XML create（表色/caption）；Mermaid 若存在仍须画板 |
 | 已有文档缺表色/序号 | `block_replace` 目标表或标题；禁止 overwrite |
+| 飞书里表格变成 HTML 源码 | `block_replace` 成真正 `<table>`；带画板禁止 overwrite |
 
 ## 格式验收（与 feishu-doc-format 相同，不打折）
 
 - 章 `<h1 seq="auto">`、节 `<h2 seq="auto">`，正文标题不从 `<h2>` 起篇
 - 表头 `rgb(236,226,254)` 居中加粗；首列 `rgb(225,234,255)` 加粗且无 `<code>`
+- 正文没有字面量 `&lt;table&gt;` / `&lt;thead&gt;` / `&lt;svg&gt;`
 - 每个 `<pre>` 有实际含义 caption
 - 每个画板画布顶部斜体标题；节点无字面量 HTML；section 浅底、叶子深彩色白字
