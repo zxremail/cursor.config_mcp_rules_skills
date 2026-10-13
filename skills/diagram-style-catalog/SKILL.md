@@ -25,7 +25,7 @@ description: >-
 
 已点名或已有对照图：跳过菜单，命中即停。
 
-**生成 / 增补 markdown 且准备画「流程图」：** 不要 AskQuestion、不要把口头「流程图」当成已点名 `flowchart`。每一张流程类图先 Read `mermaid-flowchart-layout` 的 `references/choose-diagram.md`，按结果走水平泳道 / `sequenceDiagram` / `flowchart`。
+**生成 / 增补 markdown 且准备画「流程图」：** 图表用 Mermaid。不要 AskQuestion、不要把口头「流程图」当成已点名 `flowchart`。每一张流程类图先 Read `mermaid-flowchart-layout` 的 `references/choose-diagram.md`。如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。
 
 ## 1. 选视觉语言
 
@@ -68,7 +68,7 @@ description: >-
 | 「分层协作总图」= 职责+时序+GPIO 一张 flowchart | 先定**一个问题**；混装走 `mermaid-flowchart-layout` §3.0，禁止塞进同一张 |
 | 用户说「流程图」= 必须 `flowchart` | 生成 md 时过 `choose-diagram.md`；跨层交接 → 水平泳道，消息往返 → 垂直泳道 |
 | 垂直泳道 = `subgraph` 每列一个角色 | 带框竖链不是泳道；垂直向用 `sequenceDiagram` |
-| `markdown-export` 写了必须 Mermaid = 不能水平泳道 | 水平泳道固定内联 SVG，那是图种门例外 |
+| 「所有图必须用 Mermaid」= 不能泳道 | 先判断；泳道比流程图更合适也可以用泳道。水平泳道交卷是内联 SVG |
 
 ## 2. 选媒介（交卷）
 

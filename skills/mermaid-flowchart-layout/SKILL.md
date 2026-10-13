@@ -24,7 +24,7 @@ description: >-
 
 # Mermaid 流程图排版与架构图连线
 
-不确定图种 → `diagram-style-catalog`。准备写 `flowchart` / 用户说「流程图」→ 先过 [references/choose-diagram.md](references/choose-diagram.md)（水平泳道 / 垂直泳道 / flowchart）。
+不确定图种 → `diagram-style-catalog`。图表用 Mermaid。准备写 `flowchart` / 用户说「流程图」→ 先过 [references/choose-diagram.md](references/choose-diagram.md)。如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。
 
 **格式不准降级。** 完整做法、合格/反例、图例方案 D 以 [references/layout.md](references/layout.md) 为准（原 §0–§12 全文）。
 
@@ -32,7 +32,7 @@ description: >-
 
 ## 执行顺序（先 Read，再画围栏）
 
-**图种门（先于 layout.md）：** 每张将写的流程类图（含用户口头「流程图」），先 `Read` [references/choose-diagram.md](references/choose-diagram.md)。命中水平泳道 → 停本页，走 `fig-horizontal-swimlane`。命中垂直泳道 → `sequenceDiagram`，不要 `flowchart`。未过门就写 `flowchart` = 违规。不要 AskQuestion。
+**图种门（先于 layout.md）：** 图表用 Mermaid。每张将写的流程类图（含用户口头「流程图」），先 `Read` [references/choose-diagram.md](references/choose-diagram.md)。如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。判断后：水平泳道 → 停本页，走 `fig-horizontal-swimlane`；垂直泳道 → `sequenceDiagram`。未判断就写 `flowchart` 或未判断就改泳道 = 违规。不要 AskQuestion。
 
 本页其余是排版清单。已定为 flowchart 或 `sequenceDiagram` 后，出现下列**任一**可观察条件，必须先 `Read` [references/layout.md](references/layout.md) **全文**，再写 ` ```mermaid `：
 
@@ -52,7 +52,7 @@ description: >-
 | 「本页已有 TB/LR 和色表」 | 合格/反例和方案 D 只在 layout.md |
 | 「先画结构，细则以后对照」 | 和「先无色占位」同类；Read 在围栏之前 |
 | 「audit 过了」 | 脚本不检查一图一问、同列下落、方案 D、时序图 Note |
-| 「用户说流程图 / 先 flowchart 占位」 | 先 Read choose-diagram.md；命中泳道就不要写 flowchart |
+| 「用户说流程图 / 必须 Mermaid 所以不能泳道」 | 先 Read choose-diagram.md；泳道更合适也可以用泳道 |
 
 红旗：将写第二个 `subgraph` 或 `LEG["图例"]` 或 `<small>` 或 `sequenceDiagram`，却还没打开 layout.md。停下来先 Read。将写 `flowchart` 却还没过图种门，同样停。
 

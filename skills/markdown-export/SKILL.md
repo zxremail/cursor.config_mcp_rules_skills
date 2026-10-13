@@ -33,7 +33,7 @@ description: >-
 
 1. **要写或改中文句子 / 列表 / 表格**（含格内）：先 `Read` [references/prose.md](references/prose.md)，再 Write。  
    可跳过的唯一可观察条件：本次交付**零**中文句子（纯英文或纯代码）。
-2. **准备画任何流程图**（含用户说「流程图」）：先走 `mermaid-flowchart-layout` 的 **图种门**（`references/choose-diagram.md`），不要默认 `flowchart`。过门后：flowchart 排版走该 skill（其条件决定是否 Read layout.md）；`sequenceDiagram` 必读 layout.md **§4.1–§4.2**；水平泳道走 `fig-horizontal-swimlane`（内联 SVG，不受「图表必须 Mermaid」约束）。
+2. **图表用 Mermaid。** 准备画流程图（含用户说「流程图」）时先走 `mermaid-flowchart-layout` 的 **图种门**（`references/choose-diagram.md`）。如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。过门后：flowchart 排版走该 skill；垂直泳道写 `sequenceDiagram`（必读 layout.md **§4.1–§4.2**）；水平泳道走 `fig-horizontal-swimlane`。
 3. 落盘后跑 `audit_mermaid.py`（验收**英文文件名**、图、表头、图例色名、内联 SVG 空行，**代替不了** prose.md）。
 4. 图下用「蓝 / 绿 / 紫 / 橙」指节点底色时，色名字色必须等于该图 `classDef` `fill`（[export.md](references/export.md) **§10**）。同类图例自动套。
 
@@ -92,7 +92,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 
 ## 3. 图表语法（格式）
 
-- 默认 Mermaid；准备写 `flowchart` 时先过图种门（export.md §2–§3）。`</table>` 与 `` ```mermaid `` 之间必须空一行。`.md` 内联 `<svg>` 内部禁止空行、开标签必须同一行；水平泳道禁止改 PNG 引用。见 export.md §3、`svg-blank` / `svg-open-split` / `swimlane-png`。
+- 所有图表用 Mermaid。准备写 `flowchart` 时先判断（export.md §2–§3）：如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。`</table>` 与 `` ```mermaid `` 之间必须空一行。`.md` 内联 `<svg>` 内部禁止空行、开标签必须同一行；水平泳道禁止改 PNG 引用。见 export.md §3、`svg-blank` / `svg-open-split` / `swimlane-png`。
 - 每个围栏开头 YAML `title`（最近小节 + 图意，短句无句号），然后 `%%{init}`。禁止「流程图」「如图」「示意图」。围栏外不要再写一行标题。`sequenceDiagram` 只用 YAML `title`，不要再写 `title xxx`。
 - **每张图**同时：`%%{init: {'theme': 'dark'}}%%` **加上**每个可见节点 `style`/`classDef`（深彩色 `fill` + `color:#FFFFFF`）。只写 `theme: dark` = 未完成。对话里的图同样适用。
 - 换行用 `<br>`，禁止 `\n`。文字必须完整露出；flowchart 排法见 layout skill。
