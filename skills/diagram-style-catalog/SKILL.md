@@ -44,6 +44,7 @@ description: >-
 | 人员泳道、人力胶囊、Git 式分支合入、底栏星星 | `task-assignment-timeline` |
 | 左栏角色/模块、横向分道、同列下落、时间从左到右；BPMN 截图式样；生成 md 时跨层作业交接 | `fig-horizontal-swimlane` |
 | 顶栏角色、纵向分道、步骤落在列里、同行左右交接、时间从上到下；BPMN 垂直泳道 | `fig-vertical-swimlane` |
+| 流程图太长一屏显示不全、两张竖卡并排、左栏底直角折到右栏顶 | `fig-side-by-side-flowcards` |
 | 贴顶生命线、消息往返、ioctl/MSI 请求返回、sequenceDiagram | Markdown 源 `sequenceDiagram`；HTML → `html-sequence-swimlane` |
 
 ### 转换（已有图改格式，不是新构图）
@@ -72,6 +73,8 @@ description: >-
 | 用户说「流程图」= 必须 `flowchart` | 生成 md 时过 `choose-diagram.md`；作业交接 → 水平/垂直泳道 SVG，消息往返 → 时序图 |
 | 垂直泳道 = `subgraph` 每列一个角色 | 带框竖链不是泳道；列内步骤框走 `fig-vertical-swimlane` |
 | 「所有图必须用 Mermaid」= 不能泳道 | 先判断；泳道比流程图更合适也可以用泳道。水平/垂直泳道交卷都是内联 SVG |
+| 两张 mermaid 并排 + 夹缝箭头 = 并排竖卡 | 跨图连不了；等高竖卡 + 左底接右顶 → `fig-side-by-side-flowcards` 一张 SVG |
+| 并排竖卡 = 垂直泳道 | 竖卡是流程图折列，没有「谁的道」 |
 
 ## 2. 选媒介（交卷）
 
@@ -92,6 +95,7 @@ description: >-
 | 深色分层卡片 / HTML 时序 / 阶段路线图 / 人员分工表 | `markdown-to-html` sidecar |
 | 左栏水平泳道 | 目标 `.md` 内联 SVG（`fig-horizontal-swimlane`） |
 | 顶栏垂直泳道 | 目标 `.md` 内联 SVG（`fig-vertical-swimlane`） |
+| 并排竖卡流程图 | 目标 `.md` 内联 SVG（`fig-side-by-side-flowcards`） |
 | 浅色分层彩色卡片墙 | 飞书画板（`lark-whiteboard`） |
 | 分层卡片 → draw.io / 时序 → draw.io | 本地 `.drawio` |
 | 内化成 Skill | §3，不构图 |
@@ -119,6 +123,7 @@ description: >-
 - 「按浅色分层彩色卡片墙画」「走 `fig-tinted-layer-cards`」
 - 「按水平泳道图画」「走 `fig-horizontal-swimlane`」
 - 「按垂直泳道图画」「走 `fig-vertical-swimlane`」
+- 「按并排竖卡流程图画」「走 `fig-side-by-side-flowcards`」
 - 「对照这张图内化成 Skill，先查目录有没有同类」
 - 只说「画个架构图」→ 先出一轮菜单 + §5 大纲，不要直接画 Mermaid
 
@@ -192,6 +197,15 @@ subgraph / 层（上→下）：
 轨名：横轨≥2 则最长横段写 上轨·/中轨·/下轨·短名；各轨不同色
 顶栏色条：写归属；整句亮色
 图前读法：几何 / 轨名 / 色条 / 线型各一段
+.md 路径：
+```
+
+**并排竖卡流程图**
+```
+标题：
+左卡（先发生，上→下）：
+右卡（后发生，上→下）：
+跨卡：左最后一框右边 → 直角折线 → 右第一框左边
 .md 路径：
 ```
 

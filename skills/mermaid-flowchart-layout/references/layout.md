@@ -262,7 +262,7 @@ linkStyle N opacity:0,stroke-width:0px
 
 ## 2. 单行节点链过长时换行
 
-节点超过 **4–5 个** 且横向溢出时，拆链或子图内 `direction LR` 折行：
+节点超过 **4–5 个** 且横向溢出时，拆链或子图内 `direction LR` 折行。竖链一屏显示不全、要左右两张竖卡并从左底接到右顶 → `fig-side-by-side-flowcards`（不要两张 mermaid 夹缝连线）：
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%

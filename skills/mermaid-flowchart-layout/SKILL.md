@@ -91,7 +91,7 @@ linkStyle N opacity:0,stroke-width:0px
 
 ## 2. 长链
 
-超过 4–5 个横向节点：拆链或改 `TB`。
+超过 4–5 个横向节点：拆链或改 `TB`。竖链一屏显示不全、要并排竖卡且左底接到右顶 → 停本页，走 `fig-side-by-side-flowcards`。
 
 ## 3. 跨域架构（格式）
 
