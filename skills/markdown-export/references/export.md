@@ -81,18 +81,16 @@ description: >-
 - 内容必须**详实丰富，不厌其烦**，深入展开每个知识点。
 - 中文正文必须按 **§6.2 落笔即断句**、**§6.3 落笔即写清语义**、**§6.3.1 不写万能口语动词**、**§6.3.2 专名用「」**、**§6.4 表格先看列义再写格**。首次生成和增补时就把停顿和「谁对谁做什么」写清楚；禁止先写黏连、指代含糊的长句，等人事后补。不要用「打 / 摸 / 直捅」当万能动词。中文专名用直角引号「」，不用英文 “」。表格格内禁止用分号硬挤并列项。分类/是否/状态列用短标签，需要时用括号补几字细节，不要硬写成主谓宾。
 - 管道表表头必须按 **§9** 给文字上色（`#C9A0FF` span）；不要为此改成 HTML `<table>`。
-- 图是为了把结构、流程、关系讲清楚。适用时用 Mermaid 画，类型按内容选，例如：
-  - 流程图（Flowchart）
-  - 关系图（Class Diagram / ER Diagram）
-  - 时序图（Sequence Diagram）
-  - 框图（Block Diagram）
-  - 状态图（State Diagram）
-  - 甘特图（Gantt Chart，适用时）
+- 图是为了把结构、流程、关系讲清楚。类型按内容选，**不要默认 flowchart**。准备画「流程图」时先 Read `mermaid-flowchart-layout` 的 `references/choose-diagram.md`：
+  - 跨层作业交接、读者先看谁的道 → 水平泳道（内联 SVG，`fig-horizontal-swimlane`）
+  - 角色间消息往返、时间从上到下 → 垂直泳道（`sequenceDiagram`）
+  - 单主体阶段链、职责/结构、决策网 → 流程图（Flowchart）
+  - 关系图（Class Diagram / ER Diagram）、框图、状态图、甘特图：仅当内容真是那种结构
 - **不要**为凑类型而每种图都画一张；没有对应结构就不要硬画。
 
 ## 3. 图表语法 <a id="3-图表语法"></a> <a href="#toc-pos-3-图表语法" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
-- 所有图表必须使用 **Mermaid** 语法绘制。
+- 默认使用 **Mermaid**。**例外：** 图种门命中水平泳道时必须内联 SVG（`fig-horizontal-swimlane`），本条的「必须 Mermaid」不适用。准备写 `flowchart` 或用户说「流程图」时，先 Read `mermaid-flowchart-layout` 的 `references/choose-diagram.md`；命中垂直泳道则写 `sequenceDiagram`，不要 `flowchart`。
 - **HTML 块后面必须空一行再写围栏。** `<table>…</table>`（以及其它 HTML 块）会吃到空行为止；`</table>` 紧挨 `` ```mermaid `` 时，预览把图源当原文吐出（乱码、`{data-source-line=`）。管道表改成 HTML 上色时见 `coloring-markdown-table-column`。
 - **`.md` 内联 `<svg>…</svg>` 内部禁止空行。** CommonMark 把 HTML 块吃到空行为止；SVG 里一空行，后面的 `<rect>` / `<text>` 当正文吐出（色带还在、节点变源码）。分组用注释 `<!-- -->`，不要空行。`</svg>` 之后可以空行。`audit_mermaid.py` 的 `svg-blank` 扫这一条。
 - **内联 `<svg>` 开标签必须同一行写完**（`xmlns` / `viewBox` / `style` 不要折行）。对照合格写法：知识库里 `01.object-graph-and-lifetime.md` 的泳道。`svg-open-split` 扫这一条。

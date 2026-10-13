@@ -4,6 +4,7 @@ description: >-
   Mermaid flowchart 排版与架构图连线优化：多 subgraph 分行、跨域连线避免穿插、
   语义配色 linkStyle、箭头说明文字、小图不要拉满栏宽、小图不要独立图例、
   排版占位线必须隐形（禁止裸 ~~~ 幽灵线）。
+  准备画流程图、用户说流程图、判断是否改成水平泳道或垂直泳道、多角色交接、谁持球、
   在生成或编辑含多个 subgraph、跨层架构图、协作关系图、分层协作总图、图例/连线颜色/线型、
   或用户抱怨「连线乱/交叉」「太杂太乱」「一堆关系塞进一个图」
   「职责和时序画在同一张」「图太大/空白太多」「小图底下多余图例」
@@ -23,15 +24,17 @@ description: >-
 
 # Mermaid 流程图排版与架构图连线
 
-不确定图种 → `diagram-style-catalog`。
+不确定图种 → `diagram-style-catalog`。准备写 `flowchart` / 用户说「流程图」→ 先过 [references/choose-diagram.md](references/choose-diagram.md)（水平泳道 / 垂直泳道 / flowchart）。
 
 **格式不准降级。** 完整做法、合格/反例、图例方案 D 以 [references/layout.md](references/layout.md) 为准（原 §0–§12 全文）。
 
-用户要加/改本 skill 硬格式（写进 Skill、以后画图都要…）：**不要只改本页。** 可扫描的（`theme: dark`、节点 `fill`、浅色 fill、表头色、`useMaxWidth`、禁止字面量标题）→ `layout.md` 一条 + **`markdown-export` 的 `audit_mermaid.py` + 其单测**（本 skill 与它共用验收脚本）；本页只加清单一行。不能扫的排版（一图一问、同列下落、方案 D 间距、文字露出）→ 只进 `layout.md`，出现条件时 Read，不要假装 audit 能验。禁止只改 SKILL 散文导致旧 audit 误拦或放行。
+用户要加/改本 skill 硬格式（写进 Skill、以后画图都要…）：**不要只改本页。** 可扫描的（`theme: dark`、节点 `fill`、浅色 fill、表头色、`useMaxWidth`、禁止字面量标题）→ `layout.md` 一条 + **`markdown-export` 的 `audit_mermaid.py` + 其单测**（本 skill 与它共用验收脚本）；本页只加清单一行。不能扫的排版（一图一问、同列下落、方案 D 间距、文字露出）→ 只进 `layout.md`，出现条件时 Read，不要假装 audit 能验。图种判定（flowchart vs 泳道）→ [choose-diagram.md](references/choose-diagram.md)，不要进 audit。禁止只改 SKILL 散文导致旧 audit 误拦或放行。
 
 ## 执行顺序（先 Read，再画围栏）
 
-本页是清单。出现下列**任一**可观察条件，必须先 `Read` [references/layout.md](references/layout.md) **全文**，再写 ` ```mermaid `：
+**图种门（先于 layout.md）：** 每张将写的流程类图（含用户口头「流程图」），先 `Read` [references/choose-diagram.md](references/choose-diagram.md)。命中水平泳道 → 停本页，走 `fig-horizontal-swimlane`。命中垂直泳道 → `sequenceDiagram`，不要 `flowchart`。未过门就写 `flowchart` = 违规。不要 AskQuestion。
+
+本页其余是排版清单。已定为 flowchart 或 `sequenceDiagram` 后，出现下列**任一**可观察条件，必须先 `Read` [references/layout.md](references/layout.md) **全文**，再写 ` ```mermaid `：
 
 - 围栏里将出现 **2 个及以上** `subgraph`，或嵌套 subgraph
 - 架构 / 分层协作 / 跨列 / 主通路小图
@@ -49,8 +52,9 @@ description: >-
 | 「本页已有 TB/LR 和色表」 | 合格/反例和方案 D 只在 layout.md |
 | 「先画结构，细则以后对照」 | 和「先无色占位」同类；Read 在围栏之前 |
 | 「audit 过了」 | 脚本不检查一图一问、同列下落、方案 D、时序图 Note |
+| 「用户说流程图 / 先 flowchart 占位」 | 先 Read choose-diagram.md；命中泳道就不要写 flowchart |
 
-红旗：将写第二个 `subgraph` 或 `LEG["图例"]` 或 `<small>` 或 `sequenceDiagram`，却还没打开 layout.md。停下来先 Read。
+红旗：将写第二个 `subgraph` 或 `LEG["图例"]` 或 `<small>` 或 `sequenceDiagram`，却还没打开 layout.md。停下来先 Read。将写 `flowchart` 却还没过图种门，同样停。
 
 配色条文见 **`markdown-export`** §5（完整 [export.md](../markdown-export/references/export.md)）。图下用「蓝 / 绿 / 紫 / 橙」指节点底色时走该 skill **§10**。交付前：
 

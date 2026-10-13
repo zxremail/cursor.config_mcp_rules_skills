@@ -12,6 +12,7 @@ description: >-
   或 SVG 内部空行、泳道只剩色带、节点变成源码、Markdown 截断 HTML；
   或预览空白、改 PNG、sidecar 图片引用、开标签折行；
   或应用要在上、硬件要在下、硬件画在顶上、泳道层序颠倒、上下颠倒泳道。
+  生成 markdown、用户说流程图但故事是多角色跨层交接、谁持球、下发上报。
   不要用：贴顶角色栏时序、人员分工时间表、Mermaid flowchart subgraph 冒充泳道。
 ---
 
@@ -23,7 +24,7 @@ description: >-
 整个底色使用深彩色配色方案，以便适合在暗色主题环境中查看，同时保持良好的对比度和可读性。
 **转成飞书画板时不要原样贴深底**：白底画板走 `markdown-to-feishu-doc` 的浅色映射（浅道带 + 饱和节点 + 深色左栏字），Markdown 源图保持本表深色。
 
-不确定是不是这种图 → 先读 `diagram-style-catalog`。
+不确定是不是这种图 → 先读 `diagram-style-catalog`。从「画流程图」进来的 → 以 `mermaid-flowchart-layout` 的 `choose-diagram.md` 为准；命中本 skill 就不要再写 `flowchart`。
 交卷：写入目标 `.md` 的**内联 SVG**（开标签同一行、内部无空行；对照 `01.object-graph-and-lifetime.md`）。禁止用 Mermaid `flowchart` / `gantt` / `sequenceDiagram` 硬凑。禁止改 PNG / `![](图)` 迁就预览。
 
 ## 何时用 / 不用

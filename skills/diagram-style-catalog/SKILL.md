@@ -3,7 +3,7 @@ name: diagram-style-catalog
 description: >-
   Use when 用户要画架构图、分层图、流程图、时序图、路线图、胶囊图、
   泳道图、增加泳道图、给 md 加图、分工时间表，或说内化图样式、对照这张图画、这张图做成 skill、
-  图的样式目录、不确定该用哪种图、/draw；以及画成了错的那一种、
+  图的样式目录、不确定该用哪种图、准备画流程图、判断水平泳道还是垂直泳道、/draw；以及画成了错的那一种、
   新图该新建 skill 还是改旧 skill。不是具体画法。
 ---
 
@@ -25,6 +25,8 @@ description: >-
 
 已点名或已有对照图：跳过菜单，命中即停。
 
+**生成 / 增补 markdown 且准备画「流程图」：** 不要 AskQuestion、不要把口头「流程图」当成已点名 `flowchart`。每一张流程类图先 Read `mermaid-flowchart-layout` 的 `references/choose-diagram.md`，按结果走水平泳道 / `sequenceDiagram` / `flowchart`。
+
 ## 1. 选视觉语言
 
 按用户口头 / 截图指纹命中即停。对不上 → 问用户或走 §3 内化，不要猜。
@@ -40,7 +42,8 @@ description: >-
 | HTML 时序：贴顶彩色角色栏、生命线、橙色 Note；长时序「阶段 0 / 阶段 1」分隔带 | `html-sequence-swimlane` |
 | 左栏阶段 × 顶栏季度；里程碑横条、菱形节点 | `task-roadmap-timeline` |
 | 人员泳道、人力胶囊、Git 式分支合入、底栏星星 | `task-assignment-timeline` |
-| 左栏角色/模块、横向分道、同列下落、时间从左到右；BPMN 截图式样 | `fig-horizontal-swimlane` |
+| 左栏角色/模块、横向分道、同列下落、时间从左到右；BPMN 截图式样；生成 md 时跨层作业交接 | `fig-horizontal-swimlane` |
+| 垂直泳道、顶栏角色、时间向下、消息往返、ioctl/MSI 请求返回 | Markdown 源 `sequenceDiagram`（`mermaid-flowchart-layout`）；HTML → `html-sequence-swimlane` |
 
 ### 转换（已有图改格式，不是新构图）
 
@@ -63,6 +66,9 @@ description: >-
 | 水平泳道 = Mermaid subgraph 分层 | subgraph 是带框竖链，不是左栏格子 → `fig-horizontal-swimlane` |
 | 水平泳道 = 人员分工表 | 谁在哪条带做完一件交接 → `fig-horizontal-swimlane`；谁在哪周做哪块 → `task-assignment-timeline` |
 | 「分层协作总图」= 职责+时序+GPIO 一张 flowchart | 先定**一个问题**；混装走 `mermaid-flowchart-layout` §3.0，禁止塞进同一张 |
+| 用户说「流程图」= 必须 `flowchart` | 生成 md 时过 `choose-diagram.md`；跨层交接 → 水平泳道，消息往返 → 垂直泳道 |
+| 垂直泳道 = `subgraph` 每列一个角色 | 带框竖链不是泳道；垂直向用 `sequenceDiagram` |
+| `markdown-export` 写了必须 Mermaid = 不能水平泳道 | 水平泳道固定内联 SVG，那是图种门例外 |
 
 ## 2. 选媒介（交卷）
 
