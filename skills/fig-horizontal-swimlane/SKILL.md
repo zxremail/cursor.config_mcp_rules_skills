@@ -1,8 +1,8 @@
 ---
 name: fig-horizontal-swimlane
 description: >-
-  Use when 用户要画水平泳道图、增加泳道图、给 md 加泳道、整理文档里加泳道、
-  BPMN 泳道、左栏角色/模块 + 横向分道、
+  Use when 用户要画水平泳道图、给 md 加水平泳道、
+  BPMN 水平泳道、左栏角色/模块 + 横向分道、
   同列下落交接、时间从左到右；或对照「左栏角色名、横线分道、圆角框/起止椭圆」
   那张截图式样；或抱怨竖链只靠颜色区分模块、subgraph 泳道不够直观、
   线条乱、箭头交叉、折线挤在一起、排线不清、
@@ -12,7 +12,6 @@ description: >-
   或 SVG 内部空行、泳道只剩色带、节点变成源码、Markdown 截断 HTML；
   或预览空白、改 PNG、sidecar 图片引用、开标签折行；
   或应用要在上、硬件要在下、硬件画在顶上、泳道层序颠倒、上下颠倒泳道。
-  生成 markdown、用户说流程图但故事是多角色跨层交接、谁持球、下发上报。
   不要用：顶栏纵向分道步骤框（fig-vertical-swimlane）、贴顶角色栏时序、人员分工时间表、Mermaid flowchart subgraph 冒充泳道。
 ---
 

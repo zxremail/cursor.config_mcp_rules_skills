@@ -5,7 +5,7 @@ description: >-
   when drawing or editing Mermaid diagrams in .md; or when a chart looks
   light-themed, default-colored, washed-out, pale, or hard to read on a
   dark background. Triggers: 生成 markdown、写文档、导出 md、准备画流程图、
-  是否改成水平泳道、垂直泳道、不要默认 flowchart、Mermaid 配色、
+  流程图先判断是否改泳道、Mermaid 配色、
   深彩色、暗色主题、theme dark、浅色图、默认配色、文字被遮挡、显示不全、裁切、
   嵌套 subgraph 外框内框同色、套盒糊成一块、层框列框不易区分、
   整理文档、整理一份 md、分析报告、分析日志、写成 md、中文文件名、文件名带空格、

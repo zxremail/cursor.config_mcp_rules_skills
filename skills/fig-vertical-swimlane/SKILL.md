@@ -5,8 +5,7 @@ description: >-
   顶栏角色/模块 + 纵向分道、同行左右交接、时间从上到下；
   或对照「顶栏角色名、竖线分道、圆角步骤框」；
   或抱怨 sequenceDiagram 生命线不像作业步骤、flowchart 竖列 subgraph 冒充泳道、
-  角色在顶但框是消息不是步骤；
-  或生成 markdown、用户说流程图但故事是多角色作业、步骤往下读、谁持球。
+  角色在顶但框是消息不是步骤。
   不要用：左栏横向分道（fig-horizontal-swimlane）、贴顶生命线时序、
   人员分工时间表、Mermaid flowchart subgraph 冒充泳道。
 ---
