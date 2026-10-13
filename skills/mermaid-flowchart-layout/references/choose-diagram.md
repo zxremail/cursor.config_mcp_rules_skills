@@ -4,9 +4,9 @@
 如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。
 未判断就写 `flowchart`、或未判断就改泳道 = 违规。不要先占位 flowchart 再考虑换图种。
 不要为此对用户 AskQuestion（生成文档时自动判定）。
-用户**当场点名图种**（「就要 flowchart」「就要水平泳道」「就要时序图」）→ 以当场为准，不再改种。口头单独说「画流程图」**不算**点名 `flowchart`。
+用户**当场点名图种**（「就要 flowchart」「就要水平泳道」「就要垂直泳道」「就要时序图」）→ 以当场为准，不再改种。口头单独说「画流程图」**不算**点名 `flowchart`。
 
-本页只选视觉语言。水平泳道画法 → `fig-horizontal-swimlane`。时序围栏细则 → 同目录 `layout.md` §4.1–§4.2。HTML 贴顶时序 → `html-sequence-swimlane`。总目录 → `diagram-style-catalog`。
+本页只选视觉语言。水平 → `fig-horizontal-swimlane`。垂直（步骤框）→ `fig-vertical-swimlane`。消息生命线 → `sequenceDiagram`（HTML：`html-sequence-swimlane`）。总目录 → `diagram-style-catalog`。
 
 ## 配方（每张图画一次）
 
@@ -17,43 +17,48 @@
 3. **时间是第一轴**（先发生什么、再发生什么）？
 4. 主线是 **作业交接**（谁交给谁），不是职责墙 / 依赖网 / 决策网？
 
-然后只选一行：
+四句里 **＜3 句为是**（单主体阶段链、职责/结构、菱形决策网）→ **flowchart**，继续 `mermaid-flowchart-layout`。
 
-| 条件 | 写什么 |
-|------|--------|
-| 四句里 **≥3 句为是**，边是跨层步骤（下发 / 上报、同列对齐、同道推进） | **水平泳道**：停本 skill，Read 并走 `fig-horizontal-swimlane`（内联 SVG）。禁止 `flowchart` / `subgraph` 冒充 |
-| 四句里 **≥3 句为是**，边是角色间 **消息往返**（请求-返回、ioctl、中断回调） | **垂直泳道**：写 Mermaid `sequenceDiagram`（角色在顶、时间向下）。HTML 导出走 `html-sequence-swimlane`。禁止 `flowchart` 竖列 subgraph |
-| 其余（单主体阶段链、职责/结构、菱形决策网） | **flowchart**：继续本 skill 执行顺序（多 subgraph 再 Read `layout.md`） |
+四句里 **≥3 句为是** 再分边的形态：
 
-并列关系网 + 一条跨层作业：拆成两张，各过一次门。不要混装。
+| 边是什么 | 写什么 |
+|----------|--------|
+| 角色间 **消息往返**（请求-返回、生命线、ioctl 一来一回） | **时序图** `sequenceDiagram`。禁止当垂直泳道 SVG |
+| 跨层 **作业步骤**，且下发/上报是主故事、层少、下落=下发更直观 | **水平泳道** `fig-horizontal-swimlane` |
+| 跨层 **作业步骤**，且顺着文档往下读、角色作列、同行左右交接更清楚 | **垂直泳道** `fig-vertical-swimlane` |
+| 作业步骤，水平/垂直都说得通 | 软件栈下发上报 → 水平；否则 → 垂直。不要两张都画 |
 
-## 水平 vs 垂直
+并列关系网 + 一条跨层作业：拆成两张，各过一次门。不要混装。禁止用 `subgraph` 冒充任一泳道。
 
-| | 水平泳道 | 垂直泳道 |
-|--|----------|----------|
-| 角色 | 左栏 | 顶栏 |
-| 时间 | 左 → 右 | 上 → 下 |
-| 边 | 同列下落/上报、同道水平 | 生命线上的消息、自调用 |
-| `.md` 媒介 | 内联 SVG | `sequenceDiagram` |
+## 水平 vs 垂直 vs 时序
 
-「垂直泳道」在本套规范里 = 时序泳道，**不要**再开一套列向 SVG，也 **不要**用 `subgraph` 每列一个角色冒充。
+| | 水平泳道 | 垂直泳道 | 时序图 |
+|--|----------|----------|--------|
+| 角色 | 左栏 | 顶栏 | 顶栏（生命线） |
+| 时间 | 左 → 右 | 上 → 下 | 上 → 下 |
+| 节点 | 列内步骤框 | 列内步骤框 | 消息，不是作业框 |
+| 跨层 | 同列上/下 | 同行左/右 | 角色间箭头 |
+| 软件栈 | 应用上、硬件下 | 应用左、硬件右 | 按出场序 |
+| `.md` | 内联 SVG | 内联 SVG | `sequenceDiagram` |
 
 ## 对照
 
 | 故事 | 结果 |
 |------|------|
-| `sudo reboot` → systemd 停服务 → fwupd 不退出 → 内核迟迟不重启 | 水平泳道 |
-| USB 未枚举 → udev 无节点 → HAL open 失败 → UI 打不开 | 水平泳道 |
+| `sudo reboot` → systemd 停服务 → fwupd 不退出 → 内核迟迟不重启 | 水平泳道（下发停服、上报停不住） |
+| USB 未枚举 → udev 无节点 → HAL open 失败 → UI 打不开 | 水平或垂直泳道（作业步骤；栈下发用水平） |
 | BIOS → GRUB → Kernel → systemd，只标各阶段耗时 | flowchart |
 | 已枚举 / 未枚举设备对照、模块依赖 | flowchart |
-| HAL ioctl → 内核编程 FPGA → MSI 回来 | 垂直泳道（`sequenceDiagram`） |
+| HAL ioctl → 内核编程 FPGA → MSI 回来（消息往返） | 时序图，不是垂直泳道 SVG |
+| 四列角色、步骤往下排、同行把作业交给右边 | 垂直泳道 |
 
 ## 红旗
 
 出现下面任一想法：停下来重过本门，不要把已写的 `flowchart` 围栏当既成事实。
 
 - 口头「画流程图」= 必须 `flowchart`（单独说「流程图」要过门；「就要 flowchart」才算点名）
-- 「所有图必须用 Mermaid」= 不能泳道（先判断；泳道更合适也可以用泳道。水平泳道交卷仍是内联 SVG）
+- 「所有图必须用 Mermaid」= 不能泳道（先判断；泳道更合适也可以用泳道。水平/垂直交卷仍是内联 SVG）
+- 垂直泳道 = `sequenceDiagram`（生命线是消息；列内步骤框走 `fig-vertical-swimlane`）
 - 未判断就改泳道，或先画 flowchart 占位以后再换
 - 用几个 `subgraph` 当水平 / 垂直泳道
 - 启动阶段 A→B→C 也上泳道（单主体阶段链应 flowchart）

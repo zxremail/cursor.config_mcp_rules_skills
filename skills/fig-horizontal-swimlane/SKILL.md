@@ -13,7 +13,7 @@ description: >-
   或预览空白、改 PNG、sidecar 图片引用、开标签折行；
   或应用要在上、硬件要在下、硬件画在顶上、泳道层序颠倒、上下颠倒泳道。
   生成 markdown、用户说流程图但故事是多角色跨层交接、谁持球、下发上报。
-  不要用：贴顶角色栏时序、人员分工时间表、Mermaid flowchart subgraph 冒充泳道。
+  不要用：顶栏纵向分道步骤框（fig-vertical-swimlane）、贴顶角色栏时序、人员分工时间表、Mermaid flowchart subgraph 冒充泳道。
 ---
 
 # 深彩色水平泳道图
@@ -31,10 +31,10 @@ description: >-
 
 | 用 | 不用 |
 |---|---|
-| 一条因果链穿过 2 个以上模块/进程/层次 | 贴顶角色 + 生命线向下 → `html-sequence-swimlane` |
-| 读者要先看「谁的道」，再看时间 | 人员排期/人力胶囊 → `task-assignment-timeline` |
-| 对照 BPMN：左栏名、横线、同列下落 | 职责墙/跨层关系网 → `mermaid-flowchart-layout` |
-| 完成中断、作业、回调谁消费 | 浅色分层卡片墙 → `fig-tinted-layer-cards` |
+| 一条因果链穿过 2 个以上模块/进程/层次 | 顶栏 + 列内步骤、时间向下 → `fig-vertical-swimlane` |
+| 读者要先看「谁的道」，再看时间 | 贴顶生命线消息 → `html-sequence-swimlane` |
+| 对照 BPMN：左栏名、横线、同列下落 | 人员排期/人力胶囊 → `task-assignment-timeline` |
+| 完成中断、作业、回调谁消费 | 职责墙/跨层关系网 → `mermaid-flowchart-layout` |
 
 ## 层序（硬规则）：应用在上、硬件在下
 
@@ -210,7 +210,7 @@ description: >-
 | 先浅色 BPMN，暗色以后再改 | 第一次就深彩色；浅底白框 = 未完成 |
 | 只给节点描边、带底仍是白/浅灰 | 带底、左栏、节点 fill 都要深彩色 |
 | 副标题不写括号更干净 | 注释放在括号内 |
-| 贴顶时序也叫泳道 | 角色在顶、时间向下 → `html-sequence-swimlane` |
+| 贴顶时序也叫泳道 | 生命线消息 → `html-sequence-swimlane`；列内步骤框 → `fig-vertical-swimlane` |
 | 颜色区分模块就够，不必左栏 | 用户要水平泳道就是因为只靠颜色不够直观 |
 | `<title>` 已经有了 | 那是无障碍属性；读者要看见顶栏标题 |
 | 起点终点用椭圆更像 BPMN | 一律圆角矩形；不要圆、不要椭圆 |

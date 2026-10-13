@@ -43,7 +43,8 @@ description: >-
 | 左栏阶段 × 顶栏季度；里程碑横条、菱形节点 | `task-roadmap-timeline` |
 | 人员泳道、人力胶囊、Git 式分支合入、底栏星星 | `task-assignment-timeline` |
 | 左栏角色/模块、横向分道、同列下落、时间从左到右；BPMN 截图式样；生成 md 时跨层作业交接 | `fig-horizontal-swimlane` |
-| 垂直泳道、顶栏角色、时间向下、消息往返、ioctl/MSI 请求返回 | Markdown 源 `sequenceDiagram`（`mermaid-flowchart-layout`）；HTML → `html-sequence-swimlane` |
+| 顶栏角色、纵向分道、步骤落在列里、同行左右交接、时间从上到下；BPMN 垂直泳道 | `fig-vertical-swimlane` |
+| 贴顶生命线、消息往返、ioctl/MSI 请求返回、sequenceDiagram | Markdown 源 `sequenceDiagram`；HTML → `html-sequence-swimlane` |
 
 ### 转换（已有图改格式，不是新构图）
 
@@ -62,13 +63,15 @@ description: >-
 | 浅色分层彩色卡片墙 = 胶囊图 | 本图无关/改/加/留胶囊、无左栏 L0–L7 |
 | roadmap = 人员分工表 | 阶段×时间 → `task-roadmap-timeline`；谁做哪块 → `task-assignment-timeline` |
 | 时序 HTML = 分层卡片 | 贴顶角色栏 → `html-sequence-swimlane` |
-| 水平泳道 = 贴顶 HTML 时序 | 左栏角色、时间从左到右 → `fig-horizontal-swimlane`；角色在顶、时间向下 → `html-sequence-swimlane` |
+| 水平泳道 = 贴顶 HTML 时序 | 左栏角色、时间从左到右 → `fig-horizontal-swimlane`；生命线消息 → `html-sequence-swimlane` |
+| 垂直泳道 = 贴顶 HTML 时序 | 顶栏角色 + 列内步骤框 → `fig-vertical-swimlane`；生命线消息 → `html-sequence-swimlane` |
+| 垂直泳道 = 水平泳道转 90° 但层序仍应用在上 | 垂直图应用在左、硬件在右；下落不再表示下发 |
 | 水平泳道 = Mermaid subgraph 分层 | subgraph 是带框竖链，不是左栏格子 → `fig-horizontal-swimlane` |
 | 水平泳道 = 人员分工表 | 谁在哪条带做完一件交接 → `fig-horizontal-swimlane`；谁在哪周做哪块 → `task-assignment-timeline` |
 | 「分层协作总图」= 职责+时序+GPIO 一张 flowchart | 先定**一个问题**；混装走 `mermaid-flowchart-layout` §3.0，禁止塞进同一张 |
-| 用户说「流程图」= 必须 `flowchart` | 生成 md 时过 `choose-diagram.md`；跨层交接 → 水平泳道，消息往返 → 垂直泳道 |
-| 垂直泳道 = `subgraph` 每列一个角色 | 带框竖链不是泳道；垂直向用 `sequenceDiagram` |
-| 「所有图必须用 Mermaid」= 不能泳道 | 先判断；泳道比流程图更合适也可以用泳道。水平泳道交卷是内联 SVG |
+| 用户说「流程图」= 必须 `flowchart` | 生成 md 时过 `choose-diagram.md`；作业交接 → 水平/垂直泳道 SVG，消息往返 → 时序图 |
+| 垂直泳道 = `subgraph` 每列一个角色 | 带框竖链不是泳道；列内步骤框走 `fig-vertical-swimlane` |
+| 「所有图必须用 Mermaid」= 不能泳道 | 先判断；泳道比流程图更合适也可以用泳道。水平/垂直泳道交卷都是内联 SVG |
 
 ## 2. 选媒介（交卷）
 
@@ -88,6 +91,7 @@ description: >-
 |------|------|
 | 深色分层卡片 / HTML 时序 / 阶段路线图 / 人员分工表 | `markdown-to-html` sidecar |
 | 左栏水平泳道 | 目标 `.md` 内联 SVG（`fig-horizontal-swimlane`） |
+| 顶栏垂直泳道 | 目标 `.md` 内联 SVG（`fig-vertical-swimlane`） |
 | 浅色分层彩色卡片墙 | 飞书画板（`lark-whiteboard`） |
 | 分层卡片 → draw.io / 时序 → draw.io | 本地 `.drawio` |
 | 内化成 Skill | §3，不构图 |
@@ -114,6 +118,7 @@ description: >-
 - 「按分层行动胶囊图画」「走 `layer-action-capsule-diagram`」
 - 「按浅色分层彩色卡片墙画」「走 `fig-tinted-layer-cards`」
 - 「按水平泳道图画」「走 `fig-horizontal-swimlane`」
+- 「按垂直泳道图画」「走 `fig-vertical-swimlane`」
 - 「对照这张图内化成 Skill，先查目录有没有同类」
 - 只说「画个架构图」→ 先出一轮菜单 + §5 大纲，不要直接画 Mermaid
 
@@ -172,6 +177,20 @@ subgraph / 层（上→下）：
 轨名：竖轨≥2 则最长竖段写 左轨·/中轨·/右轨·短名；各轨不同色（蓝/青/玫/金）
 旁路边标只写动作，不要写夹缝/侧入
 左栏色条：写归属（蓝是业务 / 橙是同一用户态库）；整句亮色，不要文件拼盘
+图前读法：几何 / 轨名 / 色条 / 线型各一段
+.md 路径：
+```
+
+**顶栏垂直泳道**
+```
+标题：
+顶栏层/角色（左→右：应用在左、硬件在右；层名不是文件名）：
+步骤（谁 / 主题 / （注释） / 第几行；文件名只在节点）：
+跨层同行边、同道竖直边：
+排线：每条边独占横轨 y；默认一个拐角；禁止贴框滑行凑侧入
+一源三出 / 往返：源放中行，禁止贴边对穿
+轨名：横轨≥2 则最长横段写 上轨·/中轨·/下轨·短名；各轨不同色
+顶栏色条：写归属；整句亮色
 图前读法：几何 / 轨名 / 色条 / 线型各一段
 .md 路径：
 ```

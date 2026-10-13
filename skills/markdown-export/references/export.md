@@ -93,11 +93,11 @@ description: >-
 
 ## 3. 图表语法 <a id="3-图表语法"></a> <a href="#toc-pos-3-图表语法" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
-- 所有图表必须使用 **Mermaid** 语法绘制。准备写 `flowchart` 或用户说「流程图」时，先 Read `mermaid-flowchart-layout` 的 `references/choose-diagram.md` 再动笔。如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。判断后走水平泳道的，按 `fig-horizontal-swimlane` 写内联 SVG（不要用 `subgraph` 冒充）；走垂直泳道的写 `sequenceDiagram`。
+- 所有图表必须使用 **Mermaid** 语法绘制。准备写 `flowchart` 或用户说「流程图」时，先 Read `mermaid-flowchart-layout` 的 `references/choose-diagram.md` 再动笔。如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。判断后：水平泳道走 `fig-horizontal-swimlane` 内联 SVG；垂直泳道（列内步骤框）走 `fig-vertical-swimlane` 内联 SVG；消息往返走 `sequenceDiagram`。不要用 `subgraph` 冒充泳道。
 - **HTML 块后面必须空一行再写围栏。** `<table>…</table>`（以及其它 HTML 块）会吃到空行为止；`</table>` 紧挨 `` ```mermaid `` 时，预览把图源当原文吐出（乱码、`{data-source-line=`）。管道表改成 HTML 上色时见 `coloring-markdown-table-column`。
 - **`.md` 内联 `<svg>…</svg>` 内部禁止空行。** CommonMark 把 HTML 块吃到空行为止；SVG 里一空行，后面的 `<rect>` / `<text>` 当正文吐出（色带还在、节点变源码）。分组用注释 `<!-- -->`，不要空行。`</svg>` 之后可以空行。`audit_mermaid.py` 的 `svg-blank` 扫这一条。
 - **内联 `<svg>` 开标签必须同一行写完**（`xmlns` / `viewBox` / `style` 不要折行）。对照合格写法：知识库里 `01.object-graph-and-lifetime.md` 的泳道。`svg-open-split` 扫这一条。
-- **水平泳道禁止改成 PNG / Markdown 图片引用。** 预览空白时修开标签单行与内部无空行，不要另存 `.png`、不要 `![](….png)` / `![](….svg)`。`swimlane-png` 扫这一条；细则 `fig-horizontal-swimlane`。
+- **水平/垂直泳道禁止改成 PNG / Markdown 图片引用。** 预览空白时修开标签单行与内部无空行，不要另存 `.png`、不要 `![](….png)` / `![](….svg)`。`swimlane-png` 扫这一条；细则 `fig-horizontal-swimlane` / `fig-vertical-swimlane`。
 - Markdown 文档中的每个 mermaid 图也要有「实际含义标题」：围栏开头写 YAML `title`（取最近小节 + 图意，禁止「流程图」「如图」），然后再写 `%%{init}`。不要在围栏外再重复一行标题。
 - 每一张图都必须遵守 §5 深彩色配色硬规则（`theme: dark` **加上**节点 `style`/`classDef`）。无配色的图视为未完成，不得写入文件。
 - 尽量不要使用外部图片链接或 ASCII 艺术图。

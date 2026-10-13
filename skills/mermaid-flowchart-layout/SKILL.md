@@ -32,7 +32,7 @@ description: >-
 
 ## 执行顺序（先 Read，再画围栏）
 
-**图种门（先于 layout.md）：** 图表用 Mermaid。每张将写的流程类图（含用户口头「流程图」），先 `Read` [references/choose-diagram.md](references/choose-diagram.md)。如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。判断后：水平泳道 → 停本页，走 `fig-horizontal-swimlane`；垂直泳道 → `sequenceDiagram`。未判断就写 `flowchart` 或未判断就改泳道 = 违规。不要 AskQuestion。
+**图种门（先于 layout.md）：** 图表用 Mermaid。每张将写的流程类图（含用户口头「流程图」），先 `Read` [references/choose-diagram.md](references/choose-diagram.md)。如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。判断后：水平泳道 → `fig-horizontal-swimlane`；垂直泳道（步骤框）→ `fig-vertical-swimlane`；消息往返 → `sequenceDiagram`。未判断就写 `flowchart` 或未判断就改泳道 = 违规。不要 AskQuestion。
 
 本页其余是排版清单。已定为 flowchart 或 `sequenceDiagram` 后，出现下列**任一**可观察条件，必须先 `Read` [references/layout.md](references/layout.md) **全文**，再写 ` ```mermaid `：
 

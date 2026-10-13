@@ -1,10 +1,10 @@
 ---
 name: html-sequence-swimlane
 description: >-
-  Use when HTML sequence diagram, 泳道时序, 垂直泳道, sequenceDiagram, 贴顶角色栏,
+  Use when HTML sequence diagram, 泳道时序, sequenceDiagram, 贴顶角色栏,
   sticky actors, seq-e2e, md2html customfig 时序图; 或长时序图、端到端冷启动、
   推荐阅读主图、阶段 0/阶段 1 分隔、阶段带、Note over 阶段。
-  不是分层卡片墙、flowchart subgraph、甘特替代时序。
+  不是分层卡片墙、flowchart subgraph、甘特替代时序、垂直泳道步骤框（fig-vertical-swimlane）。
 ---
 
 # HTML 泳道时序图（seq-e2e）
@@ -19,7 +19,7 @@ Markdown 预览继续用 Mermaid `sequenceDiagram`。生成的独立 HTML 里，
 - **长时序 / 端到端主图**：消息跨多个因果段落（谁先有电、谁后上场），需要「阶段 0 / 阶段 1」类阅读分隔 → **§长时序图阶段带**（Markdown 源和 HTML sidecar 同一套）
 
 分层架构卡、数据流卡仍走 `markdown-to-html` §3 / §7.6 其它模式。
-其它图种分诊 → `diagram-style-catalog`。生成 md 时「垂直泳道」= 本图种（Markdown 源仍是 `sequenceDiagram`）；跨层作业步骤 → `fig-horizontal-swimlane`，不要 flowchart 竖列 subgraph。
+其它图种分诊 → `diagram-style-catalog`。生命线消息才走本图种。列内作业步骤 → `fig-vertical-swimlane`；左栏横向分道 → `fig-horizontal-swimlane`。不要 flowchart 竖列 subgraph。
 
 ## 工作流
 
