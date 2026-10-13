@@ -10,6 +10,7 @@ description: >-
   时序图按向左/向右给箭头上色、实际含义标题、YAML title、
   表格表头、标题栏颜色、管道表、表头字体颜色、span color、
   断句、加逗号、加标点、语义更清晰、只改标点不改措辞、
+  整理文档、整理一份 md、分析报告、分析日志、写成 md、中文文件名、文件名带空格、
   首次生成 markdown、增补章节、黏连长句、事后补标点、
   先结论、施事不明、不是 A 是 B、碰巧与绑定、一层定语、同一叫法、
   拆成多行、子行缩进、符号前缀、多层一句、分号硬挤、列表拆段、
@@ -70,6 +71,7 @@ description: >-
 
 - 文件名必须使用**英文**，全小写，单词之间用连字符 `-` 分隔。
 - 例如：`rk3588-device-tree-guide.md`、`touch-driver-debug-flow.md`
+- basename **禁止非 ASCII**（含中文）、**禁止空格**。`audit_mermaid.py` 代码 `md-filename`。
 - 目录：若适用 **`ai-cursor-doc-output`**，不要写到仓库根或 `docs/`
 
 ## 2. 内容要求 <a id="2-内容要求"></a> <a href="#toc-pos-2-内容要求" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>

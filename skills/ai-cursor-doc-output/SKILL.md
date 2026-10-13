@@ -7,7 +7,7 @@ description: >-
   default path for a new .md/.html, when tempted to write it to the repo root,
   docs/, or next to source for “方便打开”, or when moving an existing knowledge
   note so it sits beside a new HTML file. Triggers: 保存 markdown、导出 html、
-  生成幻灯片、放到项目里、ai.cursor、Mermaid 深彩色、暗色主题。
+  生成幻灯片、整理文档、分析报告、中文文件名、放到项目里、ai.cursor、Mermaid 深彩色、暗色主题。
 ---
 
 # ai.cursor 文档默认落点

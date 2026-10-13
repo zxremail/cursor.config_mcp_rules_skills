@@ -7,6 +7,7 @@ description: >-
   dark background. Triggers: 生成 markdown、写文档、导出 md、Mermaid 配色、
   深彩色、暗色主题、theme dark、浅色图、默认配色、文字被遮挡、显示不全、裁切、
   嵌套 subgraph 外框内框同色、套盒糊成一块、层框列框不易区分、
+  整理文档、整理一份 md、分析报告、分析日志、写成 md、中文文件名、文件名带空格、
   时序图按向左/向右给箭头上色、时序图 Note over、长时序阶段带、阶段 0、阶段 1、
   实际含义标题、YAML title、
   表格表头、标题栏颜色、管道表、表头字体颜色、span color、图例色名、蓝绿紫橙上色、类似处理、模块底色、
@@ -23,7 +24,7 @@ description: >-
 
 # Markdown 文档导出规范
 
-**格式不准降级。** 完整条文与示例：[references/export.md](references/export.md)（§1–§5、§7–§10）、[references/prose.md](references/prose.md)（§6）。SKILL 变短只去掉重复目录/长示例，**禁止**因此省略 YAML `title`、`theme: dark`、节点 `fill`、表头 `#C9A0FF`、图例色名对齐 fill、断句、专名「」、格内列义。
+**格式不准降级。** 完整条文与示例：[references/export.md](references/export.md)（§1–§5、§7–§10）、[references/prose.md](references/prose.md)（§6）。SKILL 变短只去掉重复目录/长示例，**禁止**因此省略英文文件名、YAML `title`、`theme: dark`、节点 `fill`、表头 `#C9A0FF`、图例色名对齐 fill、断句、专名「」、格内列义。
 
 ## 执行顺序（先 Read，再落笔）
 
@@ -32,7 +33,7 @@ description: >-
 1. **要写或改中文句子 / 列表 / 表格**（含格内）：先 `Read` [references/prose.md](references/prose.md)，再 Write。  
    可跳过的唯一可观察条件：本次交付**零**中文句子（纯英文或纯代码）。
 2. **流程图排版**走 `mermaid-flowchart-layout`（其 Step 0 决定是否 Read layout.md）。画 `sequenceDiagram` 时必读该 skill 的 layout.md **§4.1–§4.2**（`Note over` 标内部动作与约束；长图段首 `阶段 N：因果`）。
-3. 落盘后跑 `audit_mermaid.py`（验收图、表头、图例色名、内联 SVG 空行，**代替不了** prose.md）。
+3. 落盘后跑 `audit_mermaid.py`（验收**英文文件名**、图、表头、图例色名、内联 SVG 空行，**代替不了** prose.md）。
 4. 图下用「蓝 / 绿 / 紫 / 橙」指节点底色时，色名字色必须等于该图 `classDef` `fill`（[export.md](references/export.md) **§10**）。同类图例自动套。
 
 | 借口 | 实际 |
@@ -50,7 +51,7 @@ description: >-
 python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 ```
 
-`ok: true` 才算图、表头、图例色名、内联 SVG 空行合格。排版/连线另遵 **`mermaid-flowchart-layout`**（细则 [layout.md](../mermaid-flowchart-layout/references/layout.md)）。有 `ai.cursor/` 时 **REQUIRED** **`ai-cursor-doc-output`**。
+`ok: true` 才算英文文件名、图、表头、图例色名、内联 SVG 空行合格。排版/连线另遵 **`mermaid-flowchart-layout`**（细则 [layout.md](../mermaid-flowchart-layout/references/layout.md)）。有 `ai.cursor/` 时 **REQUIRED** **`ai-cursor-doc-output`**。
 
 工作区根存在 `ai.cursor/` 时，目录由该 skill 决定；本文件约束 basename、正文格式、每一张 Mermaid 的深彩色。
 
@@ -60,7 +61,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 
 | 类型 | 落哪里 | 还要做什么 |
 |------|--------|------------|
-| **可扫描**（色值、围栏字段、`theme`、表头字色、禁止某字面量、`useMaxWidth`、`</table>` 后空行、内联 SVG 空行） | `references/export.md` 一条硬规则 | `scripts/audit_mermaid.py` 加 `issues[].code` + `scripts/test_audit_mermaid.py` 正反例。`SKILL.md` **只加清单一行**，禁止把长示例贴回本页 |
+| **可扫描**（色值、围栏字段、`theme`、表头字色、禁止某字面量、`useMaxWidth`、`</table>` 后空行、内联 SVG 空行、basename 非 ASCII/空格） | `references/export.md` 一条硬规则 | `scripts/audit_mermaid.py` 加 `issues[].code` + `scripts/test_audit_mermaid.py` 正反例。`SKILL.md` **只加清单一行**，禁止把长示例贴回本页 |
 | **每次写中文都要用**（断句、专名「」、格内列义、动词表） | `references/prose.md` | 本页 §6 最多补半行指针。脚本**不要**假装能验 |
 | **偶发 / 某类图才用**（复杂 subgraph、图例方案 D、名+注） | 对应 reference（export 或 `mermaid-flowchart-layout` 的 layout.md） | 本页只写「出现 X 时 Read」。排版细则仍以 layout skill 为准 |
 | **用户当场只要这一篇、以后不守** | 不改 Skill | 只改那份业务 md |
@@ -132,4 +133,4 @@ Input `#E066FF`；Output `#00FF00`；Bidirectional `#FFD700`；Power `#FF0000`�
 
 ## 交付
 
-写完跑 `audit_mermaid.py`。`ok: false` 按 `issues[].code` 改，不要带着浅色图/无色表头/未上色的图例色名/SVG 内空行结束。知识库维护走 `markdown-knowledge-maintain`。用户在改本 skill 的格式要求时走 **§0**，不要只改散文。
+写完跑 `audit_mermaid.py`。`ok: false` 按 `issues[].code` 改，不要带着中文/空格文件名、浅色图/无色表头/未上色的图例色名/SVG 内空行结束。知识库维护走 `markdown-knowledge-maintain`。用户在改本 skill 的格式要求时走 **§0**，不要只改散文。

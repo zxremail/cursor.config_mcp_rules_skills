@@ -44,9 +44,9 @@ flowchart TB
 """
 
 
-def run_audit(text: str) -> dict:
+def run_audit_named(text: str, name: str = "t.md") -> tuple[dict, int]:
     with tempfile.TemporaryDirectory() as td:
-        p = Path(td) / "t.md"
+        p = Path(td) / name
         p.write_text(text, encoding="utf-8")
         r = subprocess.run(
             [sys.executable, str(SCRIPT), str(p)],
@@ -54,6 +54,10 @@ def run_audit(text: str) -> dict:
             text=True,
         )
         return json.loads(r.stdout), r.returncode
+
+
+def run_audit(text: str) -> tuple[dict, int]:
+    return run_audit_named(text, "t.md")
 
 
 class AuditTests(unittest.TestCase):
@@ -167,6 +171,25 @@ class AuditTests(unittest.TestCase):
         self.assertNotIn("svg-open-split", codes)
         self.assertTrue(data["ok"], data)
         self.assertEqual(code, 0)
+
+    def test_md_filename_ascii_ok(self):
+        data, code = run_audit(GOOD)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("md-filename", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
+    def test_md_filename_non_ascii(self):
+        data, code = run_audit_named(GOOD, "启动失败分析.md")
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("md-filename", codes)
+        self.assertEqual(code, 2)
+
+    def test_md_filename_space(self):
+        data, code = run_audit_named(GOOD, "boot fail.md")
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("md-filename", codes)
+        self.assertEqual(code, 2)
 
     def test_svg_blank_in_fence_ignored(self):
         text = (

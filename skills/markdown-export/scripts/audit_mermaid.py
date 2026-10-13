@@ -324,6 +324,29 @@ def audit_legend_color_names(file: str, text: str) -> list[dict]:
     return issues
 
 
+def audit_md_filename(path: Path) -> list[dict]:
+    """basename 禁止非 ASCII、禁止空格（export.md §1，代码 md-filename）。"""
+    name = path.name
+    if path.suffix.lower() not in {".md", ".markdown"}:
+        return []
+    reasons: list[str] = []
+    if any(ord(c) > 127 for c in name):
+        reasons.append("非 ASCII")
+    if " " in name or "\t" in name:
+        reasons.append("空格")
+    if not reasons:
+        return []
+    return [
+        issue(
+            str(path),
+            1,
+            None,
+            "md-filename",
+            "basename 须英文小写连字符，禁止" + "、".join(reasons),
+        )
+    ]
+
+
 def audit_file(path: Path) -> list[dict]:
     text = path.read_text(encoding="utf-8")
     in_md = path.suffix.lower() in {".md", ".markdown"}
@@ -332,6 +355,7 @@ def audit_file(path: Path) -> list[dict]:
         issues.extend(audit_diagram(str(path), 0, 1, text, in_md=False))
         return issues
     if in_md:
+        issues.extend(audit_md_filename(path))
         issues.extend(audit_svg_blanks(str(path), text))
         issues.extend(audit_svg_open_tag(str(path), text))
         issues.extend(audit_swimlane_png(str(path), text))
