@@ -156,7 +156,7 @@ flowchart TB
 
 ## 6. 常用维护
 
-立即运行：任务计划程序里选中 `CursorConfigGitSync`，右侧点「运行」。
+立即运行：任务计划程序里选中 `CursorConfigGitSync`，右侧点「运行」。不应再出现黑色 `cmd.exe` 窗口。结果仍写在 `C:\Users\sn03910\.cursor\ai-tracking\github-sync.log`。
 
 改间隔：属性 → 触发器 → 编辑。改完点确定。
 
