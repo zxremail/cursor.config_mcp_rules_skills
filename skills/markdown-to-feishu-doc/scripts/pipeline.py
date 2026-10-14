@@ -198,8 +198,115 @@ def parse_html_table(lines: list[str], i: int) -> tuple[str, int]:
     return table_xml(rows), i
 
 
+# fig-alternating-timeline 深彩色卡 → 飞书白底浅彩色（白卡 + 浅顶栏 + 深字）
+TL_LEAF_TO_TINT = {
+    "6a4c93": "#EDE7F6",
+    "2e86ab": "#E3F2FD",
+    "2d936c": "#E8F5E9",
+    "f18f01": "#FFF8E1",
+    "3d5a80": "#ECEFF1",
+    "a23b72": "#FCE4EC",
+    "c67500": "#FFF3E0",
+    "3370ff": "#E0F7FA",
+    "e63946": "#FCE4EC",
+}
+TL_STROKE_TO_TINT = {
+    "4a3566": "#EDE7F6",
+    "1b4965": "#E3F2FD",
+    "1e6b4e": "#E8F5E9",
+    "c67500": "#FFF8E1",
+    "2b3f5c": "#ECEFF1",
+    "6e284e": "#FCE4EC",
+    "8a5100": "#FFF3E0",
+}
+
+
+def _hex_key(col: str) -> str:
+    key = col.lstrip("#")
+    if len(key) == 3:
+        key = "".join(ch * 2 for ch in key)
+    return key.lower()
+
+
+def is_alternating_timeline_svg(svg: str) -> bool:
+    if re.search(r"\b(?:dtl-|dbr-)", svg):
+        return True
+    if "暗色主题" in svg and ("时间线" in svg or "墙钟" in svg):
+        return True
+    if re.search(r"#0[Dd]1117", svg) and re.search(r'height="(?:148|132)"', svg):
+        return True
+    return False
+
+
+def lighten_alternating_timeline_for_feishu(svg: str) -> str:
+    """深底整卡时间线 / 比例条 → 白底浅顶栏白卡（或浅段），字改深色。Markdown 源图不动。"""
+
+    def card_rect(m: re.Match) -> str:
+        tag, fill = m.group(0), m.group(1)
+        if _hex_key(fill) not in TL_LEAF_TO_TINT:
+            return tag
+        tag = re.sub(r"""\bfill=(["'])#[0-9A-Fa-f]{3,8}\1""", 'fill="#FFFFFF"', tag)
+        if re.search(r"\bstroke=", tag):
+            tag = re.sub(
+                r"""\bstroke=(["'])#[0-9A-Fa-f]{3,8}\1""",
+                'stroke="#1F2329"',
+                tag,
+            )
+        return tag
+
+    # 交错卡片身（约 148/132 高）改白底深边
+    svg = re.sub(
+        r"""<rect\b[^>]*\bheight="(?:148|132)"[^>]*\bfill="(#[0-9A-Fa-f]{3,8})"[^>]*>""",
+        card_rect,
+        svg,
+    )
+    svg = re.sub(
+        r"""<rect\b[^>]*\bfill="(#[0-9A-Fa-f]{3,8})"[^>]*\bheight="(?:148|132)"[^>]*>""",
+        card_rect,
+        svg,
+    )
+
+    def mapped_color(col: str, table: dict[str, str]) -> str | None:
+        return table.get(_hex_key(col))
+
+    def attr_map(m: re.Match) -> str:
+        attr, q, col = m.group(1), m.group(2), m.group(3)
+        tint = mapped_color(col, TL_LEAF_TO_TINT) or mapped_color(col, TL_STROKE_TO_TINT)
+        if tint and attr.lower() in {"fill", "stroke"}:
+            # 卡身已改白，剩下的叶色是顶栏 path / 比例条 / 圆点
+            return f"{attr}={q}{tint}{q}"
+        if _hex_key(col) == "0d1117":
+            return f"{attr}={q}#FFFFFF{q}"
+        if _hex_key(col) == "555577":
+            return f"{attr}={q}#D0D3D6{q}"
+        if _hex_key(col) in {"ffffff"} and attr.lower() == "fill":
+            return m.group(0)
+        if _hex_key(col) == "e8eaed":
+            return f"{attr}={q}#646A73{q}"
+        if _hex_key(col) == "c9d1d9":
+            return f"{attr}={q}#8F959E{q}"
+        return m.group(0)
+
+    svg = re.sub(
+        r"""\b(fill|stroke|stop-color)=(["'])(#[0-9A-Fa-f]{3,8})\2""",
+        attr_map,
+        svg,
+    )
+    svg = re.sub(r"background:\s*#0[Dd]1117", "background:#FFFFFF", svg)
+    svg = svg.replace("fill:#FFFFFF", "fill:#1F2329")
+    svg = svg.replace("fill:#E8EAED", "fill:#646A73")
+    svg = svg.replace("fill:#C9D1D9", "fill:#8F959E")
+    svg = svg.replace("fill:#e8eaed", "fill:#646A73")
+    svg = svg.replace("fill:#c9d1d9", "fill:#8F959E")
+    # 卡身 fill="#FFFFFF" 被上一行 CSS 替换误伤时，rect 已是属性不是 style
+    return svg
+
+
 def lighten_svg_for_feishu(svg: str) -> str:
-    """暗色水平泳道（fig-horizontal-swimlane）→ 白底画板可读的浅色。节点饱和填色保持，白字保留。"""
+    """暗色水平泳道（fig-horizontal-swimlane）→ 白底画板可读的浅色。节点饱和填色保持，白字保留。
+    fig-alternating-timeline 深彩色时间线改走浅彩色白卡，见 lighten_alternating_timeline_for_feishu。"""
+    if is_alternating_timeline_svg(svg):
+        return lighten_alternating_timeline_for_feishu(svg)
     fill_map = {k.lstrip("#"): v for k, (v, _) in LAYER_FILL.items()}
 
     def color_repl(m: re.Match) -> str:

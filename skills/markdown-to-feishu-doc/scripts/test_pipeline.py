@@ -149,6 +149,25 @@ def test_dark_swimlane_svg_lightened_for_feishu():
     assert "crash_handler" in svg
 
 
+def test_dark_timeline_svg_lightened_for_feishu():
+    md = """# 标题
+
+## 图
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="开机动画时间线暗色主题" style="background:#0D1117"><style>.dtl-when{font-size:12px;fill:#FFFFFF}.dtl-sub{fill:#E8EAED}</style><rect x="0" y="0" width="400" height="200" fill="#0D1117"/><line x1="20" y1="100" x2="380" y2="100" stroke="#555577" stroke-dasharray="6 6"/><rect x="20" y="10" width="200" height="148" rx="8" fill="#2E86AB" stroke="#1B4965"/><path d="M28,10 h184 q8,0 8,8 v20 h-200 v-20 q0,-8 8,-8 z" fill="#1B4965"/><text x="120" y="30" class="dtl-when">0 s ~ 3.8 s</text><circle cx="120" cy="100" r="8" fill="#0D1117" stroke="#2E86AB"/></svg>
+"""
+    xml, _, out = run_convert(md)
+    svg = (out / "fig0.svg").read_text(encoding="utf-8")
+    assert "#0D1117" not in svg and "#0d1117" not in svg
+    assert 'fill="#FFFFFF"' in svg
+    assert 'fill="#E3F2FD"' in svg
+    assert "#2E86AB" not in svg and "#2e86ab" not in svg
+    assert 'stroke="#1F2329"' in svg
+    assert "fill:#1F2329" in svg
+    assert "#555577" not in svg
+    assert "#D0D3D6" in svg
+
+
 def test_patch_board_lightens_swimlane_raw():
     raw = {
         "nodes": [
@@ -257,6 +276,7 @@ if __name__ == "__main__":
         test_audit_flags_escaped_html_table,
         test_audit_ok_on_real_table,
         test_dark_swimlane_svg_lightened_for_feishu,
+        test_dark_timeline_svg_lightened_for_feishu,
         test_patch_board_lightens_swimlane_raw,
         test_patch_board_widens_clipped_text,
     ]:

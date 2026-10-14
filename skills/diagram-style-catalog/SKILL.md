@@ -99,7 +99,7 @@ description: >-
 | 左栏水平泳道 | 目标 `.md` 内联 SVG（`fig-horizontal-swimlane`） |
 | 顶栏垂直泳道 | 目标 `.md` 内联 SVG（`fig-vertical-swimlane`） |
 | 并排竖卡流程图 | 目标 `.md` 内联 SVG（`fig-side-by-side-flowcards`） |
-| 上下交错卡片时间线 | 目标 `.md` 内联 SVG（`fig-alternating-timeline`）；默认深彩色 |
+| 上下交错卡片时间线 | 目标 `.md` 内联 SVG（`fig-alternating-timeline`）；默认深彩色。转飞书走 `markdown-to-feishu-doc`，画板用浅彩色 |
 | 浅色分层彩色卡片墙 | 飞书画板（`lark-whiteboard`） |
 | 分层卡片 → draw.io / 时序 → draw.io | 本地 `.drawio` |
 | 内化成 Skill | §3，不构图 |

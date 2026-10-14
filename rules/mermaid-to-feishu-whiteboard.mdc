@@ -7,7 +7,7 @@ alwaysApply: false
 
 将 Markdown 中的 Mermaid 图表转换为飞书画板时，必须完整保留原始 Mermaid 中的 `style` 指令（fill、stroke、color 等颜色属性），不得丢弃。
 
-飞书画板外框一律浅色，不要把 Markdown 暗色主题整板搬过去：
+飞书画板外框一律浅色，不要把 Markdown 暗色主题整板搬过去。内嵌 `fig-alternating-timeline` 深彩色时间线在 `pipeline.py convert` 时改成浅彩色（白卡 + 浅顶栏 + 深字），不要原样贴深底整卡：
 
 - 包住整图的 `section`：`#F3F4F6`
 - **所有 subgraph / 层框 / 分组框**：同色相浅底（紫 `#EDE9FE`、蓝 `#DBEAFE`、橙 `#FFEDD5`、品红 `#FCE7F3`；内层分组可用白 `#FFFFFF`），标题用对应深色字

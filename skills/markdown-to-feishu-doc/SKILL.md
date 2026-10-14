@@ -7,7 +7,8 @@ description: >
   HTML table 变成源码, 飞书里出现 &lt;table&gt; / &lt;thead&gt; / &lt;svg&gt;,
   coloring-markdown-table-column 的 HTML 表, 内嵌 SVG 变成标签文字,
   文档正文被截断、XML 含 NUL,
-  深色泳道画在白底画板太突兀, 飞书画板浅色配色, 水平泳道图转浅色.
+  深色泳道画在白底画板太突兀, 飞书画板浅色配色, 水平泳道图转浅色,
+  深彩色时间线转浅彩色, 交错时间线转飞书画板.
   Also use when a previous Markdown 导入 left default「代码块」captions, missing
   seq=auto headings, unstyled tables, or when tempted to docs +update overwrite
   a document that already has whiteboards.
@@ -38,6 +39,7 @@ description: >
 | 正则把 `<thead>` 当成 `<th` | 表样式只由脚本写，勿手写 `<th[^>]*>` |
 | HTML `<table>` / `<svg>` 逐行 `xml_esc` 进 `<p>` | `pipeline.py convert` 解析成飞书 `<table>` / `whiteboard`；已导入的用 `block_replace` |
 | 深色泳道原样贴进白底画板 | convert 时浅色化 SVG；已导入则 `patch-board` 后 raw overwrite（不要给 group 写 style） |
+| 深彩色交错时间线原样贴进白底画板 | convert 时浅彩色化（白卡 + 浅顶栏 + 深字）；Markdown 源图保持深彩色 |
 
 ## 执行流程
 
@@ -64,7 +66,7 @@ stdout / `manifest.json` 含 `title`、`mermaid_count`、`titles`。缺少 YAML 
 
 非 Mermaid 围栏会写成带实际含义 `caption` 的 `<pre>`（`{主题} {体裁}`：函数声明 / 调用示例 / 命令行示例 / 配置示例）。禁止 caption 为「代码块」「示例」「c」。
 
-源 md 里 **`coloring-markdown-table-column` 的 HTML `<table>`**（含 `<font color>` 的是/否列）必须变成飞书 `<table>`（浅紫表头、浅蓝首列、`span text-color`），禁止 `&lt;table&gt;` 段落。内嵌 `<svg>...</svg>` 写成 `figN.svg` + `<whiteboard type="svg" path="@./_feishu_out/figN.svg">`。`fig-horizontal-swimlane` 深彩色 SVG **只在飞书侧变浅**：道带/左栏/标题栏浅底，左栏与标题字 `#1F2329`，节点仍饱和填色+白字，轨色箭头不变。Markdown 源图保持暗色。`audit-xml` 若报「被转义成源码」或 NUL，先修 XML 再 create；已上云且有画板则只 `block_replace` 那一段。
+源 md 里 **`coloring-markdown-table-column` 的 HTML `<table>`**（含 `<font color>` 的是/否列）必须变成飞书 `<table>`（浅紫表头、浅蓝首列、`span text-color`），禁止 `&lt;table&gt;` 段落。内嵌 `<svg>...</svg>` 写成 `figN.svg` + `<whiteboard type="svg" path="@./_feishu_out/figN.svg">`。`fig-horizontal-swimlane` 深彩色 SVG **只在飞书侧变浅**：道带/左栏/标题栏浅底，左栏与标题字 `#1F2329`，节点仍饱和填色+白字，轨色箭头不变。`fig-alternating-timeline` 深彩色 SVG **只在飞书侧改浅彩色**：画布白底，卡片白身+浅顶栏+深字，比例条改浅段，圆点留浅色相。不要把整卡饱和填色留在白底画板上。Markdown 源图保持暗色。`audit-xml` 若报「被转义成源码」或 NUL，先修 XML 再 create；已上云且有画板则只 `block_replace` 那一段。
 
 ### Step 3：创建
 
@@ -166,6 +168,7 @@ python3 ~/.cursor/skills/markdown-to-feishu-doc/scripts/pipeline.py audit-board 
 | 已有文档缺表色/序号 | `block_replace` 目标表或标题；禁止 overwrite |
 | 飞书里表格变成 HTML 源码 | `block_replace` 成真正 `<table>`；带画板禁止 overwrite |
 | 深色泳道在白底画板太突兀 | `patch-board` 浅色化后 raw 覆盖该画板；不要改 Markdown 暗色源图 |
+| 深彩色时间线在白底画板太突兀 | 重新 convert 浅彩色 SVG 后 `block_replace` 该画板；不要改 Markdown 暗色源图 |
 
 ## 格式验收（与 feishu-doc-format 相同，不打折）
 
