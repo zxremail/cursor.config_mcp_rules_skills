@@ -41,6 +41,7 @@ description: >-
 | 深色分层彩色卡片墙（HTML）；`.layer` / `.halbox` / `customfig` | `markdown-to-html` §3 / §7.6 |
 | HTML 时序：贴顶彩色角色栏、生命线、橙色 Note；长时序「阶段 0 / 阶段 1」分隔带 | `html-sequence-swimlane` |
 | 左栏阶段 × 顶栏季度；里程碑横条、菱形节点 | `task-roadmap-timeline` |
+| 中轴虚线 + 上下交错卡片 + 轴上圆点；开机/阶段墙钟时间线；暗色深彩色卡 | `fig-alternating-timeline` |
 | 人员泳道、人力胶囊、Git 式分支合入、底栏星星 | `task-assignment-timeline` |
 | 左栏角色/模块、横向分道、同列下落、时间从左到右；BPMN 截图式样；生成 md 时跨层作业交接 | `fig-horizontal-swimlane` |
 | 顶栏角色、纵向分道、步骤落在列里、同行左右交接、时间从上到下；BPMN 垂直泳道 | `fig-vertical-swimlane` |
@@ -63,6 +64,8 @@ description: >-
 | 浅色分层彩色卡片墙 = 深色卡片墙 | 浅底白分组彩卡片 → `fig-tinted-layer-cards`；深色 `.layer` → `markdown-to-html` §3 |
 | 浅色分层彩色卡片墙 = 胶囊图 | 本图无关/改/加/留胶囊、无左栏 L0–L7 |
 | roadmap = 人员分工表 | 阶段×时间 → `task-roadmap-timeline`；谁做哪块 → `task-assignment-timeline` |
+| 「时间线」= roadmap / gantt | 上下交错卡片 + 中轴圆点 → `fig-alternating-timeline`；阶段×季度排期 → `task-roadmap-timeline` |
+| 交错卡片时间线 = Mermaid timeline | 交卷是内联 SVG，禁止 `timeline` / `gantt` 硬凑 |
 | 时序 HTML = 分层卡片 | 贴顶角色栏 → `html-sequence-swimlane` |
 | 水平泳道 = 贴顶 HTML 时序 | 左栏角色、时间从左到右 → `fig-horizontal-swimlane`；生命线消息 → `html-sequence-swimlane` |
 | 垂直泳道 = 贴顶 HTML 时序 | 顶栏角色 + 列内步骤框 → `fig-vertical-swimlane`；生命线消息 → `html-sequence-swimlane` |
@@ -96,6 +99,7 @@ description: >-
 | 左栏水平泳道 | 目标 `.md` 内联 SVG（`fig-horizontal-swimlane`） |
 | 顶栏垂直泳道 | 目标 `.md` 内联 SVG（`fig-vertical-swimlane`） |
 | 并排竖卡流程图 | 目标 `.md` 内联 SVG（`fig-side-by-side-flowcards`） |
+| 上下交错卡片时间线 | 目标 `.md` 内联 SVG（`fig-alternating-timeline`）；默认深彩色 |
 | 浅色分层彩色卡片墙 | 飞书画板（`lark-whiteboard`） |
 | 分层卡片 → draw.io / 时序 → draw.io | 本地 `.drawio` |
 | 内化成 Skill | §3，不构图 |
@@ -124,6 +128,7 @@ description: >-
 - 「按水平泳道图画」「走 `fig-horizontal-swimlane`」
 - 「按垂直泳道图画」「走 `fig-vertical-swimlane`」
 - 「按并排竖卡流程图画」「走 `fig-side-by-side-flowcards`」
+- 「按上下交错时间线画」「走 `fig-alternating-timeline`」
 - 「对照这张图内化成 Skill，先查目录有没有同类」
 - 只说「画个架构图」→ 先出一轮菜单 + §5 大纲，不要直接画 Mermaid
 
@@ -216,6 +221,17 @@ subgraph / 层（上→下）：
   - 阶段 N：一句因果（覆盖哪些角色）
 消息（谁 → 谁：内容）：
 .md 路径：
+```
+
+**上下交错卡片时间线**
+```
+标题（实际含义，无「时间线图」）：
+节点（左→右）：
+  - 墙钟区间 / 阶段名 / 时长 / 两行说明
+等距主图：是
+比例条：时长不均则是；终点时刻（若有）：
+.md 路径：
+浅色对照：仅用户点名时另画
 ```
 
 **项目阶段路线图**
