@@ -11,7 +11,7 @@
 
 ---
 
-本机用 Windows 计划任务，在每天 7:00 到 23:00 之间每小时快进拉取 `C:\Users\sn03910\.cursor`。远程是 `github` 上的 `master`。脚本不自动提交，也不自动推送。工作区有未提交改动时，这一轮会跳过拉取，本地文件保持原样。
+本机用 Windows 计划任务，在每天 7:00 到 23:00 之间每小时快进拉取 `C:\Users\sn03910\.cursor`。远程是 `github` 上的 `master`。脚本不自动提交，也不自动推送。工作区有未提交改动时，这一轮会跳过拉取，本地文件保持原样。某一轮失败后，本小时内不再重试，等到下一个整点再跑。
 
 ## 1. 同步对象
 
@@ -40,6 +40,7 @@
 | 0:00–6:59 | 不运行 |
 | 操作 | `C:\Users\sn03910\.cursor\tools\sync-github.cmd` |
 | 运行账户 | `RIGOLTECH\sn03910`，仅交互式登录 |
+| 失败后立即重试 | 否。退出即结束，等到下一个整点 |
 
 「编辑触发器」里应对应：
 
@@ -78,6 +79,8 @@ tail -n 40 ~/.cursor/ai-tracking/github-sync.log
 | `OK: fast-forwarded` | 快进拉取成功。 |
 | `SKIP: working tree dirty` | 有未提交或未跟踪改动，本轮未拉取。退出码 0。 |
 | `SKIP: local master has diverged` | 本地提交与远程分叉，不能快进。退出码 1。 |
+| `FAIL: git fetch failed` | 本轮 `fetch` 失败（常见于没网或 SSH）。不重试，退出码 1。 |
+| `FAIL: git pull --ff-only failed` | 本轮快进拉取失败。不重试，退出码 1。 |
 
 `tools/` 落在 Cursor 托管的 gitignore 规则里，这两个脚本默认不会进 GitHub 仓。
 
@@ -144,8 +147,9 @@ flowchart TB
 | 要求特定网络 | 否 | 没网仍会启动，然后 `git fetch` 失败并写入日志。 |
 | 仅交互式登录 | 是 | 未登录 Windows 会话时通常不跑。 |
 | 过了计划时间立即补跑 | 否 | 关机错过整点后，开机不会立刻补拉，等到下一个整点。 |
+| 失败后按频率重新启动 | 否 | 「设置」里不要勾选该项。`git fetch` / `git pull` 失败只记日志并退出，下一小时再试。 |
 
-「设置」页里「请勿启动新实例」表示上一轮还在跑时，到点了不再开第二个，避免两路 `git pull` 同时改同一仓库。
+「设置」页里「请勿启动新实例」表示上一轮还在跑时，到点了不再开第二个，避免两路 `git pull` 同时改同一仓库。失败立即重试保持关闭：不要勾选「如果任务失败，按以下频率重新启动」。
 
 ## 6. 常用维护
 
@@ -161,10 +165,12 @@ flowchart TB
 schtasks /Delete /TN CursorConfigGitSync /F
 ```
 
-重建当前规则（每天 7:00 起，每小时一次，持续 16 小时）：
+重建当前规则（每天 7:00 起，每小时一次，持续 16 小时；`schtasks /Create` 默认不会打开失败重试）：
 
 ```bat
 schtasks /Create /F /TN CursorConfigGitSync /SC DAILY /ST 07:00 /RI 60 /DU 16:00 /TR "C:\Users\sn03910\.cursor\tools\sync-github.cmd" /RL LIMITED
 ```
+
+重建后请打开「设置」，确认「如果任务失败，按以下频率重新启动」未勾选。
 
 Git Bash 里调用 `schtasks` 时，要把 `/Create` 这类开关写成 `//Create`，或先设 `MSYS_NO_PATHCONV=1`。否则 Git Bash 会把 `/Create` 当成路径。
