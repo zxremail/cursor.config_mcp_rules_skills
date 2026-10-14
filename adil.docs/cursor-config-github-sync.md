@@ -38,7 +38,7 @@
 | 重复间隔 | 1 小时 |
 | 持续时间 | 16 小时（7:00 起算，最后一轮在 23:00） |
 | 0:00–6:59 | 不运行 |
-| 操作 | `C:\Users\sn03910\.cursor\tools\sync-github.cmd` |
+| 操作 | `wscript.exe //nologo` 跑 `sync-github.vbs`（隐藏窗口，避免弹出 `cmd.exe`） |
 | 运行账户 | `RIGOLTECH\sn03910`，仅交互式登录 |
 | 失败后立即重试 | 否。退出即结束，等到下一个整点 |
 | 运行超时 | 超过 1 分钟则停止任务 |
@@ -52,11 +52,12 @@
 
 ## 3. 脚本与日志
 
-`.cmd` 用 Git Bash 调 `.sh`。`.sh` 才做 git 判断和拉取。
+计划任务走 `.vbs` 隐藏启动 Git Bash。`.sh` 才做 git 判断和拉取。不要把任务指回 `.cmd`，否则每次都会弹出黑色 `cmd.exe` 窗口。
 
 | <span style="color:#C9A0FF">文件</span> | <span style="color:#C9A0FF">作用</span> |
 |------|------|
-| `C:\Users\sn03910\.cursor\tools\sync-github.cmd` | 计划任务入口。调用 Git Bash 登录 shell 再跑 `.sh`。 |
+| `C:\Users\sn03910\.cursor\tools\sync-github.vbs` | 计划任务入口。用窗口样式 0 调用 Git Bash，不显示控制台。 |
+| `C:\Users\sn03910\.cursor\tools\sync-github.cmd` | 仅供手动双击。会弹出控制台，不要给计划任务用。 |
 | `C:\Users\sn03910\.cursor\tools\sync-github.sh` | 检查工作区，再 `git fetch` / `git pull --ff-only`。 |
 | `C:\Users\sn03910\.cursor\ai-tracking\github-sync.log` | 每次运行追加一行时间戳和结果。 |
 
@@ -170,7 +171,7 @@ schtasks /Delete /TN CursorConfigGitSync /F
 重建当前规则（每天 7:00 起，每小时一次，持续 16 小时；`schtasks /Create` 默认不会打开失败重试）：
 
 ```bat
-schtasks /Create /F /TN CursorConfigGitSync /SC DAILY /ST 07:00 /RI 60 /DU 16:00 /TR "C:\Users\sn03910\.cursor\tools\sync-github.cmd" /RL LIMITED
+schtasks /Create /F /TN CursorConfigGitSync /SC DAILY /ST 07:00 /RI 60 /DU 16:00 /TR "C:\Windows\System32\wscript.exe //nologo C:\Users\sn03910\.cursor\tools\sync-github.vbs" /RL LIMITED
 ```
 
 重建后请打开「设置」，确认：
