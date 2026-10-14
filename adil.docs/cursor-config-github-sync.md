@@ -41,6 +41,7 @@
 | 操作 | `C:\Users\sn03910\.cursor\tools\sync-github.cmd` |
 | 运行账户 | `RIGOLTECH\sn03910`，仅交互式登录 |
 | 失败后立即重试 | 否。退出即结束，等到下一个整点 |
+| 运行超时 | 超过 1 分钟则停止任务 |
 
 「编辑触发器」里应对应：
 
@@ -148,6 +149,7 @@ flowchart TB
 | 仅交互式登录 | 是 | 未登录 Windows 会话时通常不跑。 |
 | 过了计划时间立即补跑 | 否 | 关机错过整点后，开机不会立刻补拉，等到下一个整点。 |
 | 失败后按频率重新启动 | 否 | 「设置」里不要勾选该项。`git fetch` / `git pull` 失败只记日志并退出，下一小时再试。 |
+| 运行超过以下时间则停止 | 1 分钟 | SSH 或 git 卡住超过 1 分钟会被杀掉。本小时内不重试，等到下一个整点。 |
 
 「设置」页里「请勿启动新实例」表示上一轮还在跑时，到点了不再开第二个，避免两路 `git pull` 同时改同一仓库。失败立即重试保持关闭：不要勾选「如果任务失败，按以下频率重新启动」。
 
@@ -171,6 +173,9 @@ schtasks /Delete /TN CursorConfigGitSync /F
 schtasks /Create /F /TN CursorConfigGitSync /SC DAILY /ST 07:00 /RI 60 /DU 16:00 /TR "C:\Users\sn03910\.cursor\tools\sync-github.cmd" /RL LIMITED
 ```
 
-重建后请打开「设置」，确认「如果任务失败，按以下频率重新启动」未勾选。
+重建后请打开「设置」，确认：
+
+- 「如果任务失败，按以下频率重新启动」未勾选
+- 「如果任务运行时间超过以下时间，停止任务」为 **1 分钟**（`schtasks /Create` 默认往往是 72 小时，需要改回来）
 
 Git Bash 里调用 `schtasks` 时，要把 `/Create` 这类开关写成 `//Create`，或先设 `MSYS_NO_PATHCONV=1`。否则 Git Bash 会把 `/Create` 当成路径。
