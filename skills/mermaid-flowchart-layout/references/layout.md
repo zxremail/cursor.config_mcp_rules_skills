@@ -517,7 +517,7 @@ flowchart TB
 
 边上的说明文字不跟着改成蓝或绿。只有这两类方向时不加图例。分层架构的路径语义仍用 §4 的路径色表。
 
-`sequenceDiagram` 不能给单条消息写 `linkStyle`。请求写实线 `->>`，返回写虚线 `-->>`。导出 HTML 时由 `markdown-to-html` 按线型补上蓝/绿。自调用在纯 Mermaid 里也是实线，要单独留浅色时改用 HTML 泳道时序的 `.seq-self`。
+`sequenceDiagram` 不能给单条消息写 `linkStyle`。请求写实线 `->>`，返回写虚线 `-->>`。导出 HTML 时由 `markdown-to-html` 按线型补上蓝/绿。自调用在纯 Mermaid 里也是实线，要单独留浅色时改用 HTML 泳道时序的 `.seq-self`。时序图禁止正文 `classDef`（会解析失败），必须 `%% classDef` 注释；见 `markdown-export` `seq-classdef`。
 
 **时序图必须用 `Note` 标出箭头上看不见的东西。** 消息箭头只写谁对谁做什么。下面这些不要只靠读者猜，写在 `Note over`（或 `Note left of` / `Note right of`）里：
 

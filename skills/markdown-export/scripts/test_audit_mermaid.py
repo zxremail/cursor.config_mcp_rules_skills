@@ -191,6 +191,106 @@ class AuditTests(unittest.TestCase):
         self.assertIn("md-filename", codes)
         self.assertEqual(code, 2)
 
+    def test_seq_live_classdef_forbidden(self):
+        text = """# t
+
+| <span style="color:#C9A0FF">列</span> |
+|------|
+| a |
+
+```mermaid
+---
+title: AMS 拉起进程后被 verifier 拒绝
+---
+%%{init: {'theme': 'dark'}}%%
+sequenceDiagram
+    participant A as AMS
+    A->>A: Start proc
+    classDef act fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+```
+"""
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("seq-classdef", codes)
+        self.assertEqual(code, 2)
+
+    def test_seq_live_class_assign_forbidden(self):
+        text = """# t
+
+| <span style="color:#C9A0FF">列</span> |
+|------|
+| a |
+
+```mermaid
+---
+title: AMS 拉起进程后被 verifier 拒绝
+---
+%%{init: {'theme': 'dark'}}%%
+sequenceDiagram
+    %% classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    participant A as AMS
+    A->>A: Start proc
+    class A n
+```
+"""
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("seq-classdef", codes)
+        self.assertEqual(code, 2)
+
+    def test_seq_comment_classdef_ok(self):
+        text = """# t
+
+| <span style="color:#C9A0FF">列</span> |
+|------|
+| a |
+
+```mermaid
+---
+title: AMS 拉起进程后被 verifier 拒绝
+---
+%%{init: {'theme': 'dark'}}%%
+sequenceDiagram
+    %% classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF
+    participant A as AMS
+    A->>A: Start proc
+```
+"""
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("seq-classdef", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
+    def test_seq_missing_comment_classdef(self):
+        text = """# t
+
+| <span style="color:#C9A0FF">列</span> |
+|------|
+| a |
+
+```mermaid
+---
+title: AMS 拉起进程后被 verifier 拒绝
+---
+%%{init: {'theme': 'dark'}}%%
+sequenceDiagram
+    participant A as AMS
+    A->>A: Start proc
+```
+"""
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("seq-classdef", codes)
+        self.assertEqual(code, 2)
+
+    def test_flowchart_live_classdef_not_seq_rule(self):
+        data, code = run_audit(GOOD)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("seq-classdef", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
     def test_svg_blank_in_fence_ignored(self):
         text = (
             GOOD

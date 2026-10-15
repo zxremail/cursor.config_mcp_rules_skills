@@ -100,6 +100,7 @@ description: >-
 - **水平/垂直泳道禁止改成 PNG / Markdown 图片引用。** 预览空白时修开标签单行与内部无空行，不要另存 `.png`、不要 `![](….png)` / `![](….svg)`。`swimlane-png` 扫这一条；细则 `fig-horizontal-swimlane` / `fig-vertical-swimlane`。
 - Markdown 文档中的每个 mermaid 图也要有「实际含义标题」：围栏开头写 YAML `title`（取最近小节 + 图意，禁止「流程图」「如图」），然后再写 `%%{init}`。不要在围栏外再重复一行标题。
 - 每一张图都必须遵守 §5 深彩色配色硬规则（`theme: dark` **加上**节点 `style`/`classDef`）。无配色的图视为未完成，不得写入文件。
+- **`sequenceDiagram` 禁止正文 `classDef` / `class`。** 语法没有这两条，写进去预览会 `Parse error` / `Expecting SOLID_OPEN_ARROW`。参与者底色用 `themeVariables.actorBkg`；验收用注释 `%% classDef n fill:#2E86AB,stroke:#1B4965,color:#FFFFFF`（必须带 `fill:`）。`audit_mermaid.py` 代码 `seq-classdef`。flowchart 的正文 `classDef` 不受本条约束。
 - 尽量不要使用外部图片链接或 ASCII 艺术图。
 - **禁止使用 `\n` 作为换行**：Mermaid 节点文本中需要换行时，必须使用 `<br>` 标签，不要使用 `\n`。`\n` 在预览中会被原样显示为文字，不会换行。
   - 正确示例：`A["第一行<br>第二行"]`

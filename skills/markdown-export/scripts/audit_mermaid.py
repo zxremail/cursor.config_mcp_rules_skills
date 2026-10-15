@@ -42,6 +42,10 @@ INIT_DARK_RE = re.compile(
 TITLE_RE = re.compile(r"^title:\s*(.+)$", re.M)
 PIPE_ROW_RE = re.compile(r"^\|(.+)\|\s*$")
 SEP_CELL_RE = re.compile(r"^:?-+:?$")
+SEQ_KIND_RE = re.compile(r"^\s*sequenceDiagram\b", re.M | re.I)
+CLASSDEF_LIVE_RE = re.compile(r"^\s*classDef\b", re.M)
+CLASS_ASSIGN_LIVE_RE = re.compile(r"^\s*class\s+\S", re.M)
+CLASSDEF_COMMENT_RE = re.compile(r"^\s*%%\s*classDef\b", re.M)
 
 
 def issue(file: str, line: int, diagram: int | None, code: str, msg: str) -> dict:
@@ -108,6 +112,27 @@ def audit_diagram(file: str, diag: int, line: int, body: str, in_md: bool) -> li
         issues.append(
             issue(file, line, diag, "fill", "无 style/classDef fill，节点仍是默认浅底")
         )
+    if SEQ_KIND_RE.search(src):
+        if CLASSDEF_LIVE_RE.search(src) or CLASS_ASSIGN_LIVE_RE.search(src):
+            issues.append(
+                issue(
+                    file,
+                    line,
+                    diag,
+                    "seq-classdef",
+                    "sequenceDiagram 禁止正文 classDef/class（解析失败）；须 %% classDef 注释",
+                )
+            )
+        elif not CLASSDEF_COMMENT_RE.search(src):
+            issues.append(
+                issue(
+                    file,
+                    line,
+                    diag,
+                    "seq-classdef",
+                    "sequenceDiagram 必须有 %% classDef 注释（参与者底色用 actorBkg）",
+                )
+            )
     for f in fills:
         if f in LIGHT_FILLS:
             issues.append(issue(file, line, diag, "light-fill", f"浅色 fill:{f}"))
