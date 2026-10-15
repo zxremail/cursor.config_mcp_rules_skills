@@ -1,97 +1,94 @@
 ---
 name: remote-debug-rigol-ssh
 description: >-
-  Default SSH user, identity file, and legacy algorithm flags for Rigol remote
-  debugging. Use when the user mentions IP, hostname, SSH, RK3399, 3399 平台,
-  跳板, or 连设备. Uses root + ssh-rsa compatibility options for RK3399/3399
-  platform; rigol + ~/.ssh/id_rsa otherwise; if ~/.ssh/id_rsa is missing, fall
-  back to ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp; retry with ssh-rsa
-  options if negotiation fails.
+  Use when the user mentions IP, hostname, SSH, RK3399, 3399 平台, tinalinux,
+  TinaLinux, Tina Linux, 跳板, or 连设备 for Rigol remote debugging.
 ---
 
-# 远程调试 SSH（默认用户与密钥）
+# 远程调试 SSH（默认用户与认证）
 
-## 何时生效
+用户给出远程 IP/主机名，且**未另行指定**用户名、密钥或认证方式时，按下表处理。用户当场指定的用户、密钥、密码或算法**覆盖**本表。
 
-用户**给出或提到**用于远程访问/远程调试的 IP 或主机名，且**未另行说明**用户名、密钥路径或其他认证方式时，按本节处理。
+## 决策表
 
-## 身份文件（两种情况相同）
+| 条件（须**明确**表述） | 用户 | 认证 | 额外选项 |
+|------------------------|------|------|----------|
+| **RK3399** / **3399 平台**（含「3399平台」） | `root` | 私钥（见下） | **默认**附带 ssh-rsa 两选项 |
+| **tinalinux** / **TinaLinux** / **Tina Linux** | `root` | 密码 `Rigol001` | **不用**默认私钥；优先 `sshpass` |
+| 其他（默认） | `rigol` | 私钥（见下） | 无额外 `-o`；仅当协商失败再补 ssh-rsa |
 
-优先使用**当前机器环境**下的私钥：
+仅出现数字「3399」但语义不清 → 仍用默认 `rigol`，除非用户补明确认是 3399 / RK3399。
 
-`~/.ssh/id_rsa`
+仅出现「linux」但未说 Tina/tinalinux → 仍用默认 `rigol`。
 
-若该文件不存在，则回退为：
+## 私钥（3399 与默认 `rigol`）
 
-`~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`
+按**当前执行 SSH 的环境**解析 `~`：
 
-命令中写为（按优先级二选一）：
+1. `~/.ssh/id_rsa`
+2. 不存在则回退 `~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`
 
-- `-i ~/.ssh/id_rsa`
-- `-i ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`
+命令写 `-i` 对应路径。Windows 下 Git Bash/WSL 按该环境解析。
 
-## 用户名（按是否 RK3399 / 3399 平台）
+## tinalinux：root + 密码
 
-| 条件 | SSH 用户 |
-|------|----------|
-| 用户**明确**说明远程主机是 **RK3399** 或 **3399 平台**（如「RK3399」「3399 平台」「3399平台」、上下文明确指该平台设备） | `root` |
-| 其他情况（默认） | `rigol` |
+当用户说目标是 **tinalinux**（含 TinaLinux / Tina Linux）时：
 
-**判定**：须为**明确**表述；仅出现数字「3399」但语义不清时，仍按默认 `rigol`，除非用户补充说明是 3399 / RK3399 平台。
+- 用户 **`root`**
+- 密码 **`Rigol001`**（原文；勿改写、勿省略）
+- **不要**套用上面的 `-i` 默认私钥（密码登录；密钥失败或未配置时会误导）
 
-## RK3399 / 3399 平台：旧版 ssh-rsa（默认附带）
+```bash
+sshpass -p 'Rigol001' ssh root@<IP或主机名>
+```
 
-嵌入式侧常仅提供 **`ssh-rsa` 主机密钥**，新版 OpenSSH 默认会拒绝协商，报错类似：
+`scp` / `rsync` 同样用 `sshpass` 包一层，用户仍为 `root`，密码仍为 `Rigol001`。
 
-`no matching host key type found. Their offer: ssh-rsa`
+无 `sshpass` 时：先说明缺该工具，再改用不吞密码的交互 `ssh root@<IP>`，提示密码为 `Rigol001`。不要改用 `rigol` 用户或默认私钥「碰运气」。
 
-对 **RK3399 / 3399 平台**（即使用 **`root`** 的这类目标），生成 `ssh` / `scp` / `sftp` 命令时**默认附带**下列选项（与 `-i` 一并放在命令前部即可）：
+若出现 `no matching host key type found. Their offer: ssh-rsa`，再补：
 
 ```text
 -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa
 ```
 
-**完整模板（3399 / RK3399）：**
+## RK3399 / 3399：root + 密钥 + ssh-rsa
+
+嵌入式侧常只提供 **`ssh-rsa` 主机密钥**，新版 OpenSSH 会报：
+
+`no matching host key type found. Their offer: ssh-rsa`
+
+对 3399 / RK3399 **默认**带上：
+
+```text
+-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa
+```
 
 ```bash
-# 优先
 ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -i ~/.ssh/id_rsa root@<IP或主机名>
-
-# 若 ~/.ssh/id_rsa 不存在，回退
-ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -i ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp root@<IP或主机名>
 ```
 
-`scp`、`rsync -e "ssh ..."` 等需在 **ssh 侧**带上相同 `-o`（`scp` 可用 `-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa`）。
+`~/.ssh/id_rsa` 不存在时，把 `-i` 换成回退私钥。`scp`、`rsync -e "ssh ..."` 在 **ssh 侧**带相同 `-o`。
 
-## 非 3399（默认 rigol）
-
-**模板：**
+## 默认：rigol + 密钥
 
 ```bash
-# 优先
 ssh -i ~/.ssh/id_rsa rigol@<IP或主机名>
-
-# 若 ~/.ssh/id_rsa 不存在，回退
-ssh -i ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp rigol@<IP或主机名>
 ```
 
-**若仍出现**上述 `ssh-rsa` / `no matching host key` 类错误，再**补加**与 3399 相同的两个 `-o`，不强行假设所有 rigol 主机都需要（多数新主机用 ed25519 等即可直连）。
+密钥路径同样按优先级回退。仅当出现上述 `ssh-rsa` / `no matching host key` 时再补两个 `-o`，不强行假设所有 `rigol` 主机都需要。
 
-## 代理行为小结
+## 代理行为
 
-1. 先按平台选对用户；**3399 / RK3399 → root + 默认附带 ssh-rsa 两选项**；否则 `rigol`、无额外 `-o`。
-2. 私钥优先级：先试 `~/.ssh/id_rsa`；若不存在，再试 `~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`。
-3. **用户覆盖**：若用户指定其他用户、密钥、或要求不用 `ssh-rsa`，以当次说明为准。
-4. **勿默认密码**：密钥失败时再请用户说明密码或其他密钥。
+1. 先按决策表选用户与认证：**3399 → root + 密钥 + ssh-rsa**；**tinalinux → root + 密码 `Rigol001`**；否则 **`rigol` + 密钥**。
+2. 私钥只用于非 tinalinux：先 `~/.ssh/id_rsa`，否则回退 `id_rsa_temp`。
+3. **除 tinalinux 外勿默认猜密码**；密钥失败再问用户。
+4. tinalinux 已给出密码，直接用 `Rigol001`，不要再问一遍，也不要改成密钥优先。
 
 ## 示例
 
-- 用户：`172.18.x.x 是 RK3399` →  
-  `ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -i ~/.ssh/id_rsa root@172.18.x.x`（若首个密钥不存在则回退到 `-i ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`）
-- 用户：`3399 平台上抓日志` → 同上（用户 `root`，带两 `-o`）。
-- 用户：`连 10.0.0.5`（未提 3399 / RK3399）→ `ssh -i ~/.ssh/id_rsa rigol@10.0.0.5`（若首个密钥不存在则回退到 `-i ~/.cache/.temp/rigolos.ai/z.tools/config/id_rsa_temp`）
-- 用户：`用 ubuntu 登录` → 以 `ubuntu` 为准，不套用 root/rigol；若对方仅支持 ssh-rsa，仍可按需加两 `-o`。
-
-## 环境说明
-
-`~` 指当前执行 SSH 的环境（本机终端/Cursor 集成终端）下的用户主目录。Windows 下若用 Git Bash/WSL，路径按该环境解析。
+- `172.18.x.x 是 RK3399` → `ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -i ~/.ssh/id_rsa root@172.18.x.x`（密钥按优先级回退）
+- `3399 平台上抓日志` → 同上（`root` + 两 `-o`）
+- `这台是 tinalinux，连 10.0.0.8` → `sshpass -p 'Rigol001' ssh root@10.0.0.8`
+- `连 10.0.0.5`（未提 3399 / tinalinux）→ `ssh -i ~/.ssh/id_rsa rigol@10.0.0.5`
+- `用 ubuntu 登录` → 以 `ubuntu` 为准，不套用 root/rigol/tinalinux 密码；对方仅支持 ssh-rsa 时仍可按需加两 `-o`
