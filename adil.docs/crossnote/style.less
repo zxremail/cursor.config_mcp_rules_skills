@@ -1,4 +1,6 @@
-/* MPE Open Preview锛欸itHub Dark */
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
 html, body, .preview-container, .preview-container .crossnote[data-for='preview'], .markdown-preview, .markdown-body {
   background-color: #0d1117 !important;
   color: #c9d1d9 !important;
@@ -28,3 +30,22 @@ table tr { background-color: #0d1117 !important; }
 table tr:nth-child(2n) { background-color: #161b22 !important; }
 table th, table td { border-color: #30363d !important; color: #c9d1d9 !important; }
 
+/* 侧栏目录：默认 280px 会把中文标题折成两行，看起来像条目挤在一起 */
+.preview-container {
+  --sidebar-toc-width: 620px;
+}
+.preview-container.show-sidebar-toc .md-sidebar-toc.md-sidebar-toc {
+  width: var(--sidebar-toc-width);
+  background-color: #0d1117 !important;
+  color: #c9d1d9 !important;
+  border-left-color: #30363d !important;
+}
+.preview-container.show-sidebar-toc .md-sidebar-toc .md-sidebar-toc-content {
+  overflow-x: auto;
+}
+.preview-container.show-sidebar-toc .md-sidebar-toc a,
+.preview-container.show-sidebar-toc .md-sidebar-toc .md-toc-link,
+.preview-container.show-sidebar-toc .md-sidebar-toc summary.md-toc-link-wrapper {
+  white-space: nowrap !important;
+  line-height: 1.6;
+}
