@@ -5,7 +5,9 @@
   
   mathjaxConfig: {
   "tex": {},
-  "options": {},
+  "options": {
+    "enableEnrichment": false
+  },
   "loader": {}
 },
   

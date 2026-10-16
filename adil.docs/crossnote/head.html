@@ -13,15 +13,30 @@ blockquote { color: #8b949e !important; border-left-color: #30363d !important; }
 table tr { background-color: #0d1117 !important; }
 table tr:nth-child(2n) { background-color: #161b22 !important; }
 table th, table td { border-color: #30363d !important; color: #c9d1d9 !important; }
-.preview-container { --sidebar-toc-width: 620px; }
+html, .preview-container { --sidebar-toc-width: 350px; }
 .preview-container.show-sidebar-toc .md-sidebar-toc.md-sidebar-toc {
-  width: var(--sidebar-toc-width);
   background-color: #0d1117 !important;
   color: #c9d1d9 !important;
   border-left-color: #30363d !important;
 }
 .preview-container.show-sidebar-toc .md-sidebar-toc .md-sidebar-toc-content {
-  overflow-x: auto;
+  overflow-x: auto !important;
+}
+.preview-container.show-sidebar-toc .md-sidebar-toc .md-sidebar-toc-resize-handle {
+  position: relative;
+  width: 10px !important;
+  cursor: col-resize !important;
+  z-index: 60;
+  pointer-events: auto !important;
+  flex-shrink: 0 !important;
+}
+.preview-container.show-sidebar-toc .md-sidebar-toc .md-sidebar-toc-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -8px;
+  width: 24px;
 }
 .preview-container.show-sidebar-toc .md-sidebar-toc a,
 .preview-container.show-sidebar-toc .md-sidebar-toc .md-toc-link,
@@ -30,3 +45,5 @@ table th, table td { border-color: #30363d !important; color: #c9d1d9 !important
   line-height: 1.6;
 }
 </style>
+<script src="toc-level1-open.js?v=350drag"></script>
+<script src=".crossnote/toc-level1-open.js?v=350drag"></script>
