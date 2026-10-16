@@ -25,16 +25,11 @@ Markdown Preview Enhanced 实时预览里，用**页面级** `th { position: sti
 
 **不要用本技能：** 内置 Markdown 预览、md2html 独立 HTML（走 freezing-html-table-headers）。
 
-## 必改文件（工作区优先，全局兜底）
+## 必改文件（只改全局）
 
-| 路径 | 作用 |
-|------|------|
-| `<workspace>/.crossnote/style.less` | MPE 注入预览的主样式 |
-| `<workspace>/.crossnote/head.html` | 写入 `<head>`，不被正文 DOMPurify 丢掉 |
-| `~/.local/state/crossnote/style.less` | 命令面板 **Customize CSS (Global)** 写这里 |
-| `~/.local/state/crossnote/head.html` | 全局 head 兜底 |
+修改.crossnote只修改全局.crossnote，永不生成工作区.crossnote，永不修改工作区的.crossnote
 
-工作区文件优先于全局。两边都写同一套规则，避免「工作区改了、已打开的壳仍读全局」。
+详见 **mpe-crossnote-global-only**。只写 `%USERPROFILE%/.crossnote/style.less` 与 `head.html`（本机 `C:/Users/sn03910/.crossnote/`）。命令面板：**Customize CSS (Global)** / **Customize Preview Html Head (Global)**。
 
 ## 落地配方
 
@@ -69,7 +64,7 @@ table.sticky-head thead th {
 
 1. **禁止** `html, body { overflow: hidden }`（以及任何把整页锁死的 `overflow: hidden`）。sticky 仍失效时，去查预览内容容器，不要锁页面。这会让整个预览无法下滑。
 2. **禁止**给表格外包 `overflow` + `max-height`。GitHub 主题的 `table { display:block; overflow:auto }` 必须用 `display:table; overflow:visible` 盖掉。
-3. **不必关预览标签。** 在编辑器里保存工作区 `.crossnote/style.less` 或 `head.html` 时，MPE 会重新编译样式并整页刷新。只保存 `.md` 只会换正文，外壳 CSS 不变。若样式是外部写入、刷新仍是旧的：在编辑器里打开并再保存一次 `.crossnote` 文件；仍无效再关标签重开，或 `Developer: Reload Window`。
+3. **不必关预览标签。** 在编辑器里保存**全局** `.crossnote/style.less` 或 `head.html` 时，MPE 会重新编译样式并整页刷新。只保存 `.md` 只会换正文，外壳 CSS 不变。若样式是外部写入、刷新仍是旧的：打开并再保存一次全局 `.crossnote` 文件；仍无效再关标签重开，或 `Developer: Reload Window`。
 
 ## 为什么 `.md` 里的 `<style>` 不够
 
@@ -77,8 +72,8 @@ MPE 用 DOMPurify 丢掉正文里的 `<style>` 标签（`style=""` 属性会留�
 
 ## 检查清单
 
-- [ ] 写入工作区 `.crossnote/style.less` **和** `head.html`
-- [ ] 需要时同步 `~/.local/state/crossnote/` 两份文件
+- [ ] 只写入全局 `%USERPROFILE%/.crossnote/style.less` **和** `head.html`
+- [ ] 未创建、未修改工作区 `.crossnote`
 - [ ] 只改 `.preview-container .crossnote[data-for=preview]`，没有 `html/body overflow:hidden`
 - [ ] 表格 `display:table; overflow:visible`；sticky 在 `th` 上；不透明背景
 - [ ] 无 `max-height` + `overflow` 包裹层
