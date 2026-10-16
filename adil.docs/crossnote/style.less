@@ -30,19 +30,15 @@ table tr { background-color: #0d1117 !important; }
 table tr:nth-child(2n) { background-color: #161b22 !important; }
 table th, table td { border-color: #30363d !important; color: #c9d1d9 !important; }
 
-/* 侧栏目录：默认 350px。MPE 会用行内 width 记住旧的 500，必须 !important 盖掉 */
+/* 侧栏目录：默认 350px。不要写 width !important，否则拖条无效 */
 html,
 .preview-container {
-  --sidebar-toc-width: 350px !important;
+  --sidebar-toc-width: 350px;
 }
 .preview-container.show-sidebar-toc .md-sidebar-toc.md-sidebar-toc {
-  width: 350px !important;
   background-color: #0d1117 !important;
   color: #c9d1d9 !important;
   border-left-color: #30363d !important;
-}
-.preview-container.show-sidebar-toc .crossnote {
-  width: calc(100% - 350px) !important;
 }
 .preview-container.show-sidebar-toc .md-sidebar-toc .md-sidebar-toc-content {
   overflow-x: auto !important;
