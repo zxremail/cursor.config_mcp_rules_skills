@@ -13,7 +13,14 @@ description: >-
 
 ## 只许写这些文件
 
-Windows：`%USERPROFILE%/.crossnote/`（本机即 `C:/Users/sn03910/.crossnote/`）
+按平台选**全局**目录（本机 Customize CSS/Html Head (Global) 打开的就是这份）：
+
+| 平台 | 路径 |
+|------|------|
+| Linux / *nix | `$XDG_CONFIG_HOME/.crossnote`，否则 `~/.local/state/crossnote`（本机即 `/home/adil/.local/state/crossnote/`） |
+| Windows | `%USERPROFILE%/.crossnote/` |
+
+不要把 Linux 的全局配置写到 `~/.crossnote/`：本机 MPE 不读那里。
 
 | 文件 | 用途 |
 |------|------|
