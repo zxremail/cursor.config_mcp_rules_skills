@@ -11,6 +11,15 @@ description: >-
 
 修改.crossnote只修改全局.crossnote，永不生成工作区.crossnote，永不修改工作区的.crossnote
 
+## 动手前必须先自查平台
+
+每次改全局配置，**先定平台再动文件**，不要凭记忆写路径：
+
+1. 看本机 OS（`user_info` / `uname`）：Linux/*nix 与 Windows 全局目录不同。
+2. *nix 再确认：若有 `XDG_CONFIG_HOME`，用 `$XDG_CONFIG_HOME/.crossnote`；否则用 `~/.local/state/crossnote`。
+3. 只编辑上一步解析出的目录。Linux 上 **`~/.crossnote/` 不是全局配置**，不要改它。
+4. 再扫一眼工作区是否已有 `.crossnote`（会盖过全局）；有则告知用户，未明确要求则不动。
+
 ## 只许写这些文件
 
 按平台选**全局**目录（本机 Customize CSS/Html Head (Global) 打开的就是这份）：
