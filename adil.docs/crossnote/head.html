@@ -22,6 +22,22 @@ html, .preview-container { --sidebar-toc-width: 500px; }
 .preview-container.show-sidebar-toc .md-sidebar-toc .md-sidebar-toc-content {
   overflow-x: auto !important;
 }
+.preview-container.show-sidebar-toc .md-sidebar-toc .md-sidebar-toc-resize-handle {
+  position: relative;
+  width: 10px !important;
+  cursor: col-resize !important;
+  z-index: 60;
+  pointer-events: auto !important;
+  flex-shrink: 0 !important;
+}
+.preview-container.show-sidebar-toc .md-sidebar-toc .md-sidebar-toc-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -8px;
+  width: 24px;
+}
 .preview-container.show-sidebar-toc .md-sidebar-toc a,
 .preview-container.show-sidebar-toc .md-sidebar-toc .md-toc-link,
 .preview-container.show-sidebar-toc .md-sidebar-toc summary.md-toc-link-wrapper {
