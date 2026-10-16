@@ -86,18 +86,34 @@
 
   function isFirstLevel(details) {
     var summary = details.querySelector(":scope > summary.md-toc-link-wrapper");
-    if (summary && summary.getAttribute("data-level") != null) {
-      return summary.getAttribute("data-level") === "0";
+    var level = summary && summary.getAttribute("data-level");
+    if (level != null) {
+      return level === "0";
     }
-    var root = details.closest(".md-toc");
-    return !!(root && details.parentElement === root);
+    var p = details.parentElement;
+    while (p) {
+      if (p.matches && p.matches("details.md-toc-details")) {
+        return false;
+      }
+      p = p.parentElement;
+    }
+    return !!details.closest(".md-sidebar-toc");
   }
 
   function applyLevel() {
-    var items = document.querySelectorAll(".md-sidebar-toc details.md-toc-details");
+    var items = document.querySelectorAll(
+      ".md-sidebar-toc details.md-toc-details"
+    );
     for (var i = 0; i < items.length; i++) {
       items[i].open = isFirstLevel(items[i]);
     }
+  }
+
+  function applyLevelSoon() {
+    applyLevel();
+    requestAnimationFrame(applyLevel);
+    setTimeout(applyLevel, 50);
+    setTimeout(applyLevel, 200);
   }
 
   function tocWasRebuilt(mutations) {
@@ -133,14 +149,14 @@
   function onTocChrome() {
     seedWidthOnce();
     bindDrag();
-    applyLevel();
+    applyLevelSoon();
   }
 
   onTocChrome();
   new MutationObserver(function (mutations) {
     if (tocWasRebuilt(mutations)) {
       bindDrag();
-      applyLevel();
+      applyLevelSoon();
     } else {
       bindDrag();
     }
