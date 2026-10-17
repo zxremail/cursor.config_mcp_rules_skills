@@ -7,6 +7,8 @@
   var TOC_WIDTH_PX = 350;
   var MIN_WIDTH = 200;
   var REPLACEABLE_WIDTHS = { 280: 1, 420: 1, 500: 1, 620: 1 };
+  var OPEN_KEY_PREFIX = "crossnote.sidebarTocOpen.";
+  var restoring = false;
 
   function clampWidth(px) {
     var max = Math.max(MIN_WIDTH, window.innerWidth - 120);
@@ -100,12 +102,109 @@
     return !!details.closest(".md-sidebar-toc");
   }
 
+  function docKey() {
+    var title = (document.title || "").trim();
+    if (title) {
+      return title;
+    }
+    return "default";
+  }
+
+  function storageKey() {
+    return OPEN_KEY_PREFIX + docKey();
+  }
+
+  function detailsKey(details) {
+    var a = details.querySelector(":scope > summary a.md-toc-link");
+    var href = a && a.getAttribute("href");
+    if (href) {
+      return href;
+    }
+    var text = details.querySelector(":scope > summary");
+    return (text && text.textContent ? text.textContent : "").trim();
+  }
+
+  function readSavedOpen() {
+    try {
+      var raw = localStorage.getItem(storageKey());
+      if (!raw) {
+        return null;
+      }
+      var parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        return parsed;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function persistOpenState() {
+    if (restoring) {
+      return;
+    }
+    var items = document.querySelectorAll(
+      ".md-sidebar-toc details.md-toc-details"
+    );
+    if (!items.length) {
+      return;
+    }
+    var map = {};
+    for (var i = 0; i < items.length; i++) {
+      var key = detailsKey(items[i]);
+      if (key) {
+        map[key] = !!items[i].open;
+      }
+    }
+    try {
+      localStorage.setItem(storageKey(), JSON.stringify(map));
+    } catch (e) {}
+  }
+
+  function bindToggle() {
+    var sidebar = document.querySelector(".md-sidebar-toc");
+    if (!sidebar || sidebar.__mpeToggleBound) {
+      return;
+    }
+    sidebar.__mpeToggleBound = true;
+    sidebar.addEventListener(
+      "toggle",
+      function (e) {
+        var t = e.target;
+        if (
+          restoring ||
+          !t ||
+          !t.matches ||
+          !t.matches("details.md-toc-details")
+        ) {
+          return;
+        }
+        persistOpenState();
+      },
+      true
+    );
+  }
+
   function applyLevel() {
     var items = document.querySelectorAll(
       ".md-sidebar-toc details.md-toc-details"
     );
-    for (var i = 0; i < items.length; i++) {
-      items[i].open = isFirstLevel(items[i]);
+    if (!items.length) {
+      return;
+    }
+    var saved = readSavedOpen();
+    restoring = true;
+    try {
+      for (var i = 0; i < items.length; i++) {
+        var details = items[i];
+        var key = detailsKey(details);
+        if (saved && Object.prototype.hasOwnProperty.call(saved, key)) {
+          details.open = !!saved[key];
+        } else {
+          details.open = isFirstLevel(details);
+        }
+      }
+    } finally {
+      restoring = false;
     }
   }
 
@@ -149,6 +248,7 @@
   function onTocChrome() {
     seedWidthOnce();
     bindDrag();
+    bindToggle();
     applyLevelSoon();
   }
 
@@ -156,9 +256,11 @@
   new MutationObserver(function (mutations) {
     if (tocWasRebuilt(mutations)) {
       bindDrag();
+      bindToggle();
       applyLevelSoon();
     } else {
       bindDrag();
+      bindToggle();
     }
   }).observe(document.documentElement, {
     childList: true,
