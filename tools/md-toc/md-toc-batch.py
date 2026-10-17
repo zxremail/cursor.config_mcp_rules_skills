@@ -47,7 +47,7 @@ INDEX_LINK_RE = re.compile(
 )
 TOC_TITLE = "目录"
 MIN_DEPTH = 2
-MAX_DEPTH = 3
+MAX_DEPTH = 6
 
 TocEntry = namedtuple(
     "TocEntry", ["level", "title", "anchor", "toc_pos_anchor", "raw_line"]

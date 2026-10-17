@@ -41,7 +41,7 @@ python3 ~/.cursor/tools/md-toc/md-toc-batch.py doc.md
 ~/.cursor/tools/md-toc/md-toc --index-link doc.md
 ```
 
-**版本选择**：`md-toc` 脚本检测 `python3` 版本；3.7 以下自动走 `md-toc-batch.py`，行为与默认参数下的 `md-toc.py` 对齐（h2–h3、目录补充、纯 Markdown 目录）。
+**版本选择**：`md-toc` 脚本检测 `python3` 版本；3.7 以下自动走 `md-toc-batch.py`，行为与默认参数下的 `md-toc.py` 对齐（h2–h6、目录补充、纯 Markdown 目录）。
 
 ## 3. 行为
 
@@ -50,7 +50,8 @@ python3 ~/.cursor/tools/md-toc/md-toc-batch.py doc.md
 | 无 `## 目录` | 在 `#` 标题后新建完整目录 |
 | 已有目录 | **保留**现有条目与顺序，只追加正文中未列入的章节 |
 | 目录已齐全 | 不写文件，退出 0 |
-| 标题无 `1.` / `2.1` 编号 | **默认**：先给正文 h2–h3 补序号，再生成与标题一致的目录 |
+| 标题无 `1.` / `2.1` 编号 | **默认**：先给正文 h2–h6 补序号，再生成与标题一致的目录 |
+| 编号段数与 `#` 个数不一致 | stderr 警告（`12.3.1` 必须是 `####`；MPE/目录只认井号） |
 | 标题已手写编号 | 默认不再叠号；仅目录加号用 `--numbered`；禁止改正文序号用 `--no-heading-numbers` |
 | **目录标题格式** | 知识库场景下标题行写为 `## 目录 • <文档标题>`，`<文档标题>` 取自首行 `# …`；详见 **`markdown-knowledge-maintain`** skill |
 | **HTML 导航** | **默认关闭**；对已有文档会自动**移除**旧版 `toc-pos-*` / `md-toc-back` / `md-toc-index` HTML |

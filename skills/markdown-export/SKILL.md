@@ -14,7 +14,8 @@ description: >-
   表格表头、标题栏颜色、管道表、表头字体颜色、span color、图例色名、蓝绿紫橙上色、类似处理、模块底色、
   内联 SVG 空行、SVG 截断 HTML、节点变成源码、
   断句、加逗号、加标点、语义更清晰、只改标点不改措辞、
-  首次生成 markdown、增补章节、黏连长句、事后补标点、
+  首次生成 markdown、增补章节、子节、标题层级、####、MPE 目录、下拉箭头、
+  黏连长句、事后补标点、
   先结论、施事不明、不是 A 是 B、碰巧与绑定、一层定语、同一叫法、
   拆成多行、子行缩进、符号前缀、多层一句、分号硬挤、列表拆段、
   表格单元格、br 分行、主谓宾齐全、短标签列、是/否着色、括号补充、听 X 实际是 Y、对照表残句、
@@ -88,7 +89,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 
 ## 2. 内容
 
-详实、需要时用图，不要为凑类型硬画。尽量不要外部图片链接或 ASCII 艺术图。中文按 **§6**（细则 prose.md）。管道表表头按 **§9**，不要为此改成 HTML `<table>`。列数据着色走 `coloring-markdown-table-column`。
+详实、需要时用图，不要为凑类型硬画。尽量不要外部图片链接或 ASCII 艺术图。中文按 **§6**（细则 prose.md）。管道表表头按 **§9**，不要为此改成 HTML `<table>`。列数据着色走 `coloring-markdown-table-column`。编号标题的 `#` 个数 = 1 + 编号段数（`12.3.1` 必须 `####`）；MPE/目录只认井号，见 **`markdown-knowledge-maintain` §1.2**。
 
 ## 3. 图表语法（格式）
 

@@ -88,6 +88,29 @@ def has_number_prefix(title: str) -> bool:
     return bool(TOC_NUMBER_PREFIX_RE.match(title))
 
 
+def expected_atx_level_for_numbered_title(title: str, min_depth: int) -> int | None:
+    """``12.`` → min_depth；``12.3.1`` → min_depth + 2。无编号则 None。"""
+    m = TOC_NUMBER_PREFIX_RE.match(title)
+    if not m:
+        return None
+    return min_depth + m.group(1).count(".") 
+
+
+def warn_heading_level_vs_number(
+    path: Path, headings: list[tuple[int, str]], min_depth: int
+) -> None:
+    for level, title in headings:
+        expected = expected_atx_level_for_numbered_title(title, min_depth)
+        if expected is None or expected == level:
+            continue
+        hashes = "#" * expected
+        print(
+            f"{path}: 标题「{title}」应对应 h{expected}（{hashes}），"
+            f"实际是 h{level}。MPE/目录只认井号，不认点号编号。",
+            file=sys.stderr,
+        )
+
+
 def strip_number_prefix(title: str) -> str:
     """去掉目录链接文字中的层级序号前缀（如 ``1.`` / ``1.2.3. `` / ``2.1 ``）。"""
     prev = None
@@ -1315,6 +1338,8 @@ def process_file(
             toc_title=toc_title,
         )
 
+    warn_heading_level_vs_number(path, headings, min_depth)
+
     needs = document_needs_update(
         text,
         headings,
@@ -1408,7 +1433,13 @@ def main(argv: list[str] | None = None) -> int:
         description="为 Markdown 插入/补充纯 Markdown 目录（默认无 HTML 锚点）"
     )
     parser.add_argument("files", nargs="+", type=Path, help="目标 .md 文件")
-    parser.add_argument("--max-depth", type=int, default=3, metavar="N")
+    parser.add_argument(
+        "--max-depth",
+        type=int,
+        default=6,
+        metavar="N",
+        help="收入目录的最深标题级别（默认 6，即 h2–h6）",
+    )
     parser.add_argument("--min-depth", type=int, default=2, metavar="N")
     parser.add_argument("--title", default="目录", help="目录小节标题")
     parser.add_argument("--no-separator", action="store_true")
