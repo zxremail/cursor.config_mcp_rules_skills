@@ -13,7 +13,7 @@ description: >-
 
 # Markdown 转 HTML 规范
 
-选 sidecar 布局（深色卡片 / 时序 / 时间表 / 胶囊图）前，先读 `diagram-style-catalog`。本 skill 管 HTML 交卷与 §7.6 深色分层卡片；浅色行动胶囊走 `layer-action-capsule-diagram`。
+选 sidecar 布局（深色卡片 / 时序 / 时间表 / 胶囊图）前，先读 `diagram-style-catalog`。本 skill 管 HTML 交卷与 §7.6 深色分层卡片；用户点名内联 SVG 走 `fig-dark-layer-cards`；浅色行动胶囊走 `layer-action-capsule-diagram`。
 
 
 

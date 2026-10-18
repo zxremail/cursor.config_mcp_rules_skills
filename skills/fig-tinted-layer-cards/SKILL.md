@@ -19,7 +19,7 @@ description: >-
 | 用 | 不用 |
 |---|---|
 | 按层堆叠的设置/能力/模块清单 | 关/改/加/留胶囊 → `layer-action-capsule-diagram` |
-| 层内再分 2～3 个分组，分组里是条目卡片 | 深色 `.layer` 卡片墙 → `markdown-to-html` §3 |
+| 层内再分 2～3 个分组，分组里是条目卡片 | 深色 `.layer` HTML → `markdown-to-html` §3；深色内联 SVG → `fig-dark-layer-cards` |
 | 浅底白框彩卡片、层间一句↓ | 关系/流向架构 → `mermaid-flowchart-layout` |
 
 ## 结构（上→下）

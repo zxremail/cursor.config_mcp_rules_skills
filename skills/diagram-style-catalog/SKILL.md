@@ -39,6 +39,7 @@ description: >-
 | 浅色层底 + 白底分组框 + 饱和色内卡片；层名在左、层间↓、底栏色块图例 | `fig-tinted-layer-cards` |
 | Mermaid `flowchart`、多 subgraph、跨层连线、暗色节点 | `mermaid-flowchart-layout` |
 | 深色分层彩色卡片墙（HTML）；`.layer` / `.halbox` / `customfig` | `markdown-to-html` §3 / §7.6 |
+| 深色分层彩色卡片墙（本地 md 内联 SVG）；深底色框 + 层间↓ + 底栏色块 | `fig-dark-layer-cards` |
 | HTML 时序：贴顶彩色角色栏、生命线、橙色 Note；长时序「阶段 0 / 阶段 1」分隔带 | `html-sequence-swimlane` |
 | 左栏阶段 × 顶栏季度；里程碑横条、菱形节点 | `task-roadmap-timeline` |
 | 中轴虚线 + 上下交错卡片 + 轴上圆点；开机/阶段墙钟时间线；暗色深彩色卡 | `fig-alternating-timeline` |
@@ -60,8 +61,9 @@ description: >-
 | 别当成 | 实际 |
 |--------|------|
 | 「架构图」一律 Mermaid | 先对本表；胶囊 / 深色卡片 / 时间表都不是 flowchart |
-| 胶囊图 = 深色卡片墙 | 胶囊是浅色色带+白卡片；卡片墙是 `markdown-to-html` §3 |
-| 浅色分层彩色卡片墙 = 深色卡片墙 | 浅底白分组彩卡片 → `fig-tinted-layer-cards`；深色 `.layer` → `markdown-to-html` §3 |
+| 胶囊图 = 深色卡片墙 | 胶囊是浅色色带+白卡片；深色卡片墙 HTML → `markdown-to-html` §3；SVG → `fig-dark-layer-cards` |
+| 浅色分层彩色卡片墙 = 深色卡片墙 | 浅底白分组彩卡片 → `fig-tinted-layer-cards`；深色 HTML `.layer` → `markdown-to-html` §3；深色内联 SVG → `fig-dark-layer-cards` |
+| 深色卡片墙 SVG = HTML sidecar | 点名 SVG / 落本地 md → `fig-dark-layer-cards`；独立 HTML 页 → `markdown-to-html` §3 |
 | 浅色分层彩色卡片墙 = 胶囊图 | 本图无关/改/加/留胶囊、无左栏 L0–L7 |
 | roadmap = 人员分工表 | 阶段×时间 → `task-roadmap-timeline`；谁做哪块 → `task-assignment-timeline` |
 | 「时间线」= roadmap / gantt | 上下交错卡片 + 中轴圆点 → `fig-alternating-timeline`；阶段×季度排期 → `task-roadmap-timeline` |
@@ -95,7 +97,8 @@ description: >-
 
 | 图种 | 出口 |
 |------|------|
-| 深色分层卡片 / HTML 时序 / 阶段路线图 / 人员分工表 | `markdown-to-html` sidecar |
+| 深色分层卡片（未点名 SVG）/ HTML 时序 / 阶段路线图 / 人员分工表 | `markdown-to-html` sidecar |
+| 深色分层卡片墙（用户点名 SVG / 落本地 md） | 目标 `.md` 内联 SVG（`fig-dark-layer-cards`） |
 | 左栏水平泳道 | 目标 `.md` 内联 SVG（`fig-horizontal-swimlane`） |
 | 顶栏垂直泳道 | 目标 `.md` 内联 SVG（`fig-vertical-swimlane`） |
 | 并排竖卡流程图 | 目标 `.md` 内联 SVG（`fig-side-by-side-flowcards`） |
@@ -125,6 +128,7 @@ description: >-
 - 也可以 `/` 后搜具体 Skill 名，如 `layer-action-capsule-diagram`
 - 「按分层行动胶囊图画」「走 `layer-action-capsule-diagram`」
 - 「按浅色分层彩色卡片墙画」「走 `fig-tinted-layer-cards`」
+- 「按深色分层彩色卡片墙 SVG 画」「走 `fig-dark-layer-cards`」
 - 「按水平泳道图画」「走 `fig-horizontal-swimlane`」
 - 「按垂直泳道图画」「走 `fig-vertical-swimlane`」
 - 「按并排竖卡流程图画」「走 `fig-side-by-side-flowcards`」
@@ -157,10 +161,22 @@ subgraph / 层（上→下）：
 .md 路径或飞书链接：
 ```
 
-**深色分层卡片**
+**深色分层卡片（HTML sidecar）**
 ```
 标题：
 层（上→下）及每层卡片：
+.md 路径：
+```
+
+**深色分层卡片墙（内联 SVG）**
+```
+标题：
+副标题：
+层（上→下，应用在上）：
+  - 层名 / 副标题 / 色槽（灰蓝橙紫绿）：
+    分组名（可选）：
+      - 卡片标题：一行说明
+层间↓：
 .md 路径：
 ```
 

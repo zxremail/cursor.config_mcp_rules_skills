@@ -11,7 +11,7 @@ description: >-
 
 # Markdown 转 HTML 规范
 
-选 sidecar 布局前先读 `diagram-style-catalog`。本 skill 管 HTML 交卷与深色分层卡片（§3 / §7.6）；浅色行动胶囊走 `layer-action-capsule-diagram`；贴顶泳道时序走 `html-sequence-swimlane`。
+选 sidecar 布局前先读 `diagram-style-catalog`。本 skill 管 HTML 交卷与深色分层卡片（§3 / §7.6）；用户点名内联 SVG / 落本地 md 卡片墙走 `fig-dark-layer-cards`；浅色行动胶囊走 `layer-action-capsule-diagram`；贴顶泳道时序走 `html-sequence-swimlane`。
 
 **格式不准降级。** 完整条文、卡片 HTML/CSS 模板、命令说明以 [references/html.md](references/html.md) 为准。转换用已有 **md2html**，不要手写整页、不要 `Read` 生成的 `.html` 全文。
 
