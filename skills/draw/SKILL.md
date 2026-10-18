@@ -2,8 +2,8 @@
 name: draw
 description: >-
   Use when the user types /draw to pick a diagram visual language from the
-  catalog, then draw. Slash menu for 画图 / 架构图 / 胶囊图 / 路线图 / 时序图 /
-  泳道图 / 时间线 / 并排竖卡.
+  catalog, then draw.   Slash menu for 画图 / 架构图 / 胶囊图 / 路线图 / 时序图 /
+  泳道图 / 时间线 / 并排竖卡 / 辐射功能全景.
 disable-model-invocation: true
 ---
 
@@ -32,6 +32,7 @@ disable-model-invocation: true
 | h-swimlane | 新画：左栏水平泳道 |
 | v-swimlane | 新画：顶栏垂直泳道 |
 | side-flowcards | 新画：并排竖卡流程图 |
+| hub-fnmap | 新画：辐射功能全景（中心+卫星） |
 | cards-drawio | 转换：分层卡片 HTML → draw.io |
 | seq-drawio | 转换：Mermaid 时序图 → draw.io |
 | internalize | 其它：把对照图内化成 Skill |
@@ -51,6 +52,7 @@ disable-model-invocation: true
 | h-swimlane | `fig-horizontal-swimlane` |
 | v-swimlane | `fig-vertical-swimlane` |
 | side-flowcards | `fig-side-by-side-flowcards` |
+| hub-fnmap | `fig-hub-function-map` |
 | cards-drawio | `cards-to-drawio` |
 | seq-drawio | `mermaid-to-drawio` |
 
@@ -58,7 +60,7 @@ disable-model-invocation: true
 
 选定后：
 
-1. 目录 §2「固定出口」的图种 **忽略 Q2**，用表里的默认。含：`tinted-cards`、`dark-cards`、`seq-html`、`roadmap`、`alt-timeline`、`assign`、`h-swimlane`、`v-swimlane`、`side-flowcards`、`cards-drawio`、`seq-drawio`。
+1. 目录 §2「固定出口」的图种 **忽略 Q2**，用表里的默认。含：`tinted-cards`、`dark-cards`、`seq-html`、`roadmap`、`alt-timeline`、`assign`、`h-swimlane`、`v-swimlane`、`side-flowcards`、`hub-fnmap`、`cards-drawio`、`seq-drawio`。
 2. `capsule` / `mermaid-flow` 才采用 Q2；选了「本图种默认」时：胶囊→飞书画板，Mermaid 架构→本地 `.md`。
 3. `internalize` → 目录 §3，不出填空构图大纲。
 4. Read 对应样式 Skill。
