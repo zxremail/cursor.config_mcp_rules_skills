@@ -13,7 +13,7 @@ description: >-
 
 分析机上的改动会随重装丢失。量产行为必须写进 live-build 配方。默认仓库是 GoldEngle `os`，不是当前 Cursor 工作区，也不是刚调通的那台 RIGOLOS。
 
-用户当场给出的 IP / 路径 / 账号 / 密码 **覆盖** 默认表。
+用户当场给出的 IP / 路径 / 账号 **覆盖** 默认表。
 
 ## 默认目标
 
@@ -22,11 +22,11 @@ description: >-
 | 主机 | `172.18.60.122` |
 | 路径 | `/home/adil/GoldEngle/os` |
 | 用户 | `adil` |
-| 认证 | 密码（见下；**禁止**写进分析 md、commit message、飞书、对话复述） |
+| 认证 | 密码 SSH；**本目录不得保存明文** |
 | Git | `.git` → `../.repo/projects/os.git`；`origin` 为 Gerrit `x86/rigol.os/os` |
 | 作者 | 沿用远端已有 `user.name` / `user.email`，**禁止** `git config` |
 
-密码原文：`zxr19840223`。只用于 SSH/SCP。对话里说「已按仓库账号登录」，不要回显密码。
+密码只来自（按序）：用户当场消息（只进当前进程环境 `GOLDENGLE_OS_PASS`）→ 已有环境变量 → `~/.config/goldengle-os/ssh-password`（目录外、`chmod 600`）。**禁止**写入 `~/.cursor/skills/landing-ai-patches-to-os-repo/` 下任何文件。对话、分析 md、commit message、飞书里不要复述密码。
 
 ## 何时不要用
 
@@ -40,7 +40,7 @@ description: >-
    列出要进镜像的路径与内容。分析机 `/etc` 手工文件只是样板。不要把调试用的临时脚本、密码、本机 IP 写进配方。
 
 2. **登录仓库机，先看历史再落盘**  
-   用 [scripts/ssh-os.sh](scripts/ssh-os.sh)（无 `sshpass` 时用脚本内 SSH_ASKPASS，**禁止**为登录去 `apt install sshpass`）。
+   用 [scripts/ssh-os.sh](scripts/ssh-os.sh)（无 `sshpass` 时走 SSH_ASKPASS，**禁止**为登录去 `apt install sshpass`）。脚本从环境或 `~/.config/goldengle-os/ssh-password` 取密，不读 skill 目录。
 
    ```bash
    ~/.cursor/skills/landing-ai-patches-to-os-repo/scripts/ssh-os.sh 'cd /home/adil/GoldEngle/os && git status -sb && git log -20 --oneline'
@@ -88,12 +88,13 @@ description: >-
 | `git add` 报 ignored 仍继续 commit | hook 可能没进索引；`add -f` 后再 `status` |
 | 在 SSH 里 HEREDOC `git commit -m "$(cat <<EOF` | 嵌套 heredoc 会失败；用双 `-m` |
 | 顺手 push Gerrit | 未要求禁止 push |
-| 把密码写进 plymouth 说明 md | 说明只写主机与路径 |
+| 把密码写进 plymouth 说明 md 或本 skill 目录 | 密文只放环境变量或 `~/.config/goldengle-os/ssh-password` |
 
 ## 红旗 — 停下
 
 - 只改了 RIGOLOS 的 `/etc`，仓库 `git status` 仍干净
 - 文件写进 `chroot/` 而不是 `config/includes.*`
-- 提交信息或 md 里出现仓库密码
+- 提交信息、md 或 **本 skill 目录** 里出现仓库密码
+- 把密码写进 `SKILL.md` / `scripts/ssh-os.sh`「图省事」
 - `git commit` 无输出却声称已提交（先 `git log -1`）
 - 改了无关的 iso / deb / `rigolos-info` 却说「只打补丁」
