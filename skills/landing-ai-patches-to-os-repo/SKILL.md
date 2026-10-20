@@ -4,7 +4,7 @@ description: >-
   Use when the user asks to land, apply, or commit an AI-analyzed patch into a
   source repo (especially GoldEngle/os, 172.18.60.122, /home/adil/GoldEngle/os),
   or says 把补丁打进仓库, 源码仓库, 参考 git 历史提交, live-build 配方,
-  includes.chroot_after_packages. Use after an analysis session on a test
+  includes.chroot_after_packages, 现场提供密码. Use after an analysis session on a test
   machine (RIGOLOS) when the durable change must go into the OS image recipe,
   not only onto the live host.
 ---
@@ -13,7 +13,7 @@ description: >-
 
 分析机上的改动会随重装丢失。量产行为必须写进 live-build 配方。默认仓库是 GoldEngle `os`，不是当前 Cursor 工作区，也不是刚调通的那台 RIGOLOS。
 
-用户当场给出的 IP / 路径 / 账号 **覆盖** 默认表。
+用户当场给出的 IP / 路径 / 账号 / 密码 **覆盖** 默认表。密码以**本条消息现场提供**为准。
 
 ## 默认目标
 
@@ -22,11 +22,11 @@ description: >-
 | 主机 | `172.18.60.122` |
 | 路径 | `/home/adil/GoldEngle/os` |
 | 用户 | `adil` |
-| 认证 | 密码 SSH；**本目录不得保存明文** |
+| 认证 | 用户现场给密码；只进本次 `GOLDENGLE_OS_PASS` |
 | Git | `.git` → `../.repo/projects/os.git`；`origin` 为 Gerrit `x86/rigol.os/os` |
 | 作者 | 沿用远端已有 `user.name` / `user.email`，**禁止** `git config` |
 
-密码只来自（按序）：用户当场消息（只进当前进程环境 `GOLDENGLE_OS_PASS`）→ 已有环境变量 → `~/.config/goldengle-os/ssh-password`（目录外、`chmod 600`）。**禁止**写入 `~/.cursor/skills/landing-ai-patches-to-os-repo/` 下任何文件。对话、分析 md、commit message、飞书里不要复述密码。
+**取密：** 本回合用户消息里的密码 → `export GOLDENGLE_OS_PASS=...` 后调用 `ssh-os.sh`。同一会话里若环境里已有、用户未改口，可接着用。没有密码就停下来问「请在本条消息提供仓库 SSH 密码」，不要写文件、不要写进 skill 目录、不要写进 md / commit / 飞书、不要在回复里回显。
 
 ## 何时不要用
 
@@ -40,10 +40,12 @@ description: >-
    列出要进镜像的路径与内容。分析机 `/etc` 手工文件只是样板。不要把调试用的临时脚本、密码、本机 IP 写进配方。
 
 2. **登录仓库机，先看历史再落盘**  
-   用 [scripts/ssh-os.sh](scripts/ssh-os.sh)（无 `sshpass` 时走 SSH_ASKPASS，**禁止**为登录去 `apt install sshpass`）。脚本从环境或 `~/.config/goldengle-os/ssh-password` 取密，不读 skill 目录。
+   现场密码进环境后调用 [scripts/ssh-os.sh](scripts/ssh-os.sh)（无 `sshpass` 时走 SSH_ASKPASS，**禁止**为登录去 `apt install sshpass`）。
 
    ```bash
-   ~/.cursor/skills/landing-ai-patches-to-os-repo/scripts/ssh-os.sh 'cd /home/adil/GoldEngle/os && git status -sb && git log -20 --oneline'
+   GOLDENGLE_OS_PASS='<本条消息中的密码>' \
+     ~/.cursor/skills/landing-ai-patches-to-os-repo/scripts/ssh-os.sh \
+     'cd /home/adil/GoldEngle/os && git status -sb && git log -20 --oneline'
    ```
 
    找同类提交（例如 Plymouth / systemd 看 `Optimize startup and shutdown animations`）。**落点对照** [live-build-map.md](live-build-map.md)。没有同类文件时，问用户，不要猜到 `chroot/` 构建产物里。
@@ -88,7 +90,7 @@ description: >-
 | `git add` 报 ignored 仍继续 commit | hook 可能没进索引；`add -f` 后再 `status` |
 | 在 SSH 里 HEREDOC `git commit -m "$(cat <<EOF` | 嵌套 heredoc 会失败；用双 `-m` |
 | 顺手 push Gerrit | 未要求禁止 push |
-| 把密码写进 plymouth 说明 md 或本 skill 目录 | 密文只放环境变量或 `~/.config/goldengle-os/ssh-password` |
+| 把密码写进 skill / md / `~/.config`「下次好用」 | 现场给、进程环境用一次；缺则再问 |
 
 ## 红旗 — 停下
 

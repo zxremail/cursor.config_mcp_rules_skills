@@ -1,25 +1,20 @@
 #!/bin/sh
-# SSH to GoldEngle os repo host. Password is never stored in this skill directory.
-# Provide GOLDENGLE_OS_PASS, or a 0600 file GOLDENGLE_OS_PASS_FILE
-# (default: ~/.config/goldengle-os/ssh-password).
-# Usage: ssh-os.sh 'remote command'
+# SSH to GoldEngle os repo host.
+# Password: GOLDENGLE_OS_PASS from the current session (user provides it in chat).
+# Do not store secrets in this skill directory.
+# Usage: GOLDENGLE_OS_PASS='...' ssh-os.sh 'remote command'
 set -eu
 
 HOST="${GOLDENGLE_OS_HOST:-172.18.60.122}"
 USER="${GOLDENGLE_OS_USER:-adil}"
-PASS_FILE="${GOLDENGLE_OS_PASS_FILE:-${HOME}/.config/goldengle-os/ssh-password}"
-
 if [ "${1:-}" = "" ]; then
-  echo "usage: $0 'remote-command'" >&2
+  echo "usage: GOLDENGLE_OS_PASS=... $0 'remote-command'" >&2
   exit 2
 fi
 
 PASS="${GOLDENGLE_OS_PASS:-}"
-if [ -z "$PASS" ] && [ -f "$PASS_FILE" ]; then
-  PASS="$(cat "$PASS_FILE")"
-fi
 if [ -z "$PASS" ]; then
-  echo "ssh-os.sh: no password. Set GOLDENGLE_OS_PASS or write one line to $PASS_FILE (chmod 600). Do not put secrets under ~/.cursor/skills/landing-ai-patches-to-os-repo/" >&2
+  echo "ssh-os.sh: GOLDENGLE_OS_PASS is empty. Ask the user to send the SSH password in this chat; do not write it into the skill directory." >&2
   exit 1
 fi
 
