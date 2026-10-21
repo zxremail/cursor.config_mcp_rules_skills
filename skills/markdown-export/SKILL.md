@@ -1,28 +1,12 @@
 ---
 name: markdown-export
 description: >-
-  Use when generating, writing, saving, or exporting markdown documents;
-  when drawing or editing Mermaid diagrams in .md; or when a chart looks
-  light-themed, default-colored, washed-out, pale, or hard to read on a
-  dark background. Triggers: 生成 markdown、写文档、导出 md、准备画流程图、
-  流程图先判断是否改泳道、Mermaid 配色、
-  深彩色、暗色主题、theme dark、浅色图、默认配色、文字被遮挡、显示不全、裁切、
-  嵌套 subgraph 外框内框同色、套盒糊成一块、层框列框不易区分、
-  整理文档、整理一份 md、分析报告、分析日志、写成 md、中文文件名、文件名带空格、
-  时序图按向左/向右给箭头上色、时序图 Note over、长时序阶段带、阶段 0、阶段 1、
-  实际含义标题、YAML title、
-  表格表头、标题栏颜色、管道表、表头字体颜色、span color、图例色名、蓝绿紫橙上色、橙色、紫框、轨名染色、色键、类似处理、模块底色、
-  图注 hex、`#3370FF`、蓝色实线、不直观、色值字面量、
-  内联 SVG 空行、SVG 截断 HTML、节点变成源码、
-  断句、加逗号、加标点、语义更清晰、只改标点不改措辞、
-  首次生成 markdown、增补章节、子节、标题层级、####、MPE 目录、下拉箭头、
-  黏连长句、事后补标点、
-  先结论、施事不明、不是 A 是 B、碰巧与绑定、一层定语、同一叫法、
-  拆成多行、子行缩进、符号前缀、多层一句、分号硬挤、列表拆段、
-  表格单元格、br 分行、主谓宾齐全、短标签列、是/否着色、括号补充、听 X 实际是 Y、对照表残句、
-  语义清晰化、万能口语动词、打完成中断、打用户 Slave、打 TLAST、
-  摸 BAR、直捅、一并改掉、专名标记、直角引号、通道完成中断、
-  新增格式要求、写进 SKILL、改 audit、自优化、格式写进 skill。
+  Use when generating, writing, saving, or exporting markdown（生成/撰写/导出 md、整理文档、写成 md、分析报告）;
+  drawing or editing Mermaid in .md; a chart looks light-themed, default-colored,
+  or hard to read on dark backgrounds; Chinese or spaced filenames; pipe-table header colors;
+  figure legends/captions (色键、图注 hex、蓝色实线); Chinese prose clarity (断句、专名「」、格内列义);
+  inline SVG blanks; 准备画流程图 or choosing swimlanes;
+  adding format rules to this skill（写进 Skill、新增格式要求）.
 ---
 
 # Markdown 文档导出规范
