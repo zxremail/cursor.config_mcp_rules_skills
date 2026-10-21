@@ -98,6 +98,101 @@ class AuditTests(unittest.TestCase):
         codes = {i["code"] for i in data["issues"]}
         self.assertIn("legend-hex", codes)
 
+    def test_bare_chengse(self):
+        text = GOOD + "\n橙色约束是不进作业队列。\n"
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("legend-color-name", codes)
+        self.assertEqual(code, 2)
+
+    def test_bare_zikuang(self):
+        text = GOOD + "\n左右两个紫框是同一条套接字。\n"
+        data, _ = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("legend-color-name", codes)
+
+    def test_bare_zuogui(self):
+        text = GOOD + "\n左轨贴内容区左边下去。\n"
+        data, _ = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("legend-color-name", codes)
+
+    def test_shixian_xuxian_not_color_key(self):
+        text = GOOD + "\n实线是下发，虚线是上报。\n"
+        data, _ = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("legend-color-name", codes)
+
+    def test_ipc_kuang_not_color_key(self):
+        text = GOOD + "\n左列上下两个 IPC 框共用一条套接字。\n"
+        data, _ = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("legend-color-name", codes)
+
+    def test_baimingdan_not_color_key(self):
+        text = GOOD + "\n驱动 VID/DID 白名单之外的卡不会绑上。\n"
+        data, _ = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("legend-color-name", codes)
+
+    def test_chengse_span_hex_not_in_figures(self):
+        text = GOOD + '\n<span style="color:#123456">橙色</span>约束是不进作业队列。\n'
+        data, _ = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("legend-hex", codes)
+
+    def test_chengse_span_matches_svg_fill(self):
+        text = (
+            GOOD
+            + '\n<span style="color:#F18F01">橙色</span>约束是不进作业队列。\n'
+            + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">\n'
+            + "<title>短句图意</title>\n"
+            + '<rect x="0" y="0" width="10" height="10" fill="#F18F01"/>\n'
+            + "</svg>\n"
+        )
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("legend-color-name", codes)
+        self.assertNotIn("legend-hex", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
+    def test_zuogui_span_matches_svg_stroke(self):
+        text = (
+            GOOD
+            + '\n<span style="color:#3370FF">左轨</span>贴内容区左边下去。\n'
+            + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">\n'
+            + "<title>短句图意</title>\n"
+            + '<line x1="0" y1="0" x2="10" y2="10" stroke="#3370FF"/>\n'
+            + "</svg>\n"
+        )
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("legend-color-name", codes)
+        self.assertNotIn("legend-hex", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
+    def test_svg_text_zuogui_not_prose_key(self):
+        text = (
+            GOOD
+            + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">\n'
+            + "<title>短句图意</title>\n"
+            + '<text fill="#3370FF">左轨 · Lite</text>\n'
+            + "</svg>\n"
+        )
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("legend-color-name", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
+    def test_bare_hong_list(self):
+        text = GOOD + "\n- **红**：FPGA 硬件\n"
+        data, _ = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("legend-color-name", codes)
+
     def test_html_fence(self):
         text = "</table>\n```mermaid\n%%{init: {'theme':'dark'}}%%\nflowchart TB\nA-->B\nstyle A fill:#2E86AB,stroke:#1B4965,color:#FFFFFF\nstyle B fill:#2E86AB,stroke:#1B4965,color:#FFFFFF\n```\n"
         data, _ = run_audit("---\ntitle: 某调用关系\n---\n" + text)

@@ -23,12 +23,27 @@ HEADER_COLOR = "#C9A0FF"
 FENCE_RE = re.compile(r"^```mermaid[^\n]*\n(.*?)```", re.M | re.S)
 ANY_FENCE_RE = re.compile(r"^```[^\n]*\n.*?^```", re.M | re.S)
 SVG_RE = re.compile(r"<svg\b[^>]*>.*?</svg>", re.I | re.S)
+HUE = r"蓝|绿|紫|橙|红|青|玫|灰|白"
 LEGEND_BARE_RE = re.compile(
-    r"^\s*[-*]\s+\*\*(蓝|绿|紫|橙|青)\*\*[：:]"
+    rf"^\s*[-*]\s+\*\*({HUE})\*\*[：:]"
 )
-LEGEND_SPAN_RE = re.compile(
-    r'^\s*[-*]\s+\*\*<span\s+style="color:\s*(#[0-9A-Fa-f]{3,8})"\s*>'
-    r"\s*(蓝|绿|紫|橙|青)\s*</span>\*\*[：:]",
+BARE_COMPOUND_RE = re.compile(rf"({HUE})(色|框)")
+BARE_TRACK_RE = re.compile(r"(树|左|中|右)轨(?!道)")
+SPAN_KEY_RE = re.compile(
+    r'<span\b[^>]*style="[^"]*color:\s*(#[0-9A-Fa-f]{3,8})[^"]*"[^>]*>(.*?)</span>',
+    re.I | re.S,
+)
+FONT_KEY_RE = re.compile(
+    r'<font\b[^>]*color="(#[0-9A-Fa-f]{3,8})"[^>]*>(.*?)</font>',
+    re.I | re.S,
+)
+COLORED_WRAP_RE = re.compile(
+    r"<span\b[^>]*>.*?</span>|<font\b[^>]*>.*?</font>",
+    re.I | re.S,
+)
+STROKE_ANY_RE = re.compile(r"stroke:\s*(#[0-9A-Fa-f]{3,8})", re.I)
+SVG_PAINT_RE = re.compile(
+    r"""(?:fill|stroke)\s*[:=]\s*["']?(#[0-9A-Fa-f]{3,8})""",
     re.I,
 )
 SUBGRAPH_RE = re.compile(r"^\s*subgraph\s+([^\s\[]+)")
@@ -317,33 +332,69 @@ def mermaid_fills(text: str) -> set[str]:
     return found
 
 
+def figure_palette(text: str) -> set[str]:
+    """本图可用的 fill/stroke：Mermaid 围栏 + 内联 SVG，不含正文 span。"""
+    found: set[str] = mermaid_fills(text)
+    for _, _, body in iter_fences(text):
+        _, src = split_yaml(body)
+        found.update(f.lower() for f in STROKE_ANY_RE.findall(src))
+    for sm in SVG_RE.finditer(text):
+        found.update(f.lower() for f in SVG_PAINT_RE.findall(sm.group(0)))
+    return found
+
+
+def _blank_keep_newlines(m: re.Match[str]) -> str:
+    return "".join("\n" if c == "\n" else " " for c in m.group(0))
+
+
+def mask_svg(text: str) -> str:
+    return SVG_RE.sub(_blank_keep_newlines, text)
+
+
+def is_color_key(inner: str) -> bool:
+    s = re.sub(r"<[^>]+>", "", inner)
+    s = re.sub(r"\s+", "", s)
+    if re.fullmatch(rf"({HUE})", s):
+        return True
+    if re.match(rf"({HUE})(色|框)", s):
+        return True
+    if re.match(r"(树|左|中|右)轨", s):
+        return True
+    return False
+
+
 def audit_legend_color_names(file: str, text: str) -> list[dict]:
     issues: list[dict] = []
-    fills = mermaid_fills(text)
-    if not fills:
+    palette = figure_palette(text)
+    if not palette:
         return issues
-    masked = strip_fences(text)
-    for i, line in enumerate(masked.splitlines(), 1):
-        if LEGEND_BARE_RE.match(line):
+    masked = mask_svg(strip_fences(text))
+    for m in list(SPAN_KEY_RE.finditer(masked)) + list(FONT_KEY_RE.finditer(masked)):
+        if is_color_key(m.group(2)) and m.group(1).lower() not in palette:
+            issues.append(
+                issue(
+                    file,
+                    masked[: m.start()].count("\n") + 1,
+                    None,
+                    "legend-hex",
+                    f"图例色名 {m.group(1)} 未出现在本文图 fill/stroke",
+                )
+            )
+    bare = COLORED_WRAP_RE.sub(_blank_keep_newlines, masked)
+    seen_lines: set[int] = set()
+    for i, line in enumerate(bare.splitlines(), 1):
+        hit = bool(LEGEND_BARE_RE.match(line))
+        hit = hit or bool(BARE_COMPOUND_RE.search(line))
+        hit = hit or bool(BARE_TRACK_RE.search(line))
+        if hit and i not in seen_lines:
+            seen_lines.add(i)
             issues.append(
                 issue(
                     file,
                     i,
                     None,
                     "legend-color-name",
-                    "图例色名须 span 且字色等于节点 fill",
-                )
-            )
-            continue
-        sm = LEGEND_SPAN_RE.match(line)
-        if sm and sm.group(1).lower() not in fills:
-            issues.append(
-                issue(
-                    file,
-                    i,
-                    None,
-                    "legend-hex",
-                    f"图例色名 {sm.group(1)} 未出现在本文 mermaid fill",
+                    "色键须 span 且字色等于本图 fill 或线色",
                 )
             )
     return issues

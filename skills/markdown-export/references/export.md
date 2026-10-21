@@ -46,6 +46,7 @@ description: >-
     - [6.3.1 万能口语动词（语义清晰化）](#631-万能口语动词语义清晰化)
     - [6.3.2 专名标记（直角引号）](#632-专名标记直角引号)
   - [6.4 表格格内（先看列义）](#64-表格格内先看列义)
+  - [6.5 图下色键字色](#65-图下色键字色)
 - <a id="toc-pos-7-实时保存"></a>[7. 实时保存](#7-实时保存)
 - <a id="toc-pos-8-引脚颜色标记"></a>[8. 引脚颜色标记](#8-引脚颜色标记)
 - <a id="toc-pos-9-表格表头文字颜色"></a>[9. 表格表头文字颜色](#9-表格表头文字颜色)
@@ -475,6 +476,10 @@ Lite / `bar_reg` / bypass 三条都是 MMIO：
 
 **出现任一条：当场按列义改格内结构再保存。**
 
+### 6.5 图下色键字色
+
+谁算色键、不要整句涂：细则在 [prose.md](prose.md) **§6.5**。可扫描规则在 **§10**（`legend-color-name` / `legend-hex`）。
+
 ## 7. 实时保存 <a id="7-实时保存"></a> <a href="#toc-pos-7-实时保存" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 - 在生成 markdown 内容的过程中，**必须随时保存**到文件。
@@ -562,30 +567,31 @@ flowchart LR
 
 ## 10. 图例色名与图块同色
 
-图里已经用节点底色区分职责时，图下/图前若用「蓝 / 绿 / 紫 / 橙」去指那一类模块，**色名二字的字色必须等于该图 `classDef` / `style` 的 `fill`**。读者靠字色对上色块，不必对 `#2D936C` 或翻总表。
+正文里用来对上图的**色键**，字色必须等于本图那一块或那一条线的 hex。读者靠字色对上图，不必对 `#2D936C` 或翻总表。谁算色键、不要整句涂：见 [prose.md](prose.md) **§6.5**。
 
-**意图：** 说明里用来指图的那个色名，和图里那块底色是同一份 hex。不是把整句涂漂亮，也不是另造一套字色。
+**可扫描（`audit_mermaid.py`）：**
+
+1. 列表 `- **绿**：`、段落「橙色」「紫框」「左轨」等色键未包 `span` / `<font>` → `legend-color-name`。
+2. 色键 `span` / `<font>` 的 hex **未出现在本文 Mermaid 或内联 SVG 的 fill/stroke** → `legend-hex`。轨名、下发线跟 `stroke`；模块/紫框跟 `fill`。
+3. 图内 SVG `<text>`、围栏内部不扫。hex 字面量 `#3370FF` 不必再涂。
 
 **做法：**
 
-1. 只给色名上色（「绿」「紫」「橙」「蓝」），后面的模块名单和解释句保持默认字色。
-2. hex **抄本图**（或同篇已出现的那张图）节点 `fill`，禁止另选近似色。
-3. 列表写法：`- **<span style="color:#2D936C">绿</span>**：拓扑服务、……`
-4. 同一篇多张图各有图例：每张对齐**本图** fill。同类图例（两张框图各写「紫：端口」）第一次定了规则，后续同类**自动套**，不必等用户再说「类似处理」。
-5. 列表/段落用 `span`。不要为这一条把整节改成 HTML 表。数据列按取值分桶上色仍走 **`coloring-markdown-table-column`**。
+1. 只给色键上色，解释句默认字色。列表：`- **<span style="color:#2D936C">绿</span>**：拓扑服务、……`
+2. hex **抄本图**（或同篇已出现的那张图），禁止另选近似色、禁止用表头 `#C9A0FF`。
+3. 同一篇多张图各对齐**本图**。同类图例第一次定了规则，后续自动套。
+4. 列表/段落用 `span`。不要为这一条把整节改成 HTML 表。数据列按取值分桶上色仍走 **`coloring-markdown-table-column`**。
 
-**不要涂：** 进程外框、箭头（向下 `#3370FF` / 向上 `#00A870` 是线色，见 layout §4.1）、未在图中充当色键的普通形容词。
-
-正确：图块 `classDef mgr fill:#2D936C`，图下 `- **<span style="color:#2D936C">绿</span>**：拓扑服务……`
+正确：框 `fill:#6A4C93`，图下「<span style="color:#6A4C93">紫框</span>」；线 `stroke:#3370FF`，图下「<span style="color:#3370FF">左轨</span>」。
 
 错误：
 
 | <span style="color:#C9A0FF">禁止</span> | <span style="color:#C9A0FF">原因</span> |
 |------|------|
-| `- **绿**：` 默认字色 | 色名和图块对不上 |
-| 整行、整段上色 | 只要色名当钥匙 |
-| 绿用 `#00A870`（箭头绿） | 那是向上返回线色，不是模块 fill |
-| 只改 §4.2、同类 §4.1 不管 | 同类图例一律套 |
-| 色名用表头浅紫 `#C9A0FF` | 表头色不是职责底色 |
+| `- **绿**：` 或正文「橙色约束」默认字色 | 色键和图对不上 |
+| 整行、整段上色 | 只要色键当钥匙 |
+| 模块「绿」用未在本图出现的 hex | `legend-hex`；指返回线时须该线色已画在图上 |
+| 只改一张、同类不管 | 同类图例一律套 |
+| 色键用表头浅紫 `#C9A0FF` | 表头色不是图块/线色 |
 
-**例外：** 用户明确不要 HTML / 不要 span；飞书走 `feishu-doc-format`。audit 只拦「列表里用加粗色名当图例却无 span」以及「span 的 hex 未出现在本文任一 mermaid fill」；抄错 fill 但仍写了某个图里存在的别的 hex，脚本替不了，落笔时自己对 `classDef`。
+**例外：** 用户明确不要 HTML / 不要 span；飞书走 `feishu-doc-format`。抄错成图里另一份仍存在的 hex，脚本替不了，落笔时自己对 `classDef` / SVG。
