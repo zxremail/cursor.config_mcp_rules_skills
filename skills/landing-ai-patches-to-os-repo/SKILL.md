@@ -15,6 +15,8 @@ description: >-
 
 用户当场给出的 IP / 路径 / 账号 / 密码 **覆盖** 默认表。密码以**本条消息现场提供**为准。
 
+**默认不 push。** 入库 = 在远端仓库 `git commit`，停在 ahead。`git push`、`git review`、`repo upload` 只有用户**当场写明**「push / 推送 / 上传 Gerrit」才做。用户说「打进仓库 / 提交 / 应用到仓库」不够，一律当不 push。
+
 ## 默认目标
 
 | 项 | 值 |
@@ -23,7 +25,7 @@ description: >-
 | 路径 | `/home/adil/GoldEngle/os` |
 | 用户 | `adil` |
 | 认证 | 用户现场给密码；只进本次 `GOLDENGLE_OS_PASS` |
-| Git | `.git` → `../.repo/projects/os.git`；`origin` 为 Gerrit `x86/rigol.os/os` |
+| Git | `.git` → `../.repo/projects/os.git`；`origin` 为 Gerrit `x86/rigol.os/os`；**默认不 push** |
 | 作者 | 沿用远端已有 `user.name` / `user.email`，**禁止** `git config` |
 
 **取密：** 本回合用户消息里的密码 → `export GOLDENGLE_OS_PASS=...` 后调用 `ssh-os.sh`。同一会话里若环境里已有、用户未改口，可接着用。没有密码就停下来问「请在本条消息提供仓库 SSH 密码」，不要写文件、不要写进 skill 目录、不要写进 md / commit / 飞书、不要在回复里回显。
@@ -61,7 +63,7 @@ description: >-
    `git status` / `git diff` / `git log -8 --format='%s'`。只 add 本补丁文件。  
    `config/hooks` 常被 `.gitignore`；**已跟踪文件**用 `git add -f`。`git add` 因 ignored 失败时不要以为已经 stage。
 
-6. **提交，不 push**  
+6. **提交；默认到此结束**  
    远端有 `commit-msg` hook，会加 `Change-Id`。经 SSH 提交用两条 `-m`，**禁止** SSH 里再套一层 HEREDOC（会被截断、提交失败仍显示 add 成功）。
 
    ```bash
@@ -69,10 +71,10 @@ description: >-
      -m 'Debian 12 systemd 252 ignores logind.conf WallMessages=.'
    ```
 
-   标题学最近提交：英文祈使句，写 **why**。未要求则 **不要** `git push` / `git review`。
+   标题学最近提交：英文祈使句，写 **why**。**不要**接着 `git push` / `git review` / `repo upload`。
 
 7. **向用户交代**  
-   哈希、Change-Id、相对 `origin` 是否 ahead、改了哪些配方路径、未 push。
+   哈希、Change-Id、相对 `origin` 是否 ahead、改了哪些配方路径，并写明 **未 push**。只有用户下一句明确要求推送时才 push。
 
 ## SSH 注意
 
@@ -89,7 +91,7 @@ description: >-
 | drop-in 里 `After=` 空行能清依赖 | 252 上不可靠；要覆盖整份 unit 就覆盖整文件 |
 | `git add` 报 ignored 仍继续 commit | hook 可能没进索引；`add -f` 后再 `status` |
 | 在 SSH 里 HEREDOC `git commit -m "$(cat <<EOF` | 嵌套 heredoc 会失败；用双 `-m` |
-| 顺手 push Gerrit | 未要求禁止 push |
+| 入库/提交完顺手 push，「反正要上 Gerrit」 | 默认不 push；须用户当场写明 push |
 | 把密码写进 skill / md / `~/.config`「下次好用」 | 现场给、进程环境用一次；缺则再问 |
 
 ## 红旗 — 停下
@@ -100,3 +102,4 @@ description: >-
 - 把密码写进 `SKILL.md` / `scripts/ssh-os.sh`「图省事」
 - `git commit` 无输出却声称已提交（先 `git log -1`）
 - 改了无关的 iso / deb / `rigolos-info` 却说「只打补丁」
+- 刚 `git commit` 完就 `git push`，用户没有说 push
