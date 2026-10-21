@@ -386,6 +386,30 @@ sequenceDiagram
         self.assertTrue(data["ok"], data)
         self.assertEqual(code, 0)
 
+    def test_caption_visible_hex_literal(self):
+        text = GOOD + "\n实线 `#3370FF` 是控制面请求。\n"
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("legend-hex-literal", codes)
+        self.assertEqual(code, 2)
+
+    def test_caption_hex_beside_color_name(self):
+        text = GOOD + '\n| <span style="color:#2E86AB">蓝</span> `#2E86AB` |\n'
+        data, _ = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertIn("legend-hex-literal", codes)
+
+    def test_caption_color_name_no_hex_ok(self):
+        text = (
+            GOOD
+            + '\n<span style="color:#2D936C">绿色</span>虚线是 Manager 回传。\n'
+        )
+        data, code = run_audit(text)
+        codes = {i["code"] for i in data["issues"]}
+        self.assertNotIn("legend-hex-literal", codes)
+        self.assertTrue(data["ok"], data)
+        self.assertEqual(code, 0)
+
     def test_svg_blank_in_fence_ignored(self):
         text = (
             GOOD

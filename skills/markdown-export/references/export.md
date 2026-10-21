@@ -478,7 +478,7 @@ Lite / `bar_reg` / bypass 三条都是 MMIO：
 
 ### 6.5 图下色键字色
 
-谁算色键、不要整句涂：细则在 [prose.md](prose.md) **§6.5**。可扫描规则在 **§10**（`legend-color-name` / `legend-hex`）。
+谁算色键、不要整句涂：细则在 [prose.md](prose.md) **§6.5**。可扫描规则在 **§10**（`legend-color-name` / `legend-hex` / `legend-hex-literal`）。
 
 ## 7. 实时保存 <a id="7-实时保存"></a> <a href="#toc-pos-7-实时保存" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
@@ -567,22 +567,23 @@ flowchart LR
 
 ## 10. 图例色名与图块同色
 
-正文里用来对上图的**色键**，字色必须等于本图那一块或那一条线的 hex。读者靠字色对上图，不必对 `#2D936C` 或翻总表。谁算色键、不要整句涂：见 [prose.md](prose.md) **§6.5**。
+正文里用来对上图的**色键**，字色必须等于本图那一块或那一条线的 hex。读者靠字色对上图，不必对色值或翻总表。谁算色键、不要整句涂：见 [prose.md](prose.md) **§6.5**。
 
 **可扫描（`audit_mermaid.py`）：**
 
 1. 列表 `- **绿**：`、段落「橙色」「紫框」「左轨」等色键未包 `span` / `<font>` → `legend-color-name`。
 2. 色键 `span` / `<font>` 的 hex **未出现在本文 Mermaid 或内联 SVG 的 fill/stroke** → `legend-hex`。轨名、下发线跟 `stroke`；模块/紫框跟 `fill`。
-3. 图内 SVG `<text>`、围栏内部不扫。hex 字面量 `#3370FF` 不必再涂。
+3. 图内 SVG `<text>`、围栏内部不扫。
+4. 图注、色键句、对照表格内禁止读者能看见的 `#RRGGBB`（含 `` `#3370FF` ``）→ `legend-hex-literal`。写「蓝色实线 / 绿色虚线」。hex 只留在 Mermaid、SVG、`span style`。
 
 **做法：**
 
 1. 只给色键上色，解释句默认字色。列表：`- **<span style="color:#2D936C">绿</span>**：拓扑服务、……`
-2. hex **抄本图**（或同篇已出现的那张图），禁止另选近似色、禁止用表头 `#C9A0FF`。
+2. hex **抄本图**（或同篇已出现的那张图），禁止另选近似色、禁止用表头 `#C9A0FF`。hex 写入 `style`，不要写在色名旁边给读者看。
 3. 同一篇多张图各对齐**本图**。同类图例第一次定了规则，后续自动套。
 4. 列表/段落用 `span`。不要为这一条把整节改成 HTML 表。数据列按取值分桶上色仍走 **`coloring-markdown-table-column`**。
 
-正确：框 `fill:#6A4C93`，图下「<span style="color:#6A4C93">紫框</span>」；线 `stroke:#3370FF`，图下「<span style="color:#3370FF">左轨</span>」。
+正确：框 `fill:#6A4C93`，图下「<span style="color:#6A4C93">紫框</span>」；线 `stroke:#3370FF`，图下「<span style="color:#3370FF">蓝色</span>实线」「<span style="color:#3370FF">左轨</span>」。
 
 错误：
 
@@ -593,5 +594,6 @@ flowchart LR
 | 模块「绿」用未在本图出现的 hex | `legend-hex`；指返回线时须该线色已画在图上 |
 | 只改一张、同类不管 | 同类图例一律套 |
 | 色键用表头浅紫 `#C9A0FF` | 表头色不是图块/线色 |
+| 图注「实线 `#3370FF`」或色名旁 `` `#2E86AB` `` | 读者要对十六进制；写蓝色实线 |
 
 **例外：** 用户明确不要 HTML / 不要 span；飞书走 `feishu-doc-format`。抄错成图里另一份仍存在的 hex，脚本替不了，落笔时自己对 `classDef` / SVG。

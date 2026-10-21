@@ -61,6 +61,7 @@ SEQ_KIND_RE = re.compile(r"^\s*sequenceDiagram\b", re.M | re.I)
 CLASSDEF_LIVE_RE = re.compile(r"^\s*classDef\b", re.M)
 CLASS_ASSIGN_LIVE_RE = re.compile(r"^\s*class\s+\S", re.M)
 CLASSDEF_COMMENT_RE = re.compile(r"^\s*%%\s*classDef\b", re.M)
+VISIBLE_HEX_RE = re.compile(r"#(?:[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})\b")
 
 
 def issue(file: str, line: int, diagram: int | None, code: str, msg: str) -> dict:
@@ -397,6 +398,26 @@ def audit_legend_color_names(file: str, text: str) -> list[dict]:
                     "色键须 span 且字色等于本图 fill 或线色",
                 )
             )
+    visible = re.sub(
+        r"<[^>]+>",
+        _blank_keep_newlines,
+        mask_svg(strip_any_fences(text)),
+    )
+    seen_hex: set[int] = set()
+    for m in VISIBLE_HEX_RE.finditer(visible):
+        ln = visible[: m.start()].count("\n") + 1
+        if ln in seen_hex:
+            continue
+        seen_hex.add(ln)
+        issues.append(
+            issue(
+                file,
+                ln,
+                None,
+                "legend-hex-literal",
+                "图注禁止可见 #RRGGBB，写蓝色实线 / 绿色虚线；hex 只留在图和 span style",
+            )
+        )
     return issues
 
 
