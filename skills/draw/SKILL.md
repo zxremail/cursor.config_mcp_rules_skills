@@ -3,7 +3,7 @@ name: draw
 description: >-
   Use when the user types /draw to pick a diagram visual language from the
   catalog, then draw.   Slash menu for 画图 / 架构图 / 胶囊图 / 路线图 / 时序图 /
-  泳道图 / 时间线 / 并排竖卡 / 辐射功能全景.
+  泳道图 / 时间线 / 并排竖卡 / 辐射功能全景 / 分层关系图.
 disable-model-invocation: true
 ---
 
@@ -24,6 +24,7 @@ disable-model-invocation: true
 | capsule | 新画：分层行动胶囊图 |
 | tinted-cards | 新画：浅色分层彩色卡片墙 |
 | mermaid-flow | 新画：Mermaid 分层/连线架构 |
+| dark-layer-rel | 新画：深色分层关系图（层框+左右列+语义箭头 SVG） |
 | dark-cards | 新画：深色分层彩色卡片墙（HTML） |
 | seq-html | 新画：HTML 贴顶角色时序 |
 | roadmap | 新画：项目阶段路线图 |
@@ -34,6 +35,7 @@ disable-model-invocation: true
 | side-flowcards | 新画：并排竖卡流程图 |
 | hub-fnmap | 新画：辐射功能全景（中心+卫星） |
 | dark-bands | 新画：深色分层色带（左栏层名+色带+右侧横切） |
+| landing-phases | 新画：深色落地阶段图（三阶段胶囊+终局栈+角标） |
 | cards-drawio | 转换：分层卡片 HTML → draw.io |
 | seq-drawio | 转换：Mermaid 时序图 → draw.io |
 | internalize | 其它：把对照图内化成 Skill |
@@ -45,6 +47,7 @@ disable-model-invocation: true
 | capsule | `layer-action-capsule-diagram` |
 | tinted-cards | `fig-tinted-layer-cards` |
 | mermaid-flow | `mermaid-flowchart-layout` |
+| dark-layer-rel | `fig-dark-layer-relations` |
 | dark-cards | `markdown-to-html` |
 | seq-html | `html-sequence-swimlane` |
 | roadmap | `task-roadmap-timeline` |
@@ -55,6 +58,7 @@ disable-model-invocation: true
 | side-flowcards | `fig-side-by-side-flowcards` |
 | hub-fnmap | `fig-hub-function-map` |
 | dark-bands | `fig-dark-layer-bands` |
+| landing-phases | `fig-dark-landing-phases` |
 | cards-drawio | `cards-to-drawio` |
 | seq-drawio | `mermaid-to-drawio` |
 
@@ -62,7 +66,7 @@ disable-model-invocation: true
 
 选定后：
 
-1. 目录 §2「固定出口」的图种 **忽略 Q2**，用表里的默认。含：`tinted-cards`、`dark-cards`、`seq-html`、`roadmap`、`alt-timeline`、`assign`、`h-swimlane`、`v-swimlane`、`side-flowcards`、`hub-fnmap`、`dark-bands`、`cards-drawio`、`seq-drawio`。
+1. 目录 §2「固定出口」的图种 **忽略 Q2**，用表里的默认。含：`tinted-cards`、`dark-cards`、`seq-html`、`roadmap`、`alt-timeline`、`assign`、`h-swimlane`、`v-swimlane`、`side-flowcards`、`hub-fnmap`、`dark-bands`、`dark-layer-rel`、`landing-phases`、`cards-drawio`、`seq-drawio`。
 2. `capsule` / `mermaid-flow` 才采用 Q2；选了「本图种默认」时：胶囊→飞书画板，Mermaid 架构→本地 `.md`。
 3. `internalize` → 目录 §3，不出填空构图大纲。
 4. Read 对应样式 Skill。

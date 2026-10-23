@@ -8,6 +8,7 @@ description: >-
   或把深色平台栈转飞书画板、白底画板不要贴深底。
   不要用：深色分层卡片墙（层间↓、无左栏无顶胶囊，fig-dark-layer-cards）、
   左栏层名+横向色带+右侧竖条（fig-dark-layer-bands）、
+  顶栏三阶段+模块角标的深色落地阶段图（fig-dark-landing-phases）、
   浅底白分组彩卡片（fig-tinted-layer-cards）、Mermaid flowchart 硬凑、
   关/改/加/留胶囊、辐射功能全景。
 ---
@@ -30,9 +31,9 @@ description: >-
 | 用 | 不用 |
 |---|---|
 | 产品/机箱：常驻 Manager 或域在左侧，多种业务在顶栏 | 只要「谁在哪一层」、层间一句 ↓ → `fig-dark-layer-cards` |
-| 中间要嵌套「两列子系统 + 跨列共享条」 | 关系/调用边 → `mermaid-flowchart-layout` |
+| 中间要嵌套「两列子系统 + 跨列共享条」 | 关系/调用边 SVG → `fig-dark-layer-relations`；仍要 Mermaid → `mermaid-flowchart-layout` |
 | 底栏两类硬件与顶栏业务左右对齐 | Markdown 里不要另画浅色整图；飞书侧用下节浅米色表 |
-| 右侧观察面 / 约束 / 工具链横切 | 关/改/加/留 → `layer-action-capsule-diagram`；左栏只是层名、中间是通栏色带 → `fig-dark-layer-bands` |
+| 右侧观察面 / 约束 / 工具链横切 | 关/改/加/留 → `layer-action-capsule-diagram`；左栏只是层名、中间是通栏色带 → `fig-dark-layer-bands`；要分步落地+角标 → `fig-dark-landing-phases` |
 
 点名「深色平台栈」或对照座舱截图且要暗色主题 → 本 skill。只说「深色分层卡片」→ 卡片墙。
 

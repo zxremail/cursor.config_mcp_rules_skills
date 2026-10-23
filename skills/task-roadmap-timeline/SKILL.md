@@ -4,7 +4,8 @@ description: >-
   Use when 用户要画项目推进时间计划表、任务计划时间表、阶段路线图、
   季度/月份泳道 roadmap、多阶段排期、重要时间节点横条、菱形里程碑、
   嵌套能力分组、或阶梯式开放时间线，或对照左栏阶段 + 顶栏季度的计划图。
-  不要用 Mermaid gantt。
+  不要用 Mermaid gantt、
+  顶栏三阶段胶囊+下方嵌套终局栈（fig-dark-landing-phases）。
 ---
 
 # 项目推进时间计划表（roadmap-tl）

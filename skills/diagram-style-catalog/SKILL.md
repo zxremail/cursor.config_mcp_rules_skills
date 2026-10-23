@@ -38,10 +38,12 @@ description: >-
 | 左栏 L0–L7 / 硬件；浅色色带 + 双白卡片；关/改/加/留/决策胶囊；平台角标嵌胶囊内 | `layer-action-capsule-diagram` |
 | 浅色层底 + 白底分组框 + 饱和色内卡片；层名在左、层间↓、底栏色块图例 | `fig-tinted-layer-cards` |
 | Mermaid `flowchart`、多 subgraph、跨层连线、暗色节点 | `mermaid-flowchart-layout` |
+| 深色分层关系图：层框+左右列+语义箭头，内联 SVG；分层协作、左列查树右列开卡、同列下落、不要 mermaid | `fig-dark-layer-relations` |
 | 深色分层彩色卡片墙（HTML）；`.layer` / `.halbox` / `customfig` | `markdown-to-html` §3 / §7.6 |
 | 深色分层彩色卡片墙（本地 md 内联 SVG）；深底色框 + 层间↓ + 底栏色块 | `fig-dark-layer-cards` |
 | 深色平台栈：左栏常驻 + 顶栏业务胶囊 + 中间嵌套栈 + 底栏成对硬件 + 右侧横切；星环/座舱式产品平台、深彩色暗色主题 | `fig-dark-platform-stack` |
 | 深色分层色带：左栏层名 + 横向彩色色带 + 层内饱和卡 + 右侧竖条横切；中台分层、日志切面/监控 | `fig-dark-layer-bands` |
+| 深色落地阶段图：顶栏三阶段胶囊 + 轴点 + 下方嵌套终局栈 + 模块角标一/二/三；架构分步落地、星环三阶段座舱 | `fig-dark-landing-phases` |
 | HTML 时序：贴顶彩色角色栏、生命线、橙色 Note；长时序「阶段 0 / 阶段 1」分隔带 | `html-sequence-swimlane` |
 | 左栏阶段 × 顶栏季度；里程碑横条、菱形节点 | `task-roadmap-timeline` |
 | 中轴虚线 + 上下交错卡片 + 轴上圆点；开机/阶段墙钟时间线；暗色深彩色卡 | `fig-alternating-timeline` |
@@ -64,12 +66,18 @@ description: >-
 | 别当成 | 实际 |
 |--------|------|
 | 「架构图」一律 Mermaid | 先对本表；胶囊 / 深色卡片 / 时间表都不是 flowchart |
+| 深色分层关系图 = 深色分层卡片墙 | 关系图有跨层箭头；卡片墙只有层间 ↓ → `fig-dark-layer-cards` |
+| 深色分层关系图 = Mermaid flowchart | 交卷是内联 SVG，禁止围栏；仍要 Mermaid → `mermaid-flowchart-layout` |
+| 深色分层关系图 = 水平泳道 | 层是归属套盒；泳道是左栏角色 + 时间轴 → `fig-horizontal-swimlane` |
 | 胶囊图 = 深色卡片墙 | 胶囊是浅色色带+白卡片；深色卡片墙 HTML → `markdown-to-html` §3；SVG → `fig-dark-layer-cards` |
 | 浅色分层彩色卡片墙 = 深色卡片墙 | 浅底白分组彩卡片 → `fig-tinted-layer-cards`；深色 HTML `.layer` → `markdown-to-html` §3；深色内联 SVG → `fig-dark-layer-cards` |
 | 深色卡片墙 SVG = HTML sidecar | 点名 SVG / 落本地 md → `fig-dark-layer-cards`；独立 HTML 页 → `markdown-to-html` §3 |
 | 深色平台栈 = 深色分层卡片墙 | 平台栈有左栏、顶胶囊、底栏硬件对齐、右侧横切，**没有**层间↓；卡片墙是通栏层框 + ↓ → `fig-dark-layer-cards` |
 | 深色分层色带 = 深色分层卡片墙 | 色带把层名放在**左栏色块**，层间无↓，可有右侧竖条 → `fig-dark-layer-bands`；卡片墙层名在框内 + ↓ |
 | 深色分层色带 = 深色平台栈 | 色带是通栏一层一条；平台栈是顶胶囊 + 中间嵌套栈 + 底栏硬件对齐 → `fig-dark-platform-stack` |
+| 深色落地阶段图 = 深色平台栈 | 有顶栏阶段胶囊和模块角标一/二/三 → `fig-dark-landing-phases`；无阶段、只画终局 → `fig-dark-platform-stack` |
+| 深色落地阶段图 = 阶段路线图 | 路线图是左栏阶段×顶栏季度 → `task-roadmap-timeline`；本图是终局栈 + 能力角标 |
+| 按层切三期 = 落地阶段 | 内核/硬件是底座必须标一；三期只加固，不新增一层 |
 | 浅色中台分层截图 = 必须浅色交卷写进 md | 暗色主题 → `fig-dark-layer-bands`；浅色带+白卡只给飞书侧 |
 | 浅米色座舱截图 = 必须浅色交卷写进 md | 知识库默认只交深色平台栈；浅米色只给飞书画板（该 skill 色表） |
 | 深色平台栈转飞书 = 贴深底 / 改卡片墙 | 画板用 `fig-dark-platform-stack` 飞书浅米色表，不要回文档找浅色图 → `markdown-to-feishu-doc` |
@@ -113,6 +121,8 @@ description: >-
 | 深色分层卡片墙（用户点名 SVG / 落本地 md） | 目标 `.md` 内联 SVG（`fig-dark-layer-cards`） |
 | 深色平台栈 | 目标 `.md` 内联 SVG（`fig-dark-platform-stack`）。转飞书走 `markdown-to-feishu-doc`，画板用该 skill 浅米色表，不要贴深底、不要把浅色图写回 md |
 | 深色分层色带 | 目标 `.md` 内联 SVG（`fig-dark-layer-bands`）。转飞书浅带白卡，不要贴深底 |
+| 深色分层关系图 | 目标 `.md` 内联 SVG（`fig-dark-layer-relations`） |
+| 深色落地阶段图 | 目标 `.md` 内联 SVG（`fig-dark-landing-phases`）。转飞书不要贴深底 |
 | 左栏水平泳道 | 目标 `.md` 内联 SVG（`fig-horizontal-swimlane`） |
 | 顶栏垂直泳道 | 目标 `.md` 内联 SVG（`fig-vertical-swimlane`） |
 | 并排竖卡流程图 | 目标 `.md` 内联 SVG（`fig-side-by-side-flowcards`） |
@@ -122,7 +132,7 @@ description: >-
 | 分层卡片 → draw.io / 时序 → draw.io | 本地 `.drawio` |
 | 内化成 Skill | §3，不构图 |
 
-**多出口（才采用 Q2）：** 胶囊图、Mermaid 分层架构。有样式 Skill 时先样式后媒介，不要只走 whiteboard-cli 默认色板。
+**多出口（才采用 Q2）：** 胶囊图、Mermaid 分层架构（围栏，不是 SVG 关系图）。有样式 Skill 时先样式后媒介，不要只走 whiteboard-cli 默认色板。
 
 ## 3. 内化新图（用户要把样子做成 Skill）
 
@@ -146,6 +156,8 @@ description: >-
 - 「按深色分层彩色卡片墙 SVG 画」「走 `fig-dark-layer-cards`」
 - 「按深色平台栈画」「走 `fig-dark-platform-stack`」
 - 「按深色分层色带画」「走 `fig-dark-layer-bands`」
+- 「按深色分层关系图画」「走 `fig-dark-layer-relations`」
+- 「按深色落地阶段图画」「走 `fig-dark-landing-phases`」
 - 「按水平泳道图画」「走 `fig-horizontal-swimlane`」
 - 「按垂直泳道图画」「走 `fig-vertical-swimlane`」
 - 「按并排竖卡流程图画」「走 `fig-side-by-side-flowcards`」
@@ -179,6 +191,20 @@ subgraph / 层（上→下）：
 .md 路径或飞书链接：
 ```
 
+**深色分层关系图**
+```
+标题：深色分层关系图：
+只回答的问题（职责 | 时序 | 实现细节，三选一）：
+层（上→下）：
+  - 层名 / 色槽（蓝红紫橙绿）：
+      左列名：节点主题（注解）
+      右列名：节点主题（注解）
+      （无列则：通栏节点…）
+边（谁 → 谁 / 标签 / 语义色）：
+跨列主通路小图（有则路径）：
+.md 路径：
+```
+
 **深色分层卡片（HTML sidecar）**
 ```
 标题：
@@ -195,6 +221,17 @@ subgraph / 层（上→下）：
     分组名（可选）：
       - 卡片标题：一行说明
 层间↓：
+.md 路径：
+```
+
+**深色落地阶段图**
+```
+标题：深色落地阶段图：
+第一阶段（底座，角标一）：
+第二阶段（才点亮，角标二）：
+第三阶段（加固，角标三；嵌在哪块内侧）：
+终局栈（左栏 / 嵌套 / 硬件 / 右侧横切）：
+禁止标成三期才出现的底座：
 .md 路径：
 ```
 

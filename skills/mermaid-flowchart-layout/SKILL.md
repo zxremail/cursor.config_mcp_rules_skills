@@ -23,7 +23,7 @@ description: >-
 
 # Mermaid 流程图排版与架构图连线
 
-不确定图种 → `diagram-style-catalog`。图表用 Mermaid。准备写 `flowchart` / 用户说「流程图」→ 先过 [references/choose-diagram.md](references/choose-diagram.md)。如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。
+不确定图种 → `diagram-style-catalog`。图表用 Mermaid。用户点名 **深色分层关系图** / 用 SVG 画分层协作（不要 mermaid）→ 停本页，走 `fig-dark-layer-relations`。准备写 `flowchart` / 用户说「流程图」→ 先过 [references/choose-diagram.md](references/choose-diagram.md)。如果你觉得泳道图比流程图更合适的话，那么使用泳道图也可以。但是要先判断。
 
 **格式不准降级。** 完整做法、合格/反例、图例方案 D 以 [references/layout.md](references/layout.md) 为准（原 §0–§12 全文）。
 

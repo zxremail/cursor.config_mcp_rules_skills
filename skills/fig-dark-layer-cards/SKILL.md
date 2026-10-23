@@ -29,7 +29,7 @@ description: >-
 | 按层堆叠的模块/栈/能力清单，要嵌进 `.md` | 浅底白分组彩卡片、飞书画板 → `fig-tinted-layer-cards` |
 | 层内 2～4 张条目卡，或一层再分 2 个分组 | HTML 页 / sidecar `.layer` → `markdown-to-html` §3 |
 | 层间一句↓，底栏色块图例 | 关/改/加/留胶囊 → `layer-action-capsule-diagram`；左栏常驻+顶栏胶囊 → `fig-dark-platform-stack`；左栏层名+色带+右侧竖条 → `fig-dark-layer-bands` |
-| 读者要看见「谁在哪一层」，不要跨层折线 | 关系/流向 → `mermaid-flowchart-layout`；谁的道+时间 → 泳道；中心+卫星功能清单 → `fig-hub-function-map` |
+| 读者要看见「谁在哪一层」，不要跨层折线 | 关系/流向 SVG → `fig-dark-layer-relations`；仍要 Mermaid 围栏 → `mermaid-flowchart-layout`；谁的道+时间 → 泳道；中心+卫星功能清单 → `fig-hub-function-map` |
 
 用户只说「深色分层卡片」没点名媒介：默认仍走 HTML sidecar。**点名 SVG / 落本地 md** 才用本 skill。
 

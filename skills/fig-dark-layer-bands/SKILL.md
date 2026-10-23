@@ -7,6 +7,7 @@ description: >-
   或说深色分层色带、按 fig-dark-layer-bands 画。
   不要用：深色分层卡片墙（层间↓、层名写在框内，fig-dark-layer-cards）、
   左栏常驻+顶胶囊+嵌套栈的深色平台栈（fig-dark-platform-stack）、
+  顶栏三阶段+角标的深色落地阶段图（fig-dark-landing-phases）、
   浅底白分组彩卡片（fig-tinted-layer-cards）、Mermaid flowchart 硬凑。
 ---
 
@@ -29,7 +30,7 @@ description: >-
 |---|---|
 | 要看见「哪一层有哪些模块」，层名贴在左侧色块 | 层名写在框内、层间一句 ↓ → `fig-dark-layer-cards` |
 | 一层里 4～6 张卡，或一层再分 2 个分组框 | 左栏是常驻 Manager、顶栏是业务胶囊 → `fig-dark-platform-stack` |
-| 右侧要横切（观察 / 日志 / 监控 / 约束）跨若干层 | 关系/调用边 → `mermaid-flowchart-layout` |
+| 右侧要横切（观察 / 日志 / 监控 / 约束）跨若干层 | 关系/调用边 SVG → `fig-dark-layer-relations`；仍要 Mermaid → `mermaid-flowchart-layout` |
 | 存储/设备用圆柱，中间件一层通栏 | 关/改/加/留 → `layer-action-capsule-diagram` |
 
 点名「深色分层色带」或对照中台分层截图且要暗色主题 → 本 skill。只说「深色分层卡片」→ 卡片墙。
