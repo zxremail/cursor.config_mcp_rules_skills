@@ -4,7 +4,8 @@ description: >-
   Use when 用户要画浅色分层彩色卡片墙、浅色层底+白底分组框+饱和色内卡片、
   层标题在左副标题在右、层间↓说明、底栏色块图例；或对照飞书浅色分层彩色卡片墙 /
   Cursor Settings 那张浅底白框彩卡片图。
-  不要用：深色 GitHub 卡片墙、关/改/加/留胶囊、Mermaid flowchart。
+  不要用：深色 GitHub 卡片墙、关/改/加/留胶囊、Mermaid flowchart、
+  左栏+顶胶囊的深色平台栈（fig-dark-platform-stack）。
 ---
 
 # 浅色分层彩色卡片墙

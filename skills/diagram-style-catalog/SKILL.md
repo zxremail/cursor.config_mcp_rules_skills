@@ -40,6 +40,7 @@ description: >-
 | Mermaid `flowchart`、多 subgraph、跨层连线、暗色节点 | `mermaid-flowchart-layout` |
 | 深色分层彩色卡片墙（HTML）；`.layer` / `.halbox` / `customfig` | `markdown-to-html` §3 / §7.6 |
 | 深色分层彩色卡片墙（本地 md 内联 SVG）；深底色框 + 层间↓ + 底栏色块 | `fig-dark-layer-cards` |
+| 深色平台栈：左栏常驻 + 顶栏业务胶囊 + 中间嵌套栈 + 底栏成对硬件 + 右侧横切；星环/座舱式产品平台、深彩色暗色主题 | `fig-dark-platform-stack` |
 | HTML 时序：贴顶彩色角色栏、生命线、橙色 Note；长时序「阶段 0 / 阶段 1」分隔带 | `html-sequence-swimlane` |
 | 左栏阶段 × 顶栏季度；里程碑横条、菱形节点 | `task-roadmap-timeline` |
 | 中轴虚线 + 上下交错卡片 + 轴上圆点；开机/阶段墙钟时间线；暗色深彩色卡 | `fig-alternating-timeline` |
@@ -65,6 +66,8 @@ description: >-
 | 胶囊图 = 深色卡片墙 | 胶囊是浅色色带+白卡片；深色卡片墙 HTML → `markdown-to-html` §3；SVG → `fig-dark-layer-cards` |
 | 浅色分层彩色卡片墙 = 深色卡片墙 | 浅底白分组彩卡片 → `fig-tinted-layer-cards`；深色 HTML `.layer` → `markdown-to-html` §3；深色内联 SVG → `fig-dark-layer-cards` |
 | 深色卡片墙 SVG = HTML sidecar | 点名 SVG / 落本地 md → `fig-dark-layer-cards`；独立 HTML 页 → `markdown-to-html` §3 |
+| 深色平台栈 = 深色分层卡片墙 | 平台栈有左栏、顶胶囊、底栏硬件对齐、右侧横切，**没有**层间↓；卡片墙是通栏层框 + ↓ → `fig-dark-layer-cards` |
+| 浅米色座舱截图 = 必须浅色交卷 | 用户要暗色主题 → 同一几何走 `fig-dark-platform-stack`；只要浅米色才保持浅色 |
 | 浅色分层彩色卡片墙 = 胶囊图 | 本图无关/改/加/留胶囊、无左栏 L0–L7 |
 | roadmap = 人员分工表 | 阶段×时间 → `task-roadmap-timeline`；谁做哪块 → `task-assignment-timeline` |
 | 「时间线」= roadmap / gantt | 上下交错卡片 + 中轴圆点 → `fig-alternating-timeline`；阶段×季度排期 → `task-roadmap-timeline` |
@@ -103,6 +106,7 @@ description: >-
 |------|------|
 | 深色分层卡片（未点名 SVG）/ HTML 时序 / 阶段路线图 / 人员分工表 | `markdown-to-html` sidecar |
 | 深色分层卡片墙（用户点名 SVG / 落本地 md） | 目标 `.md` 内联 SVG（`fig-dark-layer-cards`） |
+| 深色平台栈 | 目标 `.md` 内联 SVG（`fig-dark-platform-stack`） |
 | 左栏水平泳道 | 目标 `.md` 内联 SVG（`fig-horizontal-swimlane`） |
 | 顶栏垂直泳道 | 目标 `.md` 内联 SVG（`fig-vertical-swimlane`） |
 | 并排竖卡流程图 | 目标 `.md` 内联 SVG（`fig-side-by-side-flowcards`） |
@@ -134,6 +138,7 @@ description: >-
 - 「按分层行动胶囊图画」「走 `layer-action-capsule-diagram`」
 - 「按浅色分层彩色卡片墙画」「走 `fig-tinted-layer-cards`」
 - 「按深色分层彩色卡片墙 SVG 画」「走 `fig-dark-layer-cards`」
+- 「按深色平台栈画」「走 `fig-dark-platform-stack`」
 - 「按水平泳道图画」「走 `fig-horizontal-swimlane`」
 - 「按垂直泳道图画」「走 `fig-vertical-swimlane`」
 - 「按并排竖卡流程图画」「走 `fig-side-by-side-flowcards`」
@@ -183,6 +188,22 @@ subgraph / 层（上→下）：
     分组名（可选）：
       - 卡片标题：一行说明
 层间↓：
+.md 路径：
+```
+
+**深色平台栈**
+```
+标题：深色平台栈：
+左栏常驻（管理面）：
+  芯片（箭头指向栈顶哪一条）：
+顶栏胶囊（左→右，对齐底栏硬件）：
+中间栈：
+  跨列条：
+  子系统 A / B（盒内 2～4 张卡）：
+  跨列共享：
+  通栏（内核）：
+底栏硬件 A / B：
+右侧横切（观察 | 约束/工具）：
 .md 路径：
 ```
 
