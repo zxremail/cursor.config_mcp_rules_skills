@@ -33,6 +33,7 @@ disable-model-invocation: true
 | v-swimlane | 新画：顶栏垂直泳道 |
 | side-flowcards | 新画：并排竖卡流程图 |
 | hub-fnmap | 新画：辐射功能全景（中心+卫星） |
+| dark-bands | 新画：深色分层色带（左栏层名+色带+右侧横切） |
 | cards-drawio | 转换：分层卡片 HTML → draw.io |
 | seq-drawio | 转换：Mermaid 时序图 → draw.io |
 | internalize | 其它：把对照图内化成 Skill |
@@ -53,6 +54,7 @@ disable-model-invocation: true
 | v-swimlane | `fig-vertical-swimlane` |
 | side-flowcards | `fig-side-by-side-flowcards` |
 | hub-fnmap | `fig-hub-function-map` |
+| dark-bands | `fig-dark-layer-bands` |
 | cards-drawio | `cards-to-drawio` |
 | seq-drawio | `mermaid-to-drawio` |
 
@@ -60,7 +62,7 @@ disable-model-invocation: true
 
 选定后：
 
-1. 目录 §2「固定出口」的图种 **忽略 Q2**，用表里的默认。含：`tinted-cards`、`dark-cards`、`seq-html`、`roadmap`、`alt-timeline`、`assign`、`h-swimlane`、`v-swimlane`、`side-flowcards`、`hub-fnmap`、`cards-drawio`、`seq-drawio`。
+1. 目录 §2「固定出口」的图种 **忽略 Q2**，用表里的默认。含：`tinted-cards`、`dark-cards`、`seq-html`、`roadmap`、`alt-timeline`、`assign`、`h-swimlane`、`v-swimlane`、`side-flowcards`、`hub-fnmap`、`dark-bands`、`cards-drawio`、`seq-drawio`。
 2. `capsule` / `mermaid-flow` 才采用 Q2；选了「本图种默认」时：胶囊→飞书画板，Mermaid 架构→本地 `.md`。
 3. `internalize` → 目录 §3，不出填空构图大纲。
 4. Read 对应样式 Skill。

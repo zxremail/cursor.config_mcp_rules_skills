@@ -3,10 +3,11 @@ name: fig-dark-platform-stack
 description: >-
   Use when 用户要画深色平台栈、星环式/座舱式产品平台图、
   左栏常驻域 + 顶栏业务胶囊 + 中间嵌套开卡/OS 栈 + 底栏成对硬件 + 右侧横切栏，
-  或对照 path-alpha §1.4 / 浅米色座舱截图但要求深彩色暗色主题；
+  或对照 path-alpha §1.3 深色平台栈 / 浅米色座舱截图但要求深彩色暗色主题；
   或说深色平台栈、按 fig-dark-platform-stack 画；
   或把深色平台栈转飞书画板、白底画板不要贴深底。
   不要用：深色分层卡片墙（层间↓、无左栏无顶胶囊，fig-dark-layer-cards）、
+  左栏层名+横向色带+右侧竖条（fig-dark-layer-bands）、
   浅底白分组彩卡片（fig-tinted-layer-cards）、Mermaid flowchart 硬凑、
   关/改/加/留胶囊、辐射功能全景。
 ---
@@ -20,9 +21,9 @@ description: >-
 不确定图种 → `diagram-style-catalog`。
 交卷：目标 `.md` **内联 SVG**。禁止 Mermaid `flowchart`。禁止 PNG / sidecar。
 
-对照实现：`n.naishu.xdma` 知识库 `ai.cursor/architecture/path-alpha-card-type-handoff.md` **§1.4**（Markdown 深彩色；不要整图贴进对话，只抄几何与色槽）。
+对照实现：`n.naishu.xdma` 知识库 `ai.cursor/architecture/path-alpha-card-type-handoff.md` **§1.3 深色平台栈**（Markdown 只保留深彩色；不要整图贴进对话，只抄几何与色槽）。文档里**不再**放浅色对照图。
 
-**转飞书画板：** 白底画板不要原样贴 `#0D1117`。外观以同文档 **§1.3「平台分层：左栏 Manager，顶栏多类业务」** 的浅色图为示例（同一套模块与坐标，只换浅米色）。走 `markdown-to-feishu-doc`；`convert` 按本 skill 浅色表改导入用 SVG。Markdown 源图保持深彩色。禁止改成 `fig-tinted-layer-cards` 那种层间↓。
+**转飞书画板：** 白底画板不要原样贴 `#0D1117`。几何与模块抄深色源，填色用本 skill **飞书浅米色表**（灰左栏、米色栈与卡、深字；画布 `#F7F7F6`）。走 `markdown-to-feishu-doc`；`convert` 按该表改导入用 SVG。不要回文档里找浅色图，也不要把浅色图写回 `.md`。禁止改成 `fig-tinted-layer-cards` 那种层间↓。
 
 ## 何时用 / 不用
 
@@ -30,8 +31,8 @@ description: >-
 |---|---|
 | 产品/机箱：常驻 Manager 或域在左侧，多种业务在顶栏 | 只要「谁在哪一层」、层间一句 ↓ → `fig-dark-layer-cards` |
 | 中间要嵌套「两列子系统 + 跨列共享条」 | 关系/调用边 → `mermaid-flowchart-layout` |
-| 底栏两类硬件与顶栏业务左右对齐 | Markdown 里要浅色整图 → 几何抄本表，色板用下节飞书/§1.3 表，不要当深色源 |
-| 右侧观察面 / 约束 / 工具链横切 | 关/改/加/留 → `layer-action-capsule-diagram` |
+| 底栏两类硬件与顶栏业务左右对齐 | Markdown 里不要另画浅色整图；飞书侧用下节浅米色表 |
+| 右侧观察面 / 约束 / 工具链横切 | 关/改/加/留 → `layer-action-capsule-diagram`；左栏只是层名、中间是通栏色带 → `fig-dark-layer-bands` |
 
 点名「深色平台栈」或对照座舱截图且要暗色主题 → 本 skill。只说「深色分层卡片」→ 卡片墙。
 
@@ -69,16 +70,16 @@ description: >-
 
 图下色键：`span` 字色抄本图 `border` 或卡片 `fill`（灰说明用 `#8B949E`）。禁止正文写可见 `#RRGGBB`。
 
-## 转飞书（浅色以 §1.3 为示例）
+## 转飞书（浅米色表，不回写文档）
 
 用户说「转飞书画板 / md 转飞书」且图是深色平台栈时：
 
 1. 几何、分区、文案与深色源相同，不要重排、不要画成卡片墙。
-2. 填色对照 `path-alpha-card-type-handoff.md` **§1.3**（不要把 §1.3 整段 SVG 读进对话；按下表改色即可）。
-3. 源 `.md` 的 §1.4 深色图不要改浅。
+2. 填色按下表，不要到知识库里找已删除的浅色 SVG。
+3. 源 `.md` 的深色图不要改浅、不要补回浅色对照节。
 4. 导入走 `markdown-to-feishu-doc`（内嵌 SVG → 画板）。脚本未改色时，只改 **导入用** 那份 SVG 的 fill/stroke/background。
 
-| 深色（§1.4） | 飞书 / §1.3 浅色 |
+| 深色源 | 飞书浅米色 |
 |--------------|------------------|
 | 画布 `#0D1117` | `#F7F7F6` |
 | 左栏 `#161B22` / `#F85149` / `#FFA198` | `#EDEDED` / `#6B6B6B` / `#3D3D3D` |

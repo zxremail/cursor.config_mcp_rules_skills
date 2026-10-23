@@ -24,7 +24,7 @@ description: >-
 
 | 用 | 不用 |
 |---|---|
-| 一个中心对象（一份 INF、一个产品、一个子系统）周围有 6～12 个职责块 | 上→下层栈 → `fig-dark-layer-cards`；左栏+顶胶囊平台图 → `fig-dark-platform-stack` |
+| 一个中心对象（一份 INF、一个产品、一个子系统）周围有 6～12 个职责块 | 上→下层栈 → `fig-dark-layer-cards`；左栏+顶胶囊平台图 → `fig-dark-platform-stack`；左栏层名+色带 → `fig-dark-layer-bands` |
 | 每个职责还要列出 2～6 条字段/动作 | 谁的道 + 时间 → 泳道 |
 | 读者要先看见「有哪些块」，不要先后顺序 | 先后顺序 → `mermaid-flowchart-layout` 或泳道 |
 | 对照 FUNCTION LIST / 辐射功能图截图 | 思维导图层级 → 不要用本图冒充 mindmap |

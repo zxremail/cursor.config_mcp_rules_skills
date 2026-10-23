@@ -302,7 +302,7 @@ def lighten_alternating_timeline_for_feishu(svg: str) -> str:
     return svg
 
 
-# fig-dark-platform-stack → 飞书浅米色（对照 path-alpha §1.3）
+# fig-dark-platform-stack → 飞书浅米色（色表见该 skill，不回写 md）
 PLATFORM_STACK_TO_LIGHT = {
     "0d1117": "#F7F7F6",
     "161b22": "#EDEDED",
@@ -344,7 +344,7 @@ def is_dark_platform_stack_svg(svg: str) -> bool:
 
 
 def lighten_platform_stack_for_feishu(svg: str) -> str:
-    """深色平台栈 → §1.3 浅米色。几何不动。Markdown 源图不动。"""
+    """深色平台栈 → 飞书浅米色。几何不动。Markdown 源图不动。"""
 
     def attr_map(m: re.Match) -> str:
         attr, q, col = m.group(1), m.group(2), m.group(3)
@@ -363,7 +363,7 @@ def lighten_platform_stack_for_feishu(svg: str) -> str:
 def lighten_svg_for_feishu(svg: str) -> str:
     """暗色水平泳道（fig-horizontal-swimlane）→ 白底画板可读的浅色。节点饱和填色保持，白字保留。
     fig-alternating-timeline 深彩色时间线改走浅彩色白卡，见 lighten_alternating_timeline_for_feishu。
-    fig-dark-platform-stack 改走 §1.3 浅米色，见 lighten_platform_stack_for_feishu。"""
+    fig-dark-platform-stack 改走飞书浅米色，见 lighten_platform_stack_for_feishu。"""
     if is_dark_platform_stack_svg(svg):
         return lighten_platform_stack_for_feishu(svg)
     if is_alternating_timeline_svg(svg):
