@@ -149,6 +149,27 @@ def test_dark_swimlane_svg_lightened_for_feishu():
     assert "crash_handler" in svg
 
 
+def test_dark_platform_stack_svg_lightened_for_feishu():
+    md = """# 标题
+
+## 图
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 640" style="background:#0D1117;"><title>深色平台栈：测试</title><rect width="1320" height="640" fill="#0D1117"/><rect x="16" y="16" width="152" height="608" rx="16" fill="#161B22" stroke="#F85149"/><text fill="#FFA198">Device Manager</text><rect x="248" y="20" width="300" height="44" rx="22" fill="#2E86AB" stroke="#58A6FF"/><text fill="#FFFFFF">A 类业务</text><polygon points="246,124 264,132 246,140" fill="#F59E0B"/></svg>
+"""
+    xml, _, out = run_convert(md)
+    svg = (out / "fig0.svg").read_text(encoding="utf-8")
+    assert "#0D1117" not in svg and "#0d1117" not in svg
+    assert "#161B22" not in svg and "#161b22" not in svg
+    assert "#2E86AB" not in svg and "#2e86ab" not in svg
+    assert "#F7F7F6" in svg
+    assert "#EDEDED" in svg
+    assert "#F3F3F3" in svg
+    assert "#3D3D3D" in svg
+    assert "#D0D0D0" in svg
+    assert 'viewBox="0 0 1320 640"' in svg
+    assert "Device Manager" in svg
+
+
 def test_dark_timeline_svg_lightened_for_feishu():
     md = """# 标题
 
@@ -276,6 +297,7 @@ if __name__ == "__main__":
         test_audit_flags_escaped_html_table,
         test_audit_ok_on_real_table,
         test_dark_swimlane_svg_lightened_for_feishu,
+        test_dark_platform_stack_svg_lightened_for_feishu,
         test_dark_timeline_svg_lightened_for_feishu,
         test_patch_board_lightens_swimlane_raw,
         test_patch_board_widens_clipped_text,

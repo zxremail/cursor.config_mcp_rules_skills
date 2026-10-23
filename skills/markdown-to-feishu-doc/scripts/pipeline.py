@@ -302,9 +302,70 @@ def lighten_alternating_timeline_for_feishu(svg: str) -> str:
     return svg
 
 
+# fig-dark-platform-stack → 飞书浅米色（对照 path-alpha §1.3）
+PLATFORM_STACK_TO_LIGHT = {
+    "0d1117": "#F7F7F6",
+    "161b22": "#EDEDED",
+    "f85149": "#6B6B6B",
+    "ffa198": "#3D3D3D",
+    "2d1215": "#F7F7F7",
+    "e63946": "#E6D5B8",
+    "b52d38": "#E2E2E2",
+    "8b949e": "#6B6B6B",
+    "2e86ab": "#F3F3F3",
+    "58a6ff": "#E4E4E4",
+    "ffffff": "#3D3D3D",
+    "79c0ff": "#6B6B6B",
+    "1a1028": "#F6F0E6",
+    "a371f7": "#E6D5B8",
+    "6a4c93": "#E6D5B8",
+    "d2a8ff": "#3D3D3D",
+    "0d2137": "#EFE6D6",
+    "1a150d": "#E6D5B8",
+    "f0883e": "#E6D5B8",
+    "ffcc80": "#5A5A5A",
+    "122117": "#F2F2F2",
+    "3fb950": "#E4E4E4",
+    "7ee787": "#6B6B6B",
+    "0d2433": "#F6F0E6",
+    "3a1518": "#F6F0E6",
+    "f59e0b": "#D0D0D0",
+}
+
+
+def is_dark_platform_stack_svg(svg: str) -> bool:
+    if "深色平台栈" in svg:
+        return True
+    if re.search(r'viewBox="0 0 1320 640"', svg) and re.search(
+        r'\bwidth="152"[^>]*\bheight="608"|\bheight="608"[^>]*\bwidth="152"', svg
+    ):
+        return True
+    return False
+
+
+def lighten_platform_stack_for_feishu(svg: str) -> str:
+    """深色平台栈 → §1.3 浅米色。几何不动。Markdown 源图不动。"""
+
+    def attr_map(m: re.Match) -> str:
+        attr, q, col = m.group(1), m.group(2), m.group(3)
+        tint = PLATFORM_STACK_TO_LIGHT.get(_hex_key(col))
+        return f"{attr}={q}{tint}{q}" if tint else m.group(0)
+
+    svg = re.sub(
+        r"""\b(fill|stroke|stop-color)=(["'])(#[0-9A-Fa-f]{3,8})\2""",
+        attr_map,
+        svg,
+    )
+    svg = re.sub(r"background:\s*#0[Dd]1117", "background:#F7F7F6", svg)
+    return svg
+
+
 def lighten_svg_for_feishu(svg: str) -> str:
     """暗色水平泳道（fig-horizontal-swimlane）→ 白底画板可读的浅色。节点饱和填色保持，白字保留。
-    fig-alternating-timeline 深彩色时间线改走浅彩色白卡，见 lighten_alternating_timeline_for_feishu。"""
+    fig-alternating-timeline 深彩色时间线改走浅彩色白卡，见 lighten_alternating_timeline_for_feishu。
+    fig-dark-platform-stack 改走 §1.3 浅米色，见 lighten_platform_stack_for_feishu。"""
+    if is_dark_platform_stack_svg(svg):
+        return lighten_platform_stack_for_feishu(svg)
     if is_alternating_timeline_svg(svg):
         return lighten_alternating_timeline_for_feishu(svg)
     fill_map = {k.lstrip("#"): v for k, (v, _) in LAYER_FILL.items()}

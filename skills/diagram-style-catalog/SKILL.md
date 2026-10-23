@@ -68,6 +68,7 @@ description: >-
 | 深色卡片墙 SVG = HTML sidecar | 点名 SVG / 落本地 md → `fig-dark-layer-cards`；独立 HTML 页 → `markdown-to-html` §3 |
 | 深色平台栈 = 深色分层卡片墙 | 平台栈有左栏、顶胶囊、底栏硬件对齐、右侧横切，**没有**层间↓；卡片墙是通栏层框 + ↓ → `fig-dark-layer-cards` |
 | 浅米色座舱截图 = 必须浅色交卷 | 用户要暗色主题 → 同一几何走 `fig-dark-platform-stack`；只要浅米色才保持浅色 |
+| 深色平台栈转飞书 = 贴深底 / 改卡片墙 | 画板以 path-alpha **§1.3** 浅色图为示例 → `fig-dark-platform-stack` + `markdown-to-feishu-doc` |
 | 浅色分层彩色卡片墙 = 胶囊图 | 本图无关/改/加/留胶囊、无左栏 L0–L7 |
 | roadmap = 人员分工表 | 阶段×时间 → `task-roadmap-timeline`；谁做哪块 → `task-assignment-timeline` |
 | 「时间线」= roadmap / gantt | 上下交错卡片 + 中轴圆点 → `fig-alternating-timeline`；阶段×季度排期 → `task-roadmap-timeline` |
@@ -106,7 +107,7 @@ description: >-
 |------|------|
 | 深色分层卡片（未点名 SVG）/ HTML 时序 / 阶段路线图 / 人员分工表 | `markdown-to-html` sidecar |
 | 深色分层卡片墙（用户点名 SVG / 落本地 md） | 目标 `.md` 内联 SVG（`fig-dark-layer-cards`） |
-| 深色平台栈 | 目标 `.md` 内联 SVG（`fig-dark-platform-stack`） |
+| 深色平台栈 | 目标 `.md` 内联 SVG（`fig-dark-platform-stack`）。转飞书走 `markdown-to-feishu-doc`，画板以 §1.3 浅米色为示例，不要贴深底 |
 | 左栏水平泳道 | 目标 `.md` 内联 SVG（`fig-horizontal-swimlane`） |
 | 顶栏垂直泳道 | 目标 `.md` 内联 SVG（`fig-vertical-swimlane`） |
 | 并排竖卡流程图 | 目标 `.md` 内联 SVG（`fig-side-by-side-flowcards`） |

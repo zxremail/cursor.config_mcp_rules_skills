@@ -4,7 +4,8 @@ description: >-
   Use when 用户要画深色平台栈、星环式/座舱式产品平台图、
   左栏常驻域 + 顶栏业务胶囊 + 中间嵌套开卡/OS 栈 + 底栏成对硬件 + 右侧横切栏，
   或对照 path-alpha §1.4 / 浅米色座舱截图但要求深彩色暗色主题；
-  或说深色平台栈、按 fig-dark-platform-stack 画。
+  或说深色平台栈、按 fig-dark-platform-stack 画；
+  或把深色平台栈转飞书画板、白底画板不要贴深底。
   不要用：深色分层卡片墙（层间↓、无左栏无顶胶囊，fig-dark-layer-cards）、
   浅底白分组彩卡片（fig-tinted-layer-cards）、Mermaid flowchart 硬凑、
   关/改/加/留胶囊、辐射功能全景。
@@ -19,7 +20,9 @@ description: >-
 不确定图种 → `diagram-style-catalog`。
 交卷：目标 `.md` **内联 SVG**。禁止 Mermaid `flowchart`。禁止 PNG / sidecar。
 
-对照实现：`n.naishu.xdma` 知识库 `ai.cursor/architecture/path-alpha-card-type-handoff.md` **§1.4**（不要整图贴进对话；只抄几何与色槽）。
+对照实现：`n.naishu.xdma` 知识库 `ai.cursor/architecture/path-alpha-card-type-handoff.md` **§1.4**（Markdown 深彩色；不要整图贴进对话，只抄几何与色槽）。
+
+**转飞书画板：** 白底画板不要原样贴 `#0D1117`。外观以同文档 **§1.3「平台分层：左栏 Manager，顶栏多类业务」** 的浅色图为示例（同一套模块与坐标，只换浅米色）。走 `markdown-to-feishu-doc`；`convert` 按本 skill 浅色表改导入用 SVG。Markdown 源图保持深彩色。禁止改成 `fig-tinted-layer-cards` 那种层间↓。
 
 ## 何时用 / 不用
 
@@ -27,7 +30,7 @@ description: >-
 |---|---|
 | 产品/机箱：常驻 Manager 或域在左侧，多种业务在顶栏 | 只要「谁在哪一层」、层间一句 ↓ → `fig-dark-layer-cards` |
 | 中间要嵌套「两列子系统 + 跨列共享条」 | 关系/调用边 → `mermaid-flowchart-layout` |
-| 底栏两类硬件与顶栏业务左右对齐 | 浅米色座舱截图且用户要浅色 → 几何可抄，色板不要用本表 |
+| 底栏两类硬件与顶栏业务左右对齐 | Markdown 里要浅色整图 → 几何抄本表，色板用下节飞书/§1.3 表，不要当深色源 |
 | 右侧观察面 / 约束 / 工具链横切 | 关/改/加/留 → `layer-action-capsule-diagram` |
 
 点名「深色平台栈」或对照座舱截图且要暗色主题 → 本 skill。只说「深色分层卡片」→ 卡片墙。
@@ -66,6 +69,28 @@ description: >-
 
 图下色键：`span` 字色抄本图 `border` 或卡片 `fill`（灰说明用 `#8B949E`）。禁止正文写可见 `#RRGGBB`。
 
+## 转飞书（浅色以 §1.3 为示例）
+
+用户说「转飞书画板 / md 转飞书」且图是深色平台栈时：
+
+1. 几何、分区、文案与深色源相同，不要重排、不要画成卡片墙。
+2. 填色对照 `path-alpha-card-type-handoff.md` **§1.3**（不要把 §1.3 整段 SVG 读进对话；按下表改色即可）。
+3. 源 `.md` 的 §1.4 深色图不要改浅。
+4. 导入走 `markdown-to-feishu-doc`（内嵌 SVG → 画板）。脚本未改色时，只改 **导入用** 那份 SVG 的 fill/stroke/background。
+
+| 深色（§1.4） | 飞书 / §1.3 浅色 |
+|--------------|------------------|
+| 画布 `#0D1117` | `#F7F7F6` |
+| 左栏 `#161B22` / `#F85149` / `#FFA198` | `#EDEDED` / `#6B6B6B` / `#3D3D3D` |
+| 左栏内盒 `#2D1215`；芯片 `#E63946` 白字 | `#F7F7F7`；`#E6D5B8` / `#3D3D3D` |
+| 顶胶囊 `#2E86AB` / `#58A6FF` / `#79C0FF` | `#F3F3F3` / `#E4E4E4` / `#6B6B6B` |
+| 嵌套栈 `#1A1028`；子系统盒 `#0D2137` | `#F6F0E6`；`#EFE6D6` |
+| 占用/库/内核卡 `#6A4C93` `#1A150D` | `#E6D5B8`；说明 `#5A5A5A` |
+| 硬件 `#122117` | `#F2F2F2` |
+| 右侧栏 `#0D2433` `#3A1518`；右侧卡同占用 | `#F6F0E6`；卡 `#E6D5B8` |
+| 箭头 `#F59E0B`；侧标 `#8B949E` | `#D0D0D0`；`#6B6B6B` |
+| 标题白字 `#FFFFFF` | `#3D3D3D` |
+
 ## 几何（默认 1320×640）
 
 `viewBox="0 0 1320 640"`。内容不要压到边；左栏与栈之间留出箭头。
@@ -93,7 +118,8 @@ description: >-
 - 用 Mermaid `subgraph` 冒充五区
 - 左栏、顶胶囊、右侧栏、底栏硬件对不齐或 A/B 交叉
 - 多条跨区折线（只保留左芯片→栈顶条这一条）
-- 浅米色整图当真源（那是对照截图，不是本色板）
+- 浅米色整图当真源写进 Markdown（那是对照截图 / 飞书侧；深色源仍用上表）
+- 转飞书时把深底原样贴上白底画板，或改成层间↓卡片墙
 
 ## 填空（开画前）
 
