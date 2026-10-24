@@ -3,7 +3,8 @@ name: draw
 description: >-
   Use when the user types /draw to pick a diagram visual language from the
   catalog, then draw.   Slash menu for 画图 / 架构图 / 胶囊图 / 路线图 / 时序图 /
-  泳道图 / 时间线 / 并排竖卡 / 辐射功能全景 / 分层关系图.
+  泳道图 / 时间线 / 并排竖卡 / 辐射功能全景 / 分层关系图 /
+  REA 架构分析 HTML.
 disable-model-invocation: true
 ---
 
@@ -39,6 +40,7 @@ disable-model-invocation: true
 | cards-drawio | 转换：分层卡片 HTML → draw.io |
 | seq-drawio | 转换：Mermaid 时序图 → draw.io |
 | internalize | 其它：把对照图内化成 Skill |
+| rea-arch-html | 新画：REA 反编译架构分析 HTML（architecture.html） |
 
 选定后 `kind` → Skill：
 
@@ -61,12 +63,13 @@ disable-model-invocation: true
 | landing-phases | `fig-dark-landing-phases` |
 | cards-drawio | `cards-to-drawio` |
 | seq-drawio | `mermaid-to-drawio` |
+| rea-arch-html | `rea-architecture-html` |
 
 **Q2 `medium`**：飞书画板 / MD→飞书文档 / 独立 HTML / HTML 幻灯片 / 本图种默认。
 
 选定后：
 
-1. 目录 §2「固定出口」的图种 **忽略 Q2**，用表里的默认。含：`tinted-cards`、`dark-cards`、`seq-html`、`roadmap`、`alt-timeline`、`assign`、`h-swimlane`、`v-swimlane`、`side-flowcards`、`hub-fnmap`、`dark-bands`、`dark-layer-rel`、`landing-phases`、`cards-drawio`、`seq-drawio`。
+1. 目录 §2「固定出口」的图种 **忽略 Q2**，用表里的默认。含：`tinted-cards`、`dark-cards`、`seq-html`、`roadmap`、`alt-timeline`、`assign`、`h-swimlane`、`v-swimlane`、`side-flowcards`、`hub-fnmap`、`dark-bands`、`dark-layer-rel`、`landing-phases`、`cards-drawio`、`seq-drawio`、`rea-arch-html`。
 2. `capsule` / `mermaid-flow` 才采用 Q2；选了「本图种默认」时：胶囊→飞书画板，Mermaid 架构→本地 `.md`。
 3. `internalize` → 目录 §3，不出填空构图大纲。
 4. Read 对应样式 Skill。

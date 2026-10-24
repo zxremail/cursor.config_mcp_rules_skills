@@ -53,6 +53,7 @@ description: >-
 | 流程图太长一屏显示不全、两张竖卡并排、左栏底直角折到右栏顶 | `fig-side-by-side-flowcards` |
 | 中心六边形 + 周围模块六边形 + 外侧圆角功能卡、FUNCTION LIST、辐射功能全景 | `fig-hub-function-map` |
 | 贴顶生命线、消息往返、ioctl/MSI 请求返回、sequenceDiagram | Markdown 源 `sequenceDiagram`；HTML → `html-sequence-swimlane` |
+| REA 反编译/逆向架构文档、`architecture.html`、.so/.apk 静态分析分层页（指标卡+层带 SVG+证据链） | `rea-architecture-html` |
 
 ### 转换（已有图改格式，不是新构图）
 
@@ -100,6 +101,8 @@ description: >-
 | 辐射功能全景 = 分层卡片墙 | 没有层框、没有层间↓；中心+卫星+外侧卡 → `fig-hub-function-map` |
 | 辐射功能全景 = mindmap / flowchart | 不是树、也不是先后顺序；虚线只表示属于 |
 | 飞书导出的 SVG = 可编辑辐射图 | 导出常是一张 `<image>` 位图，要重画内联 SVG |
+| REA「架构分析」= md2html / 深色卡片墙 / Mermaid | 单文件 `architecture.html` 层带 SVG → `rea-architecture-html`；`.layer` sidecar 仍是 `markdown-to-html` |
+| 只说「画个架构图」= REA 分析页 | 无 REA/反编译/产物证据时仍走 §0 菜单 |
 
 ## 2. 选媒介（交卷）
 
@@ -131,6 +134,7 @@ description: >-
 | 浅色分层彩色卡片墙 | 飞书画板（`lark-whiteboard`） |
 | 分层卡片 → draw.io / 时序 → draw.io | 本地 `.drawio` |
 | 内化成 Skill | §3，不构图 |
+| REA 架构分析 HTML | 产物旁 `architecture.html`（`rea-architecture-html`）；跳过 /draw 菜单 |
 
 **多出口（才采用 Q2）：** 胶囊图、Mermaid 分层架构（围栏，不是 SVG 关系图）。有样式 Skill 时先样式后媒介，不要只走 whiteboard-cli 默认色板。
 
@@ -163,6 +167,7 @@ description: >-
 - 「按并排竖卡流程图画」「走 `fig-side-by-side-flowcards`」
 - 「按辐射功能全景画」「走 `fig-hub-function-map`」
 - 「按上下交错时间线画」「走 `fig-alternating-timeline`」
+- 「REA 架构文档 / 反编译输出 architecture.html」「走 `rea-architecture-html`」
 - 「对照这张图内化成 Skill，先查目录有没有同类」
 - 只说「画个架构图」→ 先出一轮菜单 + §5 大纲，不要直接画 Mermaid
 
@@ -203,6 +208,13 @@ subgraph / 层（上→下）：
 边（谁 → 谁 / 标签 / 语义色）：
 跨列主通路小图（有则路径）：
 .md 路径：
+```
+
+**REA 架构分析 HTML**
+```
+产物路径（.so / .apk / 分析目录）：
+证据目录（decompiled/ 等）：
+architecture.html 落点（默认产物旁）：
 ```
 
 **深色分层卡片（HTML sidecar）**

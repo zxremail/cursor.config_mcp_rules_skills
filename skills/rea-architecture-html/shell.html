@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><!-- 产物名 软件架构 --></title>
+<style>
+  :root {
+    --bg: #0c1218;
+    --panel: #141c26;
+    --card: #1b2733;
+    --line: #3c5166;
+    --text: #e7eef5;
+    --muted: #93a6b8;
+    --java: #8ec5ff;
+    --aidl: #f0c36a;
+    --native: #8fd6b0;
+    --hw: #f0b4a8;
+    --accent: #d7e4f2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      linear-gradient(180deg, rgba(142, 197, 255, 0.04), transparent 220px),
+      var(--bg);
+    color: var(--text);
+    font: 15px/1.55 "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  main { max-width: 1240px; margin: 0 auto; padding: 28px 20px 64px; }
+  header { margin-bottom: 22px; }
+  .kicker {
+    margin: 0 0 6px;
+    color: var(--aidl);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  h1 { margin: 0 0 8px; font-size: 30px; font-weight: 650; letter-spacing: 0.01em; }
+  h2 { margin: 0 0 12px; font-size: 18px; font-weight: 650; }
+  .meta { margin: 0; color: var(--muted); }
+  .meta code, code {
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 0.92em;
+    color: var(--accent);
+  }
+  section {
+    margin-top: 28px;
+    padding: 18px;
+    background: var(--panel);
+    border: 1px solid #243140;
+    border-radius: 12px;
+  }
+  .diagram { padding: 12px 12px 8px; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+  .note { margin: 8px 4px 0; color: var(--muted); font-size: 13px; }
+  .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .fact {
+    padding: 12px 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .fact span { display: block; color: var(--muted); font-size: 12px; }
+  .fact strong { display: block; margin-top: 3px; font-size: 15px; font-weight: 650; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #243140; vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  .flow { display: grid; grid-template-columns: 150px 1fr; gap: 8px 14px; }
+  .flow b { color: var(--aidl); font-weight: 650; }
+  .flow p { margin: 0; }
+  ul.files { margin: 0; padding-left: 18px; columns: 2; }
+  ul.files a { color: var(--java); text-decoration: none; }
+  ul.files a:hover { text-decoration: underline; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 0 4px 8px; color: var(--muted); font-size: 13px; }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  @media (max-width: 900px) {
+    .facts { grid-template-columns: 1fr 1fr; }
+    ul.files { columns: 1; }
+    .flow { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">REA static analysis · <!-- 产物文件名 --></p>
+    <h1><!-- 中文架构标题 --></h1>
+    <p class="meta"><!-- 身份：包名/SONAME · 架构 · 体积 · 版本 · 运行身份 --></p>
+  </header>
+
+  <section>
+    <div class="facts">
+      <div class="fact"><span><!-- 短标签 --></span><strong><!-- 结论 --></strong></div>
+      <div class="fact"><span></span><strong></strong></div>
+      <div class="fact"><span></span><strong></strong></div>
+      <div class="fact"><span></span><strong></strong></div>
+    </div>
+  </section>
+
+  <section class="diagram">
+    <h2>分层架构</h2>
+    <div class="legend">
+      <span><i class="swatch" style="background:#8ec5ff"></i><!-- 调用方 / Java --></span>
+      <span><i class="swatch" style="background:#f0c36a"></i><!-- 接口 / C API --></span>
+      <span><i class="swatch" style="background:#8fd6b0"></i><!-- 实现 / 原生 --></span>
+      <span><i class="swatch" style="background:#f0b4a8"></i><!-- 设备 / 硬件 --></span>
+    </div>
+    <svg viewBox="0 0 1280 900" role="img" aria-label="<!-- 产物 分层软件架构图 -->">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 Z" fill="#8aa0b5"/>
+        </marker>
+      </defs>
+      <!-- 层带 rect fill=#101820 stroke=#2a3b4d rx=10；层间竖线 arrow #8aa0b5 -->
+      <!-- 内卡 fill=#1b2733 rx=8；描边用上列四色；硬件卡 fill=#2a1c22 stroke=#f0b4a8 -->
+    </svg>
+    <p class="note"><!-- 证据边界：静态分析、未执行、签名未校验等 --></p>
+  </section>
+
+  <section>
+    <h2><!-- 启动与调用链 / 打开读写关闭 --></h2>
+    <div class="flow">
+      <b><!-- 步骤名 --></b>
+      <p><!-- 谁对谁做什么 --></p>
+    </div>
+  </section>
+
+  <section>
+    <h2><!-- 对照表标题 --></h2>
+    <table>
+      <thead><tr><th>列</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>同目录证据</h2>
+    <ul class="files">
+      <li><a href="<!-- 相对路径 -->"><!-- 文件名 --></a></li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
