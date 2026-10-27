@@ -4,7 +4,7 @@ description: >-
   Use when generating, writing, saving, or exporting markdown（生成/撰写/导出 md、整理文档、写成 md、分析报告）;
   drawing or editing Mermaid in .md; a chart looks light-themed, default-colored,
   or hard to read on dark backgrounds; Chinese or spaced filenames; pipe-table header colors;
-  figure legends/captions (色键、图注 hex、蓝色实线); Chinese prose clarity (断句、专名「」、格内列义、直述不硬套比喻);
+  figure legends/captions (色键、图注 hex、蓝色实线); Chinese prose clarity (断句、专名「」、格内列义、直述不硬套比喻、不要以为、不要拿去);
   inline SVG blanks; 准备画流程图 or choosing swimlanes;
   adding format rules to this skill（写进 Skill、新增格式要求）.
 ---
@@ -27,8 +27,8 @@ description: >-
 |------|------|
 | 「§6 摘要已经够用」 | 摘要没有对照表；未 Read prose.md 不得写中文 |
 | 「赶时间，写完再读」 | 读是落笔前的步骤，不是验收 |
-| 「只改一句 / 和上次一样」 | 仍要 Read；凭记忆会漏格内列义、「」、动词表和比喻表 |
-| 「audit 过了就行」 | 脚本不检查断句、专名和别扭比喻 |
+| 「只改一句 / 和上次一样」 | 仍要 Read；凭记忆会漏格内列义、「」、动词表、比喻表和读心句 |
+| 「audit 过了就行」 | 脚本不检查断句、专名、别扭比喻和「不要以为 / 不要拿」 |
 
 红旗：还没打开 `prose.md` 就开始 Write `.md` 正文。出现则停下来先 Read，不要接着写。
 
@@ -103,7 +103,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 
 - 中英文之间空格。
 - **落笔即断句**：两套主语、并列路径、条件状语当场用逗号/顿号/分号；不要等用户说加标点。用户只要标点时只加标点、不改措辞。
-- **语义**：先结论；写清谁对谁做什么；不是 A 是 B；对照用表、步骤用编号、结构用图。一层定语；同一概念同一叫法。多层一句改列表。不要用「打 / 摸 / 直捅」当万能动词（「打开」设备、「打印」日志、「打点」计数除外；「打 TLAST」写「置 TLAST」）。直述，不硬套出门证 / 户籍 / 吃掉 / 换脑子这类比喻，见 prose.md **§6.3.3**。中文专名用「」，不用 “」。图下色键只涂钥匙，见 prose.md **§6.5**。
+- **语义**：先结论；写清谁对谁做什么；不是 A 是 B；对照用表、步骤用编号、结构用图。一层定语；同一概念同一叫法。多层一句改列表。不要用「打 / 摸 / 直捅」当万能动词（「打开」设备、「打印」日志、「打点」计数除外；「打 TLAST」写「置 TLAST」）。直述，不硬套出门证 / 户籍 / 吃掉 / 换脑子，也不写「不要以为」「不要拿…去」「看成活」「坑人」，见 prose.md **§6.3.3**。点名文件的「不要用 X」可以留。中文专名用「」，不用 “」。图下色键只涂钥匙，见 prose.md **§6.5**。
 - **表格格内**：先看列义。分类/是否/状态用短标签（可括号补细节）；解释/对照/提要列主谓宾 + `<br>` 分行，禁止分号硬挤。索引「说明」短标签、「提要」完整句。
 
 ## 7. 实时保存
