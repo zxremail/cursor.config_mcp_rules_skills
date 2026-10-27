@@ -4,7 +4,7 @@ description: >-
   Use when generating, writing, saving, or exporting markdown（生成/撰写/导出 md、整理文档、写成 md、分析报告）;
   drawing or editing Mermaid in .md; a chart looks light-themed, default-colored,
   or hard to read on dark backgrounds; Chinese or spaced filenames; pipe-table header colors;
-  figure legends/captions (色键、图注 hex、蓝色实线); Chinese prose clarity (断句、专名「」、格内列义);
+  figure legends/captions (色键、图注 hex、蓝色实线); Chinese prose clarity (断句、专名「」、格内列义、直述不硬套比喻);
   inline SVG blanks; 准备画流程图 or choosing swimlanes;
   adding format rules to this skill（写进 Skill、新增格式要求）.
 ---
@@ -27,8 +27,8 @@ description: >-
 |------|------|
 | 「§6 摘要已经够用」 | 摘要没有对照表；未 Read prose.md 不得写中文 |
 | 「赶时间，写完再读」 | 读是落笔前的步骤，不是验收 |
-| 「只改一句 / 和上次一样」 | 仍要 Read；凭记忆会漏格内列义、「」和动词表 |
-| 「audit 过了就行」 | 脚本不检查断句和专名 |
+| 「只改一句 / 和上次一样」 | 仍要 Read；凭记忆会漏格内列义、「」、动词表和比喻表 |
+| 「audit 过了就行」 | 脚本不检查断句、专名和别扭比喻 |
 
 红旗：还没打开 `prose.md` 就开始 Write `.md` 正文。出现则停下来先 Read，不要接着写。
 
@@ -49,7 +49,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 | 类型 | 落哪里 | 还要做什么 |
 |------|--------|------------|
 | **可扫描**（色值、围栏字段、`theme`、表头字色、禁止某字面量、图注可见 `#RRGGBB`、`useMaxWidth`、`</table>` 后空行、内联 SVG 空行、basename 非 ASCII/空格、色键未 span、span hex 须在图 fill/stroke） | `references/export.md` 一条硬规则 | `scripts/audit_mermaid.py` 加 `issues[].code` + `scripts/test_audit_mermaid.py` 正反例。`SKILL.md` **只加清单一行**，禁止把长示例贴回本页 |
-| **每次写中文都要用**（断句、专名「」、格内列义、动词表、图下谁算色键） | `references/prose.md` | 本页 §6 最多补半行指针。脚本**不要**假装能验 |
+| **每次写中文都要用**（断句、专名「」、格内列义、动词表、直述不硬套比喻、图下谁算色键） | `references/prose.md` | 本页 §6 最多补半行指针。脚本**不要**假装能验 |
 | **偶发 / 某类图才用**（复杂 subgraph、图例方案 D、名+注、flowchart vs 泳道） | 对应 reference（export 或 `mermaid-flowchart-layout` 的 layout.md / choose-diagram.md） | 本页只写「出现 X 时 Read」。排版细则仍以 layout skill 为准 |
 | **用户当场只要这一篇、以后不守** | 不改 Skill | 只改那份业务 md |
 
@@ -103,7 +103,7 @@ python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 
 - 中英文之间空格。
 - **落笔即断句**：两套主语、并列路径、条件状语当场用逗号/顿号/分号；不要等用户说加标点。用户只要标点时只加标点、不改措辞。
-- **语义**：先结论；写清谁对谁做什么；不是 A 是 B；对照用表、步骤用编号、结构用图。一层定语；同一概念同一叫法。多层一句改列表。不要用「打 / 摸 / 直捅」当万能动词（「打开」设备、「打印」日志、「打点」计数除外；「打 TLAST」写「置 TLAST」）。中文专名用「」，不用 “」。图下色键只涂钥匙，见 prose.md **§6.5**。
+- **语义**：先结论；写清谁对谁做什么；不是 A 是 B；对照用表、步骤用编号、结构用图。一层定语；同一概念同一叫法。多层一句改列表。不要用「打 / 摸 / 直捅」当万能动词（「打开」设备、「打印」日志、「打点」计数除外；「打 TLAST」写「置 TLAST」）。直述，不硬套出门证 / 户籍 / 吃掉 / 换脑子这类比喻，见 prose.md **§6.3.3**。中文专名用「」，不用 “」。图下色键只涂钥匙，见 prose.md **§6.5**。
 - **表格格内**：先看列义。分类/是否/状态用短标签（可括号补细节）；解释/对照/提要列主谓宾 + `<br>` 分行，禁止分号硬挤。索引「说明」短标签、「提要」完整句。
 
 ## 7. 实时保存
