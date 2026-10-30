@@ -88,6 +88,10 @@ def md_feishu_links(content: str) -> list[dict[str, str]]:
     return found
 
 
+def _inner_text(chunk: str) -> str:
+    return re.sub(r"<[^>]+>", "", chunk)
+
+
 def to_source_txt(content: str) -> str:
     def repl(m: re.Match[str]) -> str:
         c = parse_cite_attrs(m.group(1))
@@ -95,6 +99,12 @@ def to_source_txt(content: str) -> str:
         return f"[cite {c['file_type']}:{c['doc_id']} {title}]"
 
     text = CITE_RE.sub(repl, content)
+    text = re.sub(
+        r"<del\b[^>]*>([\s\S]*?)</del>",
+        lambda m: f"~~{_inner_text(m.group(1))}~~",
+        text,
+        flags=re.I,
+    )
     text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
     text = re.sub(r"</(p|h[1-6]|li|tr|div)>", "\n", text, flags=re.I)
     text = re.sub(r"<[^>]+>", "", text)
@@ -180,13 +190,35 @@ def cite_md_url(cite: dict[str, str]) -> str:
     return f"{PORTAL}/{path}/{token}"
 
 
+STRIKE_MD_RE = re.compile(r"~~(.+?)~~")
+
+
+def item_display_text(item: dict[str, Any]) -> str:
+    text = (item.get("text") or "").strip()
+    if item.get("strike") and "~~" not in text and text:
+        return f"~~{text}~~"
+    return text
+
+
+def rich_text_xml(text: str) -> str:
+    parts: list[str] = []
+    pos = 0
+    for m in STRIKE_MD_RE.finditer(text):
+        if m.start() > pos:
+            parts.append(xml_esc(text[pos : m.start()]))
+        parts.append(f"<del>{xml_esc(m.group(1))}</del>")
+        pos = m.end()
+    if pos < len(text):
+        parts.append(xml_esc(text[pos:]))
+    return "".join(parts)
+
+
 def item_xml(item: dict[str, Any]) -> str:
-    text = xml_esc((item.get("text") or "").strip())
+    text = item_display_text(item)
+    inner = rich_text_xml(text)
     cite = item.get("cite")
     if cite and (cite.get("doc_id") or cite.get("doc-id")):
-        inner = f"{text}：{cite_xml(cite)}" if text else cite_xml(cite)
-    else:
-        inner = text
+        inner = f"{inner}：{cite_xml(cite)}" if text else cite_xml(cite)
     return f"<li>{inner}</li>"
 
 
@@ -203,7 +235,7 @@ def projects_xml(projects: list[dict[str, Any]]) -> str:
 
 
 def item_md(item: dict[str, Any], allow_link: bool) -> str:
-    text = (item.get("text") or "").strip()
+    text = item_display_text(item)
     cite = item.get("cite") if allow_link else None
     if not (cite and (cite.get("doc_id") or cite.get("doc-id"))):
         return text

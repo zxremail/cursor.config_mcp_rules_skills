@@ -94,6 +94,25 @@ class ExtractTests(unittest.TestCase):
             self.assertIn("草原雕", text)
             self.assertNotIn('"document"', text)
 
+    def test_preserves_del_as_strike_markers(self):
+        fetch = {
+            "data": {
+                "document": {
+                    "content": "<p>本周</p><p><del>系统安装自动化程度优化</del></p>"
+                    "<p>按键异常：<del>问题未复现</del></p>"
+                }
+            }
+        }
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            src = td / "fetch.json"
+            src.write_text(json.dumps(fetch, ensure_ascii=False), encoding="utf-8")
+            out = td / "out"
+            pipeline.cmd_extract([src], out)
+            text = (out / "source.txt").read_text(encoding="utf-8")
+            self.assertIn("~~系统安装自动化程度优化~~", text)
+            self.assertIn("按键异常：~~问题未复现~~", text)
+
 
 class ConvertTests(unittest.TestCase):
     def test_xml_colors_cites_and_md_links(self):
@@ -120,6 +139,29 @@ class ConvertTests(unittest.TestCase):
             self.assertTrue(man["ok"])
             self.assertEqual(man["this_week_cites"], 1)
             self.assertEqual(man["next_week_cites"], 0)
+
+    def test_xml_and_md_keep_strikethrough(self):
+        data = json.loads(json.dumps(REPORT))
+        data["categories"][0]["this_week"][0]["items"] = [
+            {"text": "系统安装自动化程度优化", "strike": True},
+            {"text": "按键异常：~~用原厂方案升级键盘板 MCU，问题未复现~~"},
+        ]
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            report = td / "report.json"
+            report.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+            out = td / "out"
+            man = pipeline.cmd_convert(report, out)
+            xml = (out / "doc.xml").read_text(encoding="utf-8")
+            self.assertIn("<del>系统安装自动化程度优化</del>", xml)
+            self.assertIn(
+                "按键异常：<del>用原厂方案升级键盘板 MCU，问题未复现</del>", xml
+            )
+            md = (out / man["md"]).read_text(encoding="utf-8")
+            self.assertIn("~~系统安装自动化程度优化~~", md)
+            self.assertIn(
+                "按键异常：~~用原厂方案升级键盘板 MCU，问题未复现~~", md
+            )
 
     def test_rejects_fourth_category(self):
         bad = json.loads(json.dumps(REPORT))

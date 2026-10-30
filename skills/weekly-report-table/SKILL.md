@@ -11,14 +11,15 @@ description: >
 
 脚本（stdout 只打 JSON 摘要）：`scripts/pipeline.py`。分类/合并仍由模型做；**XML/MD/cite 验收禁止手写**。
 
-用户要加/改本 skill 硬格式（列、cite、三行限制、表头色）：**不要只改本页。** 可扫描的（第四行、姓名、下周 `<cite>`、表头/首列色）→ `scripts/pipeline.py` 的 `audit-xml` + 单测，`convert` 一起改。分类/合并规则（人读、扫不干净）→ 本页核心原则，不要假装 XML 扫描能代替模型分类。禁止只改散文、不改脚本。
+用户要加/改本 skill 硬格式（列、cite、三行限制、表头色）：**不要只改本页。** 可扫描的（第四行、姓名、下周 `<cite>`、表头/首列色、源 `<del>` 划线）→ `scripts/pipeline.py` 的 `audit-xml` + 单测，`convert` 一起改。分类/合并规则（人读、扫不干净）→ 本页核心原则，不要假装 XML 扫描能代替模型分类。禁止只改散文、不改脚本。
 
 ## 核心原则
 
 1. **小组视角、不写姓名**；同一项目合并到同一 `**项目名称**` 下。
 2. **只有三行**：重点项目开发、技术选项与优化、问题定位与支持。文档并入所属项目，禁止第四行（含「调试测试文档」等同义）。
 3. **本周**保留源 `cite`（`doc-id` / `file-type`）；**下周**只用自然语言，禁止 `<cite>` 和 URL。
-4. **大文件不准进对话**：`docs +fetch` 只重定向落盘；不要 `Read` fetch JSON、`doc.xml`、飞书全文。只读 `extract` 摘要和 `source.txt`。
+4. **源划线保留**：`extract` 把 `<del>` 写成 `~~文字~~`；`report.json` 用 `~~...~~` 或 `"strike": true`；`convert` 写成飞书 `<del>` / Markdown `~~`。禁止把已划线项改成普通文字。
+5. **大文件不准进对话**：`docs +fetch` 只重定向落盘；不要 `Read` fetch JSON、`doc.xml`、飞书全文。只读 `extract` 摘要和 `source.txt`。
 
 ## 禁止
 
@@ -67,6 +68,7 @@ python3 ~/.cursor/skills/weekly-report-table/scripts/pipeline.py extract \
           "items": [
             {
               "text": "上电链路及耗时分析",
+              "strike": true,
               "cite": {
                 "doc_id": "PiEEwMighiT9ZukDryMc646unug",
                 "file_type": "wiki",
@@ -125,5 +127,6 @@ python3 ~/.cursor/skills/weekly-report-table/scripts/pipeline.py audit-xml \
 | 「先 fetch 看看再分类」 | extract 已够；Read `source.txt` |
 | 「XML 就几行，手写更快」 | 漏色/漏 cite；走 convert |
 | 「下周也挂文档方便点开」 | 下周禁止链接 |
+| 「划线已完成，汇总时去掉」 | 源 `<del>` 必须保留 |
 | 「文档单独成行更清楚」 | 并入三行里对应项目 |
 | 「默认 fetch 就能 audit」 | 必须 `--detail full`；simple 无底色 |
