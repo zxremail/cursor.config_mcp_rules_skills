@@ -9,28 +9,31 @@ description: >-
 
 # Unattended build loop
 
-Compile is owned by the **Supervisor** at `~/unattended-build` (`./ub`). The
+Compile is owned by the **Supervisor** at `~/loop.AI/unattended-build` (`./ub`). The
 Agent is short-lived and must not sit through bitbake.
 
 ## Supervisor commands
 
 ```bash
-~/unattended-build/ub start selftest-fail
-~/unattended-build/ub start rk3399-yocto-kernel
-~/unattended-build/ub status
-~/unattended-build/ub board          # http://127.0.0.1:8765/
-~/unattended-build/ub stop
+~/loop.AI/unattended-build/ub start selftest-fail
+~/loop.AI/unattended-build/ub start rk3399-yocto-kernel
+~/loop.AI/unattended-build/ub status
+~/loop.AI/unattended-build/ub board          # http://127.0.0.1:8765/
+~/loop.AI/unattended-build/ub stop
 ```
 
 `ub start` / `ub serve` also bind a localhost board (port 8765) unless `--no-board`.
 While `status=building`, Feishu heartbeat uses `notify.heartbeat_minutes` (default 45).
 
-Task YAML lives in `~/unattended-build/tasks/`. Runs live in
-`~/unattended-build/runs/<id>/` (`state.json`, `build.log`, `extract/`, `notify.log`).
+Task YAML lives in `~/loop.AI/unattended-build/tasks/`. Runs live in
+`~/loop.AI/unattended-build/runs/<id>/` (`state.json`, `build.log`, `extract/`, `notify.log`).
 
-Phase 1: `agent_enabled: false`. Failures that would be AUTO become `wait_human`
-with reason `agent_disabled`. Fill `notify.chat_id` (`oc_...`) to send Feishu;
-empty chat id only appends `notify.log`.
+`rk3399-yocto-*` 默认 `agent_enabled: true`。`preclass=agent` 时 Supervisor 调用
+Cursor SDK 本地 Agent（`composer-2.5`，`cwd` 为任务 YAML 的 `cwd`，超时 15 分钟）
+写 `decision.json`。无 `CURSOR_API_KEY` 或未安装 `cursor-sdk` 时降级为
+`wait_human` / `agent_unavailable`。自动 `patch`/`retry` **不发飞书**，只写
+`notify.log`。Fill `notify.chat_id` (`oc_...`) 只在 success / wait_human / failed /
+heartbeat。`selftest-*` 保持 `agent_enabled: false`。
 
 ## When invoked as the fix Agent
 

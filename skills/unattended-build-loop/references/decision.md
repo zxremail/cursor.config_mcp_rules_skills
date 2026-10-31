@@ -11,5 +11,7 @@ Supervisor never parses Agent chat prose. Only this file is an input.
 | `human_options` | strings | Buttons; default 继续重编 / 中止 |
 | `risk` | `low`, `medium`, `high` | `high` upgrades `patch` to `human` |
 
-Phase 1 does not launch an Agent. When `agent_enabled` is false, Supervisor maps
-`preclass=agent` to `wait_human` / `agent_disabled`.
+When `agent_enabled` is false, Supervisor maps `preclass=agent` to
+`wait_human` / `agent_disabled`. When true, it launches a one-shot local Agent
+that must write this file. Invalid JSON, empty patch, or `risk: high` become
+`wait_human`. Auto `patch`/`retry` does not send Feishu.
