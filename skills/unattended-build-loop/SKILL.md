@@ -14,26 +14,35 @@ Agent is short-lived and must not sit through bitbake.
 
 ## Supervisor commands
 
+长期入口是 `./x.sh`。先 `cd ~/loop.AI/unattended-build`，再 `./x.sh`（中文菜单）。不必记完整 task id。
+
 ```bash
-~/loop.AI/unattended-build/ub start selftest-fail
-~/loop.AI/unattended-build/ub start rk3399-yocto-kernel
-~/loop.AI/unattended-build/ub status
-~/loop.AI/unattended-build/ub board          # http://127.0.0.1:8765/
-~/loop.AI/unattended-build/ub stop
+cd ~/loop.AI/unattended-build
+./x.sh               # 长期入口：用法 + 菜单
+./kernel             # 编 RK3399 内核
+./all                # 编 RK3399 完整镜像
+./status
+./board              # http://127.0.0.1:8765/
+./stop
+./install-shortcuts  # 可选：链到 ~/.local/bin/x.sh
 ```
 
+旧写法仍可用：`./ub start rk3399-yocto-kernel`、`./ub kernel`、`./ub all`。无参数的 `./ub` 与 `./x.sh` 相同。说明见仓库 `README.md`。
+
 `ub start` / `ub serve` also bind a localhost board (port 8765) unless `--no-board`.
+看板左侧列出 `runs/` 下全部历史，点选即可回顾该次日志与 Agent 分析；`?run=<id>` 可收藏。仅当前正在 `building`/`agent` 的 run 每 2 秒拉 `/api`。中间栏仍展示该次 `agent-history.jsonl`。无历史时回退 `decision.json` 的 summary。
 While `status=building`, Feishu heartbeat uses `notify.heartbeat_minutes` (default 45).
 
 Task YAML lives in `~/loop.AI/unattended-build/tasks/`. Runs live in
 `~/loop.AI/unattended-build/runs/<id>/` (`state.json`, `build.log`, `extract/`, `notify.log`).
 
 `rk3399-yocto-*` 默认 `agent_enabled: true`。`preclass=agent` 时 Supervisor 调用
-Cursor SDK 本地 Agent（`composer-2.5`，`cwd` 为任务 YAML 的 `cwd`，超时 15 分钟）
+Cursor SDK 本地 Agent（请求 `composer-2.5` 且 Fast=`false`；实际模型写入 `agent-model.json`，不因 Fast 停回路；`cwd` 为任务 YAML 的 `cwd`，超时 15 分钟）
 写 `decision.json`。无 `CURSOR_API_KEY` 或未安装 `cursor-sdk` 时降级为
 `wait_human` / `agent_unavailable`。自动 `patch`/`retry` **不发飞书**，只写
 `notify.log`。Fill `notify.chat_id` (`oc_...`) 只在 success / wait_human / failed /
-heartbeat。`selftest-*` 保持 `agent_enabled: false`。
+heartbeat。飞书正文附带尝试次数、错误指纹、Agent 摘要、改动文件、请求/实际模型。
+`selftest-*` 保持 `agent_enabled: false`。
 
 ## When invoked as the fix Agent
 
