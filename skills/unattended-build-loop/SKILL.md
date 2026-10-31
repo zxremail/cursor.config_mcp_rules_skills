@@ -22,15 +22,17 @@ and must not sit through the compile (`bitbake`, `make`, or the task `start` com
 ```bash
 cd ~/loop.AI/unattended-build
 ./x.sh               # 长期入口：用法 + 菜单（按 tasks/*.yaml 生成）
-./ub kernel          # 当前 YAML 简称：编 RK3399 内核
-./ub all             # 当前 YAML 简称：编 RK3399 完整镜像
+./ub yocto-kernel    # 编 RK3399 Yocto 内核
+./ub yocto-all       # 编 RK3399 Yocto 完整镜像
+./ub debian-kernel   # 编 RK3399 Debian 内核
+./ub debian-all      # 编 RK3399 Debian 完整镜像
 ./status
 ./board              # http://127.0.0.1:8765/
 ./stop
 ./install-shortcuts  # 可选：链到 ~/.local/bin/x.sh
 ```
 
-旧写法仍可用：`./ub start rk3399-yocto-kernel`、`./ub kernel`、`./ub all`。无参数的 `./ub` 与 `./x.sh` 相同。说明见仓库 `README.md`。
+旧写法仍可用：`./ub start rk3399-yocto-kernel`。无参数的 `./ub` 与 `./x.sh` 相同。说明见仓库 `README.md`。
 
 `ub start` / `ub serve` also bind a localhost board (port 8765) unless `--no-board`.
 看板左侧列出 `runs/` 下全部历史，点选即可回顾该次日志与 Agent 分析；`?run=<id>` 可收藏。仅当前正在 `building`/`agent` 的 run 每 2 秒拉 `/api`。中间栏仍展示该次 `agent-history.jsonl`。无历史时回退 `decision.json` 的 summary。
