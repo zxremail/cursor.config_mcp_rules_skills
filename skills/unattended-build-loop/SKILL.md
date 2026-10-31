@@ -5,12 +5,15 @@ description: >-
   protocol. Use when the user mentions 无人值守编译, unattended-build, Supervisor,
   ub start, q.build-rk3399-yocto.sh, or overnight Yocto/kernel builds that
   should auto-classify errors and only ping Feishu at human gates.
+  Also use when adding a new platform task YAML (RK3588 Buildroot, another SDK).
 ---
 
 # Unattended build loop
 
-Compile is owned by the **Supervisor** at `~/loop.AI/unattended-build` (`./ub`). The
-Agent is short-lived and must not sit through bitbake.
+Compile is owned by the **Supervisor** at `~/loop.AI/unattended-build` (`./x.sh` / `./ub`).
+This directory is a multi-repo hub. RK3399 Yocto is the current task set; RK3588
+Buildroot is a new `tasks/*.yaml`, not a second Supervisor. The Agent is short-lived
+and must not sit through the compile (`bitbake`, `make`, or the task `start` command).
 
 ## Supervisor commands
 
@@ -18,9 +21,9 @@ Agent is short-lived and must not sit through bitbake.
 
 ```bash
 cd ~/loop.AI/unattended-build
-./x.sh               # 长期入口：用法 + 菜单
-./kernel             # 编 RK3399 内核
-./all                # 编 RK3399 完整镜像
+./x.sh               # 长期入口：用法 + 菜单（按 tasks/*.yaml 生成）
+./ub kernel          # 当前 YAML 简称：编 RK3399 内核
+./ub all             # 当前 YAML 简称：编 RK3399 完整镜像
 ./status
 ./board              # http://127.0.0.1:8765/
 ./stop
@@ -64,17 +67,18 @@ Supervisor has already extracted the failure. Do not re-run the compile.
 
 ### Hard rules
 
-- Do not Read or Grep `build.log` in full. Do not search `yocto/build/tmp`.
-- Do not patch files under `yocto/build/tmp`, `sstate-cache`, `output`, `.git`.
-- If the error path is a tmp unpack (`tmp/work/.../git/`), find the recipe or
-  in-tree source. If you cannot, `action: human`.
-- Do not run `q.build-rk3399-yocto.sh`, `./build.sh`, `bitbake`, or `cleanall`.
+- Do not Read or Grep `build.log` in full. Do not search build output trees
+  (`yocto/build/tmp`, `sstate-cache`, `output`, `dl`).
+- Do not patch files under those output trees or `.git`.
+- If the error path is an unpack (`tmp/work/.../git/` or Buildroot `output/build/`),
+  find the in-tree source. If you cannot, `action: human`.
+- Do not run the task `start` / `restart` command, nor `agent.forbid_commands`.
 - Do not `git commit` or `git push`.
 - One fingerprint per run. Same fingerprint already auto-fixed 3 times → `abort`.
 - `risk: high` must be `human` even if a patch is prepared.
 - Empty `files_changed` with `action: patch` is invalid; use `human`.
 
-Default write allowlist: `kernel/`, `u-boot/`, `yocto/meta*`, `device/rockchip/`,
-`z.scripts/`. Task YAML may narrow this.
+Write allowlist and denylist come from the current task YAML. Empty `allow_write`
+means do not patch (`action: human`).
 
 See [references/decision.md](references/decision.md) for field semantics.
