@@ -11,8 +11,10 @@ description: >-
 # Unattended build loop
 
 Compile is owned by the **Supervisor** at `~/loop.AI/unattended-build` (`./x.sh` / `./ub`).
-This directory is a multi-repo hub. RK3399 Yocto is the current task set; RK3588
-Buildroot is a new `tasks/*.yaml`, not a second Supervisor. The Agent is short-lived
+This directory is a multi-repo hub. Current task families: RK3399 Yocto,
+RK3399 Debian, RK3588 Debian (`~/rk3588_ptarmiganB`). A new SDK is more
+`tasks/*.yaml`, not a second Supervisor. Menu more-keys come from YAML
+(`more_key`); do not hardcode y/d. The Agent is short-lived
 and must not sit through the compile (`bitbake`, `make`, or the task `start` command).
 
 ## Supervisor commands
@@ -26,8 +28,10 @@ cd ~/loop.AI/unattended-build
 ./ub yocto-all       # 编 RK3399 Yocto 完整镜像
 ./ub debian-kernel   # 编 RK3399 Debian 内核
 ./ub debian-all      # 编 RK3399 Debian 完整镜像
+./ub 3588-kernel     # 编 RK3588 Debian 内核
+./ub 3588-all        # 编 RK3588 Debian 完整镜像
 ./ub yocto-kernel --model gpt-5.5-medium   # 仅本次 Agent 换模型
-./ub yocto-uboot                           # 更多目标；菜单按 y / d，不进主菜单数字项
+./ub yocto-uboot                           # 更多目标；菜单按 YAML more_key（y / d / r）
 config / kconfig / yshell / cleanall 不走无人值守。
 ./status
 ./board              # http://127.0.0.1:8765/
