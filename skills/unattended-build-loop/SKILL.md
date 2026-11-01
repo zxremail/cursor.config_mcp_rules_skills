@@ -3,7 +3,7 @@ name: unattended-build-loop
 description: >-
   Runs the local unattended compile supervisor and the short-lived fix Agent
   protocol. Use when the user mentions 无人值守编译, unattended-build, Supervisor,
-  ub start, q.build-rk3399-yocto.sh, or overnight Yocto/kernel builds that
+  ub start, o.build-rk3399-yocto.sh, or overnight Yocto/kernel builds that
   should auto-classify errors and only ping Feishu at human gates.
   Also use when adding a new platform task YAML (RK3588 Buildroot, another SDK).
 ---
@@ -26,6 +26,9 @@ cd ~/loop.AI/unattended-build
 ./ub yocto-all       # 编 RK3399 Yocto 完整镜像
 ./ub debian-kernel   # 编 RK3399 Debian 内核
 ./ub debian-all      # 编 RK3399 Debian 完整镜像
+./ub yocto-kernel --model gpt-5.5-medium   # 仅本次 Agent 换模型
+./ub yocto-uboot                           # 更多目标；菜单按 y / d，不进主菜单数字项
+config / kconfig / yshell / cleanall 不走无人值守。
 ./status
 ./board              # http://127.0.0.1:8765/
 ./stop
