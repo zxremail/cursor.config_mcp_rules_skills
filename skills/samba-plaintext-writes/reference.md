@@ -1,26 +1,21 @@
-# windows-no-tsd-writes — 补充说明（按需阅读）
+# reference.md — 按需阅读
 
-## 修复 Windows 本地 TSD（Python 字节直写）
+## B. Windows 本地修复（仅用户要求 no tsd 时）
 
 ```powershell
 $py = "$env:LocalAppData\Programs\Python\Python313\python.exe"
-& $py -c "from pathlib import Path; p=Path(r'PATH'); p.write_bytes(CONTENT_UTF8.encode('utf-8'))"
+& $py -c "from pathlib import Path; Path(r'PATH').write_bytes(b'...utf8...')"
 ```
 
-`CONTENT_UTF8` 必须是 Agent 已生成的正确文本，不要用 `read_text` 读已 TSD 的文件。
+内容必须来自 Agent 已知明文，勿 `read_text` 已 TSD 的文件。
 
-## Linux 抽查
+## A. Linux 恢复 TSD 文件（优先 git，省 tokens）
 
 ```bash
+cd ~/loop.AI/REPO && git checkout -- path/to/file
 grep -rl 'TSD-Header' ~/loop.AI 2>/dev/null || echo OK
-file ~/path/to/file.py
 ```
-
-## 布局建议
-
-- 源码真源：`~/loop.AI` on 137（SSH 编辑）。
-- Windows 本地：仅 `unattended-download` 运行时、`windows.tools` 等必须本机的内容。
 
 ## Explorer 加密锁
 
-常与 TSD/受控盘同一套策略；Windows 读 UNC 像明文、137 上 `data` 即典型不同视角。
+多与 TSD/受控盘相关；137 上 `file: data` 而 Windows 看 UNC 像明文，是常见现象。
