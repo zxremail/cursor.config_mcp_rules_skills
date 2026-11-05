@@ -77,7 +77,16 @@ description: >-
 
 层数随产物（常见 4–5）。相邻层必须换语义色。禁止 Mermaid、禁止外链图、禁止把 CSS 改成 GitHub Dark / md2html 那套。
 
-`<style>` 必须与 [shell.html](shell.html) 字节级同主题：保留 `--java/--aidl/--native/--hw`、`.facts` 四列、`.flow`、`.files` 两栏。只改正文，不改选择器。
+`<style>` 必须与 [shell.html](shell.html) 字节级同主题：保留 `--java/--aidl/--native/--hw`、滚动条变量与 `color-scheme: dark`、`.facts` 四列、`.flow`、`.files` 两栏。只改正文，不改选择器。
+
+## 滚动条（暗色，随 shell 复制）
+
+深色页禁止系统默认浅色滚动条。`shell.html` 已含：
+
+- `html { color-scheme: dark; scrollbar-width; scrollbar-color; }`
+- `*::-webkit-scrollbar*`（track 用 `--scrollbar-track`，thumb 用 `--scrollbar-thumb`）
+
+生成或更新 `architecture.html` 时 **整段复制 `<style>`**，不要只改正文而漏掉滚动条块。细则与禁止项见 **`html-dark-scrollbars`** skill。
 
 ## 借口对照
 
@@ -97,3 +106,4 @@ description: >-
 - 改了 `:root` 色名或去掉 `.facts`
 - 没有「同目录证据」或链接指到仓库外
 - 把 APK 页和 `.so` 页写成同一文件
+- 去掉 `color-scheme: dark` 或 WebKit/Firefox 滚动条规则（会恢复系统白槽）

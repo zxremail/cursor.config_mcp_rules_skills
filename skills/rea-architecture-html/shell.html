@@ -17,8 +17,31 @@
     --native: #8fd6b0;
     --hw: #f0b4a8;
     --accent: #d7e4f2;
+    --scrollbar-track: #0c1218;
+    --scrollbar-thumb: #3d4654;
+    --scrollbar-thumb-hover: #5a6578;
   }
-  * { box-sizing: border-box; }
+  html {
+    color-scheme: dark;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track,
+  *::-webkit-scrollbar-corner {
+    background: var(--scrollbar-track);
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 8px;
+    border: 2px solid var(--scrollbar-track);
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
   body {
     margin: 0;
     background:
