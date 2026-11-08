@@ -20,7 +20,7 @@ description: >-
 对照（**连线精度优先对齐**，再套色板）：
 
 - 代码金样：`20261005.230909.Windows.Driver/hellowdf-inf-function-map.md` §2
-- 飞书人工精调 Hub function map：<https://rigolportal.feishu.cn/docx/YUV4dM9N1oTG3ExKMYScQBgSnVh>
+- 飞书人工精调 Hub function map：<https://rigolportal.feishu.cn/docx/YUV4dM9N1oTG3ExKMYScQBgSnVh>（**用 `lark-cli`**：`docs +fetch --as user --doc <url>` 得画板 token，再 `whiteboard +export --whiteboard-token … --output-type raw`；见 `lark-doc` / `lark-whiteboard`，勿先靠飞书 MCP）
 
 锚点算法与自检清单 → `references/connection-geometry.md`（画线前 Read）。
 
