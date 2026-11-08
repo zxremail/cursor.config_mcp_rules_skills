@@ -10,6 +10,8 @@ description: >-
   入出共口、倒 L 进底边下一跳又从底边出；
   或左栏写成 cpp/h/ko 文件名、色条用文件拼盘（「蓝是应用与寄存器头」）；
   或箭头先竖到框底再横滑、折线多余、第4轨很奇怪、为凑侧入多折；
+  或主链斜穿、重试回路横穿主链、为失败单独加尾号递增节点、
+  MES 筛检来回折线、底部回路没画、四列主链、底轨虚线回路、发号筛检泳道；
   或 SVG 内部空行、泳道只剩色带、节点变成源码、Markdown 截断 HTML；
   或预览空白、改 PNG、sidecar 图片引用、开标签折行；
   或应用要在上、硬件要在下、硬件画在顶上、泳道层序颠倒、上下颠倒泳道；
@@ -108,6 +110,35 @@ description: >-
 | 入出不共口 | 有入有出的节点：入边落点与出边起点优先不同边（底进则侧出或顶出；侧进则可底出）。同边仅当换不了边，且 x 相差 ≥ 40px。倒 L 的竖段 x 不得等于该目标下一条出边的竖轨——否则进底边中线、下一跳又从中线出，两箭叠成一根。 |
 | 先挪节点 | 线交叉时先改列（源放中、整列右移、加列间空档），再画 `path`。只折线绕开、节点仍挤左上 = 未完成。 |
 
+## 主链 + 重试回路（洁净布局）
+
+MES / 发号 / 多角色审批等：**主流程从左到右占列**，**不通过则回起点**。这是读者喊「线太乱」时最常见的一类。按下列做法画，比事后折线绕开省一整轮。
+
+| 原则 | 做法 |
+|------|------|
+| **主链占列** | 每列只放一个关键步骤（典型 4 列：发起 → 校验 → 定稿 → 执行）。列心 x 先定死（列间空档 ≥ 40px），整图只微调列，不要边画边挤。 |
+| **列间只倒 L** | 跨道交接：从源框**出边**水平到**列间竖轨 x** → 竖到目标道 → 水平进目标框。**禁止**源框到目标框的斜线 `L` 横穿多道。 |
+| **竖轨表** | 交卷前先写一列表：`gutter1=300`、`gutter2=560`… 主链每条边只用这些 x，禁止临时新竖轨。 |
+| **失败走底轨** | 不通过：**不要**在主链上再画斜回起点，也**不要**为「尾号递增 / 重试」单独占一列节点（除非业务必须点名该工位）。条件写在**底边虚线回路**的边标上。 |
+| **底轨几何** | 自失败节点**底边中点** `V` 到底轨 `y`（泳道区底线上方约 12–20px，低于所有节点）→ `H` 到首列竖轨 x 或起点框中点 x → `V` 进起点框（优先**左侧入**）。全程 `#00A870`、`stroke-dasharray="6 4"`。 |
+| **底轨与主链分离** | 底轨水平段 `y` 恒定在泳道底带；主链竖轨与底轨水平段**不共用**同一段 x 上的重叠（避免绿虚线与蓝实线叠一根）。 |
+| **通过仍走主链** | 校验通过：出边仍用列间竖轨到下一列（可上到上一道），标签写「通过 / 定稿后」，与底轨语义分开。 |
+
+底轨 `path` 模板（坐标替换为当图列 x、底轨 y、框边）：
+
+```
+M {cx_fail} {bottom_fail} V {y_bus} H {x_gutter_or_start} V {y_enter} H {x_start_edge}
+```
+
+合格心智图（列 = 时间，道 = 角色）：
+
+```
+[起]列1 ─gutter─↓                                
+              [校验]列2 ─gutter─↑→[定稿]列3 ─gutter─↓
+                                              [止]列4
+列2底 ━━━ y_bus ━━━━━━━━━━━━━━━━━→ 列1侧入（虚线，仅失败）
+```
+
 交卷前六条都要过（任一条否 = 未完成）：
 
 1. 没有线穿过框身。
@@ -117,7 +148,12 @@ description: >-
 5. 没有贴框边滑行，没有为凑「侧入 / 两箭不同边」多出来的折。
 6. 每个有入有出的节点：入边落点与出边起点不在同一边的同一 x（差 < 40px 算同一口）。
 
-对照：一源三出中列 → §4.1；多出边分轨 → §4.2；单链 → §10.1（均在 `device-manager-ipc-hal-feasibility.md`）。
+有**重试 / 筛检不通过**时再加两条（任一条否 = 未完成）：
+
+7. 失败回路只走底轨，不穿过主链节点区、不与主链水平段贴顶对穿。
+8. 未为纯排线目的增加可合并进底轨边标的节点（如「尾号递增」）。
+
+对照：一源三出中列 → §4.1；多出边分轨 → §4.2；单链 → §10.1（均在 `device-manager-ipc-hal-feasibility.md`）。主链四列 + 底轨回路 → `why-dsg3e281300019-cannot-sign.md` 第 4.2 节泳道（发号前四因数筛检）。
 
 ## 多轨轨名（硬规则）
 
@@ -173,6 +209,7 @@ description: >-
 2. 图上轨名带颜色：…（竖轨 ≥ 2 才写）
 3. 左栏色条：…
 4. 实线是下发，虚线是上报；线色跟轨走（单轨写该图箭头说明）。
+5. 有重试时：主链沿列间竖轨；不通过走底部虚线回路，不与主链交叉（仅此类图写这一行）。
 
 **左栏色条**图注：`左栏色条：` 后面每个「X是…」分句整句包 `<span>`，用亮色（暗底可读）。禁止只给「蓝」「紫」一个字上色，禁止用节点 `fill` 那种偏暗饱和色当正文。色条写**归属/身份**，不写文件清单。同一份软件的多道同色：`橙是同一用户态库`。合格：`蓝是业务` / `绿是 Manager` / `紫是用户态库`。禁止：`蓝是应用与寄存器头`、`橙是 api.cpp 与 FPGA`（跨层拿文件拼色）。
 
@@ -213,9 +250,9 @@ description: >-
 ## 工作流
 
 1. 列出左栏**层/角色**（上→下：应用在上、硬件在下）。先写层名，再把文件落进该道节点。禁止用源文件当左栏。同一库多层：左栏分道，色条同色归成一家。
-2. 列出步骤：谁、主题、括号注释、落在第几列。一个节点 ≥ 3 条出边，或既下发又上报回同一源：该源先放中列。
-3. 先定每条边的竖轨 x，再画 path。默认一个拐角。同列下落只给一条因果链；同道水平画推进。竖轨 ≥ 2 时在最长竖段写 `左轨 ·` / `中轨 ·` / `右轨 ·` 短名。每个节点先记下入边落点（哪条边、x）和出边起点，禁止相同。
-4. 按上表上色；注释全部加 `（）`。走「排线」交卷前六条自检；先沿每条 `path` 看有没有多余折、有没有两箭共口，不过就改线或挪节点，不要为凑侧入加折。
+2. 列出步骤：谁、主题、括号注释、落在第几列。一个节点 ≥ 3 条出边，或既下发又上报回同一源：该源先放中列。**有重试**：主链按列排，失败逻辑写底轨边标，不为「递增 / 重试」单列加框。
+3. 先写**列心 x** 与**列间竖轨 x** 表，再定底轨 `y`（有回路时）。画 path：主链只用倒 L；回路只用底轨一条 path。竖轨 ≥ 2 时在最长竖段写轨名。每个节点记下入边落点与出边起点，禁止相同。
+4. 按上表上色；注释全部加 `（）`。走「排线」交卷前六条 + 有回路时再加 7–8 条；沿每条 `path` 看多余折、两箭共口、主链与底轨交叉，不过就改线或右移列。
 5. 写入目标 md；图下补色名图例（若用了色名）。**新加**时不要改动已有 `<svg>` 块；只追加新图及其图前读法。
 
 ## 禁止
@@ -240,7 +277,9 @@ description: >-
 | 一链一轨只防两条边并排，不管一进一出 | 进和出也是两条语义边；共口 = 未完成 |
 | 只折线绕开、不挪节点 | 交叉先改列再画 path |
 | 画完不自检 | 排线六条自检不过 = 未完成 |
-| 交卷四条 / 五条过了就算 | 现为六条。少算入出共口或贴框滑行，仍会叠箭 |
+| 交卷四条 / 五条过了就算 | 现为六条；有重试再加 7–8。少算入出共口、贴框滑行或主链斜穿，仍会叠箭 |
+| 失败画斜线回起点 / 加「递增」占一列 | 底轨虚线 + 边标写条件；主链保持四列倒 L |
+| 筛检不通过先上再斜穿 MES | 从校验框底落到底轨，再水平回列 1 |
 | 为凑侧入先竖到框底再横滑 | 底入走到框中线 x 再竖；侧入从框外对准那条边。倒 L 够用就不要第三段 |
 | 图上写「夹缝」「侧入」 | 边标只写动作；从哪边进框是排线，不写给读者 |
 | 左栏色条只给色名一个字上色 | 「X是…」整句亮色 span，抄亮色表 |
@@ -281,3 +320,31 @@ description: >-
 ```
 
 合格对照：`device-manager-ipc-hal-feasibility.md` §10.1（单链）、§4.1（一源三出中列）、§4.2（多出边分轨）。
+
+## 骨架：主链四列 + 底轨回路
+
+**何时用**：MES / 发号 / 审批——主链 4 列左→右，失败回起点。先复制本骨架进 `.md`，再只改：顶栏标题、`marker id`（同页唯一）、左栏三道短名、四列节点文案、边标、`gutter` x 与底轨 `y`。
+
+**交卷前先填这张表（再画 path）**：
+
+| 列 | 列心 cx | 列间竖轨 x（倒 L 用） |
+|----|---------|------------------------|
+| 1 发起 | 212 | — |
+| 2 校验 | 420 | 310 |
+| 3 定稿 | 644 | 592 |
+| 4 执行 | 908 | 768 |
+| 底轨 | — | `y_bus` ≈ 泳道底带上方 12–18px（例 302） |
+
+道序号默认上→下：道 1 蓝、道 2 绿、道 3 橙。失败节点通常在**道 2**；起点在**道 1 列 1**。
+
+**图前读法**（同一 `<p>` + `<br>`）：左栏是谁；时间左→右；主链沿列间竖轨；不通过走底部虚线回路，不与主链交叉；左栏色条亮色 span。
+
+节点第二行必须带 `（）`。`<svg>` 开标签一行写完；`g` 内**不要空行**。复制后把 `tpl-retry-` 前缀改成文档唯一前缀。
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 360" role="img" aria-labelledby="tpl-retry-title"><title id="tpl-retry-title">替换为顶栏短标题</title><rect width="1040" height="40" fill="#161B22"/><text x="520" y="26" fill="#FFFFFF" font-size="14" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">替换为顶栏短标题</text><g transform="translate(0,40)"><rect width="1040" height="320" fill="#0D1117" stroke="#30363D"/><line x1="128" y1="0" x2="128" y2="320" stroke="#30363D"/><line x1="0" y1="107" x2="1040" y2="107" stroke="#30363D"/><line x1="0" y1="213" x2="1040" y2="213" stroke="#30363D"/><rect x="0" y="0" width="6" height="107" fill="#2E86AB"/><rect x="0" y="107" width="6" height="106" fill="#2D936C"/><rect x="0" y="213" width="6" height="107" fill="#F18F01"/><text x="14" y="62" fill="#FFFFFF" font-size="13" font-family="Segoe UI,Microsoft YaHei,sans-serif">角色甲</text><text x="14" y="168" fill="#FFFFFF" font-size="13" font-family="Segoe UI,Microsoft YaHei,sans-serif">角色乙</text><text x="14" y="274" fill="#FFFFFF" font-size="13" font-family="Segoe UI,Microsoft YaHei,sans-serif">角色丙</text><!-- 列1 道1 --><rect x="148" y="38" width="128" height="46" rx="6" fill="#2E86AB" stroke="#1B4965"/><text x="212" y="58" fill="#FFFFFF" font-size="12" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">步骤一主题</text><text x="212" y="75" fill="#FFFFFF" font-size="10" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">（起）</text><!-- 列2 道2 常放校验 --><rect x="318" y="112" width="204" height="76" rx="6" fill="#2D936C" stroke="#1E6B4E"/><text x="420" y="132" fill="#FFFFFF" font-size="12" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">步骤二主题</text><text x="420" y="148" fill="#FFFFFF" font-size="10" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">（校验说明）</text><text x="420" y="164" fill="#FFFFFF" font-size="10" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">（第二行注释）</text><text x="420" y="180" fill="#E8EAED" font-size="10" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">（可选第三行）</text><!-- 列3 道1 --><rect x="578" y="38" width="132" height="46" rx="6" fill="#2E86AB" stroke="#1B4965"/><text x="644" y="58" fill="#FFFFFF" font-size="12" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">步骤三主题</text><text x="644" y="75" fill="#FFFFFF" font-size="10" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">（通过）</text><!-- 列4 道3 --><rect x="838" y="238" width="140" height="46" rx="6" fill="#F18F01" stroke="#C67500"/><text x="908" y="258" fill="#FFFFFF" font-size="12" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">步骤四主题</text><text x="908" y="275" fill="#FFFFFF" font-size="10" font-family="Segoe UI,Microsoft YaHei,sans-serif" text-anchor="middle">（止）</text><defs><marker id="tpl-retry-m-down" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#3370FF"/></marker><marker id="tpl-retry-m-loop" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#00A870"/></marker></defs><!-- 主链：列1→列2 gutter 310 --><path d="M276 61 H 310 V 112 H 318" fill="none" stroke="#3370FF" stroke-width="2" marker-end="url(#tpl-retry-m-down)"/><text x="284" y="96" fill="#3370FF" font-size="10" font-family="Segoe UI,Microsoft YaHei,sans-serif">边标一</text><!-- 主链：列2→列3 gutter 592 --><path d="M522 156 H 592 V 61 H 578" fill="none" stroke="#3370FF" stroke-width="2" marker-end="url(#tpl-retry-m-down)"/><text x="528" y="98" fill="#3370FF" font-size="10" font-family="Segoe UI,Microsoft YaHei,sans-serif">边标二</text><!-- 主链：列3→列4 gutter 768 --><path d="M710 61 H 768 V 238 H 838" fill="none" stroke="#3370FF" stroke-width="2" marker-end="url(#tpl-retry-m-down)"/><text x="726" y="158" fill="#3370FF" font-size="10" font-family="Segoe UI,Microsoft YaHei,sans-serif">边标三</text><!-- 底轨：列2底→y_bus→列1左入 --><path d="M420 188 V 302 H 212 V 84 H 148" fill="none" stroke="#00A870" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#tpl-retry-m-loop)"/><text x="248" y="296" fill="#00A870" font-size="10" font-family="Segoe UI,Microsoft YaHei,sans-serif">替换为失败条件边标</text></g></svg>
+```
+
+改列宽时：**整列**平移该列全部 `rect`/`text`，同步改相邻 `gutter` 与 `path` 里的 `H`/`V` 坐标；底轨 `y_bus` 低于所有节点底边即可。
+
+合格成品对照：`why-dsg3e281300019-cannot-sign.md` §4.2 发号前四因数筛检泳道。
