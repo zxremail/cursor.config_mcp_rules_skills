@@ -1,7 +1,11 @@
 ---
 name: lark-shared
-version: 1.1.0
-description: "Use for lark-cli setup/auth tasks: auth login/status/logout, user vs bot identity, business-domain permissions (--domain, including all/docs/drive), missing scopes, revoking authorization, or handling _notice JSON."
+version: 1.2.0
+description: >-
+  lark-cli 底座：认证、身份、scope、高风险写确认、JSON 输出契约。
+  用户消息含飞书链接（feishu.cn、rigolportal、/wiki/、/docx/ 等）时 MUST 先走
+  lark-feishu-link-routing，用 lark-cli 读正文，禁止先 WebFetch/浏览器；
+  缺用户授权时 Agent 发起 auth login 并把 verification_url+二维码给用户点击。
 metadata:
   requires:
     bins: ["lark-cli"]
@@ -10,6 +14,15 @@ metadata:
 # lark-cli 共享规则
 
 所有 `lark-*` skill 共享的底座：身份、认证、输出契约与高风险操作。
+
+## 飞书 URL（全局硬规则）
+
+用户给出飞书链接或要求读/解读飞书文档时，**不必等用户说「用 lark-cli」**：
+
+1. **MUST** 先 Read [`../lark-feishu-link-routing/SKILL.md`](../lark-feishu-link-routing/SKILL.md) 并按 URL 路由执行 `lark-cli`。
+2. **禁止**用 WebFetch、浏览器导航、通用搜索代替拉取飞书正文（企业 Wiki 会 302 到登录页）。
+3. 读 Docx/Wiki 正文默认：`lark-cli docs +fetch --as user --doc '<url>'`。
+4. 用户 token / scope 不足：Agent 跑 `auth login --no-wait --json`，**在对话中给出可点击的 `verification_url` + `auth qrcode`**，同一轮不阻塞 `--device-code`；用户确认后再由 Agent 完成 `--device-code` 并重试。
 
 ## 通用准则
 

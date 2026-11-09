@@ -1,0 +1,14 @@
+---
+description: 用户给出飞书链接时自动用 lark-cli 读取，禁止先 WebFetch/浏览器；缺授权时输出可点击 verification_url
+alwaysApply: true
+---
+
+# 飞书链接访问
+
+用户消息中含 **飞书 / Lark URL**（含 `rigolportal.feishu.cn`、`feishu.cn`、`/wiki/`、`/docx/` 等）或要求解读飞书上的文档时：
+
+1. **MUST** 先 Read skill `lark-feishu-link-routing`（`~/.cursor/skills/lark-feishu-link-routing/SKILL.md`），并按其中路由用 **`lark-cli`** 拉正文。
+2. **禁止**默认用 WebFetch、通用网页抓取或浏览器打开飞书链接触读内容（会得到登录页）。
+3. 读 Wiki/Docx 正文优先：`lark-cli docs +fetch --as user --doc '<url>'`；需要节点元数据时 `lark-cli wiki +node-get --as user --node-token '<url>'`。
+4. 若 API 返回缺用户授权 / scope：**由 Agent** 执行 `lark-cli auth login --domain docs,drive,wiki --no-wait --json`，把 **`verification_url` 原样发给用户**并生成 `lark-cli auth qrcode` 二维码；**同一轮不要阻塞 `--device-code`**。用户确认授权后，再由 Agent 执行 `auth login --device-code …` 并重试读文档。
+5. 文档评审：意见只在对话输出，不写入飞书评论（见 `feishu-doc-review`），除非用户明确要求发布。
