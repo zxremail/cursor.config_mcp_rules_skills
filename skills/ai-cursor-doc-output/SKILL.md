@@ -6,8 +6,10 @@ description: >-
   md2html, sidecar .figures/, and HTML slides). Also use when choosing a
   default path for a new .md/.html, when tempted to write it to the repo root,
   docs/, or next to source for “方便打开”, or when moving an existing knowledge
-  note so it sits beside a new HTML file. Triggers: 保存 markdown、导出 html、
-  生成幻灯片、整理文档、分析报告、中文文件名、放到项目里、ai.cursor、Mermaid 深彩色、暗色主题。
+  note so it sits beside a new HTML file. When telling the user where a saved
+  file lives or how to open it, use workspace-relative paths—not file:// URLs.
+  Triggers: 保存 markdown、导出 html、生成幻灯片、整理文档、分析报告、中文文件名、
+  放到项目里、ai.cursor、Mermaid 深彩色、暗色主题、告知路径、打开文档。
 ---
 
 # ai.cursor 文档默认落点
@@ -38,6 +40,22 @@ description: >-
 7. 落盘后走 **`markdown-knowledge-maintain`**（`md-toc` + 索引）
 
 **例：** 索引已有 `software/`，用户要「LXI 调试指南」→ `ai.cursor/software/lxi-debugging.md`，html 为同目录 `lxi-debugging.html`，并给 `_INDEX_.md` 补行。
+
+## 对话中引用路径（告知用户落点）
+
+落盘或更新知识库后，在**对话回复**里告诉用户文件在哪、如何打开时：
+
+1. **MUST** 使用相对**工作区根**的路径，例如 `ai.cursor/overview/coderoot-feishu-wiki-interpretation.md`、`ai.cursor/_INDEX_.md`。
+2. **MUST** Markdown 链接的 `href` 也用同一路径（相对路径），例如 `[解读](ai.cursor/overview/foo.md)`。不要用 `file:///home/...` 或 `file:///C:/...`。
+3. **禁止** 单独写裸文件名（如仅 `_INDEX_.md`），以免编辑器在错误目录解析为「文件不存在」。
+4. **索引固定名**：`ai.cursor/_INDEX_.md`（两侧下划线），不是 `INDEX.md`。
+5. 引导打开时优先提示 **Ctrl+P** 输入上述相对路径片段；Remote-SSH / 多根工作区下 `file://` 常无法在用户侧正确打开。
+
+| 做法 | 结果 |
+|------|------|
+| `ai.cursor/overview/foo.md` | 与用户工作区一致，Ctrl+P 可搜到 |
+| `file:///home/user/.../foo.md` | 本机路径与工作区脱节，易报错 |
+| 仅 `foo.md` 或 `_INDEX_.md` | 常在仓库根误找，弹窗「无法打开」 |
 
 ## 已有文件
 

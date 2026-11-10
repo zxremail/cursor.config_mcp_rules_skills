@@ -38,7 +38,7 @@ description: >-
 python3 ~/.cursor/skills/markdown-export/scripts/audit_mermaid.py ./path.md
 ```
 
-`ok: true` 才算英文文件名、图、表头、图例色名、内联 SVG 空行合格。排版/连线另遵 **`mermaid-flowchart-layout`**（细则 [layout.md](../mermaid-flowchart-layout/references/layout.md)）。有 `ai.cursor/` 时 **REQUIRED** **`ai-cursor-doc-output`**。
+`ok: true` 才算英文文件名、图、表头、图例色名、内联 SVG 空行合格。排版/连线另遵 **`mermaid-flowchart-layout`**（细则 [layout.md](../mermaid-flowchart-layout/references/layout.md)）。有 `ai.cursor/` 时 **REQUIRED** **`ai-cursor-doc-output`**（含对话里告知落点：相对路径 `ai.cursor/...`，禁止 `file://`）。
 
 工作区根存在 `ai.cursor/` 时，目录由该 skill 决定；本文件约束 basename、正文格式、每一张 Mermaid 的深彩色。
 
