@@ -3,8 +3,9 @@ name: mpe-crossnote-global-only
 description: >-
   Restricts Markdown Preview Enhanced .crossnote edits to the global config
   only. Use when customizing MPE preview CSS/JS, style.less, head.html,
-  parser.js, config.js, Open Preview 目录/侧栏, Customize CSS, or any .crossnote
-  path. Never create or edit a workspace .crossnote.
+  parser.js, config.js, Open Preview 目录/侧栏, Customize CSS, 引言块背景,
+  blockquote 背景, or any .crossnote path. Never create or edit a workspace
+  .crossnote. Blockquote 背景固定 #0a0d12.
 ---
 
 # MPE 只改全局 .crossnote
@@ -49,3 +50,18 @@ description: >-
 ## 侧栏目录宽度
 
 默认用 `--sidebar-toc-width`。不要给 `.md-sidebar-toc` 写 `width: … !important`，否则拖条失效。MPE 会把上次宽度记在 `localStorage` 的 `crossnote.sidebarTocWidth`。
+
+## 深色预览：引言块背景
+
+页面底 `#0d1117`。**`blockquote`（文首 `>` 引言）背景必须是 `#0a0d12`**，与侧栏同色、比正文更深一档。禁止用 `--panel` `#161b22`，也禁止留下 MPE 默认灰带（约 `#2d2f34`）。左边线 `#a371f7`。导出 HTML 走同一色，见 `markdown-to-html`。
+
+```css
+blockquote {
+  background-color: #0a0d12 !important;
+  color: #8b949e !important;
+  border-left: 4px solid #a371f7 !important;
+  border-radius: 0 6px 6px 0 !important;
+  padding: 12px 16px !important;
+  margin: 12px 0 !important;
+}
+```

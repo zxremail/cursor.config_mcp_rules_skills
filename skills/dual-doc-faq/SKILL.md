@@ -188,7 +188,7 @@ main{padding:40px 56px 120px;max-width:1100px}
 .faq-a th,.faq-a td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
 .faq-a th{background:#161b22;color:var(--purpletxt);}
 .faq-a tr:nth-child(even){background:#0f141a}
-.faq-a blockquote{border-left:4px solid var(--purple);background:#161b22;margin:12px 0;padding:12px 18px;color:var(--muted);border-radius:0 6px 6px 0;}
+.faq-a blockquote{border-left:4px solid var(--purple);background:#0a0d12;margin:12px 0;padding:12px 18px;color:var(--muted);border-radius:0 6px 6px 0;}
 .faq-a blockquote strong{color:var(--text);}
 .faq-a ul,.faq-a ol{padding-left:24px}
 .faq-a li{margin:4px 0}

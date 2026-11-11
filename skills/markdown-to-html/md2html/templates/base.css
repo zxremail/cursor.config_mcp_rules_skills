@@ -28,7 +28,7 @@ article h2{color:var(--purple);border-bottom:1px solid var(--border);padding-bot
 article h3{color:var(--orangetxt);margin-top:24px;font-size:17px;}
 article h4{color:var(--greentxt);margin-top:20px;font-size:15px;}
 article p{margin:10px 0}
-article blockquote{border-left:4px solid var(--purple);background:#161b22;margin:12px 0;padding:12px 16px;color:var(--muted);border-radius:0 6px 6px 0;}
+article blockquote{border-left:4px solid var(--purple);background:#0a0d12;margin:12px 0;padding:12px 16px;color:var(--muted);border-radius:0 6px 6px 0;}
 article a{color:var(--purpletxt);}
 article code{background:#161b22;padding:2px 6px;border-radius:4px;color:var(--orangetxt);
   font-family:"SF Mono","Cascadia Code",Consolas,monospace;font-size:.9em;border:1px solid var(--border);}

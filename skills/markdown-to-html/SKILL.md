@@ -72,7 +72,7 @@ python3 ~/.cursor/skills/markdown-to-html/scripts/audit_html.py doc.html --md do
 
 `.customfig` > `.layer` > `.layer-header`（`.layer-label` + `.layer-sub`）> `.layer-body` > `.node` / `.note`；层间 `.arrow`；可选 `.legend`。相邻层颜色必须明显区分。
 
-色板：`--bg:#0d1117`；应用/硬件灰 `--dim`/`--panel`；库蓝 `--blue/#58a6ff`；服务/固件橙 `--orange/#f0883e`；内核紫 `--purple/#a371f7`；管理红 `--red/#f85149`；数据绿 `--green/#3fb950`。结构模板、CSS、`.layer-split` / grid 只在 html.md §3.3–3.5。
+色板：`--bg:#0d1117`；应用/硬件灰 `--dim`/`--panel`；库蓝 `--blue/#58a6ff`；服务/固件橙 `--orange/#f0883e`；内核紫 `--purple/#a371f7`；管理红 `--red/#f85149`；数据绿 `--green/#3fb950`。**引言 `blockquote` 背景 `#0a0d12`**（与 `#sidebar` 同色，勿用 `--panel` `#161b22`）。结构模板、CSS、`.layer-split` / grid 只在 html.md §3.3–3.5。
 
 ## 4. template 注入
 

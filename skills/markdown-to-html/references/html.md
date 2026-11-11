@@ -76,7 +76,7 @@ description: >-
 
 要求：
 - 深色主题（GitHub Dark 风格），参考色板见下方"配色体系"
-- 左侧固定侧边栏（自动从 h1/h2 生成目录）
+- 左侧固定侧边栏（自动从 h1/h2 生成目录）；侧栏与 **`blockquote` 背景均为 `#0a0d12`**（比 `--bg` `#0d1117` 更深），禁止引言用 `--panel` `#161b22` 或 MPE 默认灰带
 - 响应式布局（`@media max-width:900px` 时侧边栏收起）
 - Markdown 内容通过 `marked.js` 在客户端解析渲染
 - 正文 `md-toc` 目录链接必须能跳转，见 [§1.1](#11-正文目录锚点必须兼容-github-slug)
@@ -184,6 +184,8 @@ flowchart TB
   --red:#f85149;     --redbg:#2d1215;     --redtxt:#ffa198;     --redborder:#da3633;
 }
 ```
+
+页面底 `--bg:#0d1117`。**`#sidebar` 与 `article blockquote` 背景固定 `#0a0d12`**（更深一档）。`--panel:#161b22` 只给代码块、表头、偶数行，不要铺到引言上。
 
 ### 3.2 层级配色分配 <a id="32-层级配色分配"></a> <a href="#toc-pos-32-层级配色分配" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
