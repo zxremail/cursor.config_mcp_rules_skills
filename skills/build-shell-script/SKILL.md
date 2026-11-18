@@ -92,6 +92,13 @@ echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET} ${C_GREEN}-c -j8${C_RESET}  ${C
 - `set -euo pipefail`
 - 复杂函数建议中文块注释（名称、功能、参数、返回值）；团队无要求时可从简
 
+## 工作目录（`cd -`）
+
+- **禁止**在调用方 shell 里随意 `cd` 后又不恢复；`cmake -S/-B`、`git -C`、绝对路径优先。
+- **`./build.sh` 子进程执行**：全程不改调用方 `pwd`；若脚本内误 `cd`，用 `EXIT` trap 恢复到启动时 `pwd -P`。
+- **`source build.sh`**：若需进入工程根再编，只 `cd` **一次**到根目录且**不要在 EXIT 时 back**（保留 `OLDPWD`），编完后调用方执行 **`cd -`** 应能回到 source 前的目录。
+- 帮助里可用一行亮黑注释说明 `./` vs `source` 行为差异。
+
 ## 参考实现（可选 Read）
 
 若当前工作区存在 **`ai.cursor/build_scope.sh`**，可作为彩色 help / `logStep` / 示例注释的 **样例对照**；其它项目无此文件时，**以本 Skill 为准** 新建脚本，照抄 API 与配色表即可。
