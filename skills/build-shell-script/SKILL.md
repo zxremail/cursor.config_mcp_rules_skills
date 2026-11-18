@@ -36,10 +36,13 @@ Skill 路径：`~/.cursor/skills/build-shell-script/SKILL.md`（用户级，适�
 | `C_BLUE` | 标签、`[build-xxx]`、示例中的命令路径 |
 | `C_CYAN` | 路径、步骤序号、技术文件名 |
 | `C_GREEN` | 选项名、成功、关键开关 ON |
-| `C_YELLOW` | 章节标题「选项」「示例」、步骤括号内参数、行尾 `#` 注释 |
+| `C_YELLOW` | 章节标题「选项」「示例」、步骤括号内参数 |
+| `C_BRIGHT_BLACK` | **仅**示例区行尾 `# 中文注释`（ANSI **90** 亮黑，多数终端呈深灰，与命令区分） |
 | `C_MAGENTA` | 目标名、版本号、工具子命令 |
 | `C_RED` | 错误、OFF、禁止 |
 | `C_RESET` | 复位 |
+
+初始化示例：`C_BRIGHT_BLACK='\033[0;90m'`
 
 帮助用 **`echo -e`** 分段打印，禁止无着色的整页 heredoc help。
 
@@ -65,9 +68,11 @@ logOk "编译完成: ${TARGET_BIN}"
 
 ```bash
 echo -e "${C_YELLOW}示例:${C_RESET}"
-echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET}  ${C_YELLOW}# 无参：默认 Debug 一键编译${C_RESET}"
-echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET} ${C_GREEN}-c -j8${C_RESET}  ${C_YELLOW}# 全量重编 + 8 并行${C_RESET}"
+echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET}  ${C_BRIGHT_BLACK}# 无参：默认 Debug 一键编译${C_RESET}"
+echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET} ${C_GREEN}-c -j8${C_RESET}  ${C_BRIGHT_BLACK}# 全量重编 + 8 并行${C_RESET}"
 ```
+
+**禁止**用 `C_YELLOW` 渲染示例行尾 `#` 注释（易与章节标题混淆）；统一 **`C_BRIGHT_BLACK`**。
 
 一行一条命令；`#` 后 **中文** 短说明。README 里示例同样遵守「每行命令后有 `#` 注释」。
 
@@ -94,7 +99,7 @@ echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET} ${C_GREEN}-c -j8${C_RESET}  ${C
 ## Agent 自检清单
 
 - [ ] `--help` 在终端有颜色
-- [ ] 示例 **每行** 有黄色行尾 `# ...` 注释
+- [ ] 示例 **每行** 有 `C_BRIGHT_BLACK`（亮黑 90）行尾 `# ...` 注释
 - [ ] 至少 2 个分阶段 `logStep`（或等价）
 - [ ] `NO_COLOR` / 非 TTY 不乱码
 - [ ] 编译脚本与无关职责（如同步仓库）未混在同一入口（除非用户明确要求）
