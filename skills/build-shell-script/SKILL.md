@@ -5,8 +5,8 @@ description: >-
   产品无关）。只要用户要求新建、改写「编译脚本」「构建脚本」「build_*.sh」「一键编译」、
   本地构建入口，或给 --help 加颜色/分阶段日志，就必须先 Read 并遵守本 Skill。强制：彩色
   help、编译过程分阶段彩色提示、帮助「示例」区每行命令带行尾 # 中文注释。即使用户未提颜色
-  也默认适用。Triggers: 编译脚本、构建脚本、build script、cmake 包装、make 一键、彩色 help、
-  logStep、新项目构建脚本。
+  也默认适用。无参数必须只打帮助、不执行编译。Triggers: 编译脚本、构建脚本、build script、
+  cmake 包装、make 一键、彩色 help、logStep、无参 help、新项目构建脚本。
 ---
 
 # Bash 编译脚本终端规范（通用）
@@ -26,6 +26,7 @@ Skill 路径：`~/.cursor/skills/build-shell-script/SKILL.md`（用户级，适�
 | 1 | `usage()` / `--help` **必须彩色** | 禁止纯 `cat <<EOF` 无 ANSI |
 | 2 | 编译主路径 **分阶段彩色日志**（至少「配置」「编译」两步） | 禁止全程无步骤提示 |
 | 3 | 帮助 **示例** 区 **每一行一条命令 + 行尾 `# 中文说明`** | 禁止无注释的裸命令行 |
+| 4 | **无参数** 仅输出彩色 `usage()` 并 **exit 0**，不触发编译 | 禁止无参悄悄开编 |
 
 ## 颜色与 TTY
 
@@ -62,13 +63,16 @@ logOk "编译完成: ${TARGET_BIN}"
 
 ## `usage()` 结构（彩色）
 
-顺序：**用法** → **说明** → **选项**（黄标题）→ **示例**（每行带 `#`）→ **产物/输出路径**。
+顺序：**用法**（写明无参=帮助）→ **说明** → **选项**（黄标题）→ **示例**（每行带 `#`）→ **产物/输出路径**。
+
+无参行为在 **用法** 下用一行亮黑 `# 无参数：…` 写清。实际编译用显式子命令（如 `build`）或至少一个构建选项；示例里分别展示「无参→帮助」与「build / 带选项→编译」。
 
 ## 示例区格式（强制）
 
 ```bash
 echo -e "${C_YELLOW}示例:${C_RESET}"
-echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET}  ${C_BRIGHT_BLACK}# 无参：默认 Debug 一键编译${C_RESET}"
+echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET}  ${C_BRIGHT_BLACK}# 无参：显示帮助${C_RESET}"
+echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET} ${C_GREEN}build${C_RESET}  ${C_BRIGHT_BLACK}# Debug 一键编译${C_RESET}"
 echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET} ${C_GREEN}-c -j8${C_RESET}  ${C_BRIGHT_BLACK}# 全量重编 + 8 并行${C_RESET}"
 ```
 
@@ -110,3 +114,4 @@ echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET} ${C_GREEN}-c -j8${C_RESET}  ${C
 - [ ] 至少 2 个分阶段 `logStep`（或等价）
 - [ ] `NO_COLOR` / 非 TTY 不乱码
 - [ ] 编译脚本与无关职责（如同步仓库）未混在同一入口（除非用户明确要求）
+- [ ] **`$# -eq 0`** 只打彩色 help，不编译
