@@ -87,3 +87,20 @@ article hr{border:none;border-top:1px dashed var(--border);margin:28px 0}
   main{padding:20px 16px 60px}
   .layer-body.grid-4{grid-template-columns:1fr 1fr}
 }
+
+/* html-dark-scrollbars：暗色页禁止系统默认浅色滚动条 */
+html{
+  color-scheme:dark;
+  scrollbar-width:thin;
+  scrollbar-color:#4a5568 #161a21;
+}
+*::-webkit-scrollbar{width:10px;height:10px;}
+*::-webkit-scrollbar-track,*::-webkit-scrollbar-corner{background:#161a21;}
+*::-webkit-scrollbar-thumb{
+  background:#3d4654;border-radius:8px;border:2px solid #161a21;
+}
+*::-webkit-scrollbar-thumb:hover{background:#5a6578;}
+progress,meter,input[type="range"]{accent-color:#5a6578;}
+progress{background:#161a21;}
+progress::-webkit-progress-bar{background:#161a21;}
+progress::-webkit-progress-value,progress::-moz-progress-bar{background:#4a5568;}

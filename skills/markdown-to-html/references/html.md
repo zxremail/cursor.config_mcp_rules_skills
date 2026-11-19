@@ -81,6 +81,21 @@ description: >-
 - Markdown 内容通过 `marked.js` 在客户端解析渲染
 - 正文 `md-toc` 目录链接必须能跳转，见 [§1.1](#11-正文目录锚点必须兼容-github-slug)
 
+### 1.2 暗色滚动条（硬规则） <a id="12-暗色滚动条硬规则"></a>
+
+暗色 md2html 页面 **禁止** 使用操作系统默认浅色滚动条（侧栏 `#sidebar`、`pre`、`.mermaid` 横向滚动同理）。
+
+| 必须 | 说明 |
+|------|------|
+| `color-scheme: dark` | 写在 `html` 选择器上，否则 Chromium 仍画浅色系统条 |
+| Firefox `scrollbar-color` | 与 WebKit 一套配色 |
+| WebKit `::-webkit-scrollbar*` | 全局 `*::-webkit-scrollbar-thumb`，槽暗、块暗灰 |
+| 验收 | `audit_html.py` 代码 `dark-scrollbar`；Agent 落盘前 Read **`html-dark-scrollbars`** |
+
+**默认实现：** `md2html/templates/base.css` 尾部已内嵌（与 `html-dark-scrollbars` skill 一致）。`doc.figures/extra.css` 只追加，**不得** `unset` / 覆盖删掉上述规则。全站改色时改 `base.css`，不要每篇文档忘记 `extra.css`。
+
+`progress` / `meter` / `input[type=range]` 暗色 accent 同 skill；细则见 `html-dark-scrollbars`。
+
 ### 1.1 正文目录锚点必须兼容 GitHub slug <a id="11-正文目录锚点必须兼容-github-slug"></a> <a href="#toc-pos-11-正文目录锚点必须兼容-github-slug" class="md-toc-back" style="float:right;text-decoration:none;color:#5c6370"><svg xmlns="http://www.w3.org/2000/svg" width="10.5pt" height="10.5pt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></a>
 
 `.md` 正文目录由 `md-toc` 生成，锚点是 **github-slugger**（与 VS Code / GitHub 预览一致），例如 `[1. 怎么验证](#1-怎么验证)`、`[2.1 正常情况](#21-正常情况)`。侧栏 TOC 仍用 `h-1` / `h-2-1`。

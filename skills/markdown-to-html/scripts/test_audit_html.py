@@ -16,7 +16,9 @@ MIN_OK = """<!DOCTYPE html>
 <html lang="zh-CN"><head>
 <script>function mdGithubSlug(){}
 mermaid.initialize({flowchart:{useMaxWidth:false}})</script>
-<style>.mermaid svg{max-width:100%;width:auto}</style>
+<style>.mermaid svg{max-width:100%;width:auto}
+html{color-scheme:dark;scrollbar-color:#4a5568 #161a21;}
+*::-webkit-scrollbar-thumb{background:#3d4654;}</style>
 </head>
 <body><div id="layout"><nav id="sidebar"></nav>
 <main><article id="content"></article></main></div>
@@ -48,6 +50,13 @@ class AuditHtmlTests(unittest.TestCase):
         data, code = run(bad)
         self.assertFalse(data["ok"])
         self.assertIn("slug", {i["code"] for i in data["issues"]})
+        self.assertEqual(code, 2)
+
+    def test_missing_dark_scrollbar(self):
+        bad = MIN_OK.replace("color-scheme:dark", "")
+        data, code = run(bad)
+        self.assertFalse(data["ok"])
+        self.assertIn("dark-scrollbar", {i["code"] for i in data["issues"]})
         self.assertEqual(code, 2)
 
     def test_downgrade_missing_sidecar(self):

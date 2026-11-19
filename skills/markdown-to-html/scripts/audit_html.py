@@ -39,6 +39,12 @@ def audit(html_path: Path, md_path: Path | None) -> dict:
         r"useMaxWidth\s*:\s*true", html
     ):
         add("maxwidth-js", "页面 flowchart 须 useMaxWidth:false")
+    if not re.search(r"color-scheme\s*:\s*dark", html, re.I):
+        add("dark-scrollbar", "缺 color-scheme: dark（见 html-dark-scrollbars）")
+    if "::-webkit-scrollbar-thumb" not in html:
+        add("dark-scrollbar", "缺 WebKit 暗色滚动条（::-webkit-scrollbar-thumb）")
+    if not re.search(r"scrollbar-color\s*:", html, re.I):
+        add("dark-scrollbar", "缺 Firefox scrollbar-color")
     for tag in EXT_CSS_RE.findall(html):
         hm = HREF_RE.search(tag)
         href = hm.group(1) if hm else ""

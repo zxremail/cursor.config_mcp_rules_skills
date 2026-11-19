@@ -6,6 +6,7 @@ description: >-
   Use when the user asks to convert markdown to HTML, md2html, sidecar,
   customfig, or mentions "md 转 html", "生成 html", "导出 html", "markdown to html".
   时序图向右箭头 #3370FF、向左虚线 #00A870、
+  暗色滚动条、scrollbar、color-scheme dark、
   新增 HTML 格式、写进 SKILL、改 audit。
 ---
 
@@ -24,10 +25,11 @@ description: >-
 1. `md2html analyze doc.md`（stdout 已是块清单，不要 Read 源里每张图的围栏全文来「再判断一遍」，以 analyze 为准）。
 2. **仅当** analyze 标了「建议降级」：先 `Read` [references/html.md](references/html.md) §3 与 §7.6，再写 `doc.figures/mermaid-N.html`。  
    `sequenceDiagram` 降级 → `html-sequence-swimlane`，不要改成蓝/绿卡片墙。源 `.md` 长图阶段带须原样进 sidecar（`阶段 N：因果`），细则 `html-sequence-swimlane` 与 layout.md §4.2。
-3. `md2html build doc.md`（可 `--strict-figures`）。本机有桌面时可再加 `--open`；无显示器、远程 SSH、或 Agent 会话里不要 `--open`（会抢焦点或失败）。
-4. `python3 ~/.cursor/skills/markdown-to-html/scripts/audit_html.py doc.html --md doc.md`  
+3. **暗色滚动条（硬步骤，不得跳过）：** `md2html build` 前 Read **`html-dark-scrollbars`**。默认由模板 `base.css` 内嵌 `color-scheme: dark` 与 WebKit/Firefox 滚动条规则；`doc.figures/extra.css` 只可追加、**禁止**删掉或覆盖滚动条。页面有 `progress` / `meter` / `range` 时再对照该 skill 补 accent。
+4. `md2html build doc.md`（可 `--strict-figures`）。本机有桌面时可再加 `--open`；无显示器、远程 SSH、或 Agent 会话里不要 `--open`（会抢焦点或失败）。
+5. `python3 ~/.cursor/skills/markdown-to-html/scripts/audit_html.py doc.html --md doc.md`  
    `ok: true` 才交差。禁止 `Read` `doc.html`。
-5. 提醒用户浏览器预览。阶段 B（打磨单张）只改那一个 sidecar 再 build + audit。
+6. 提醒用户浏览器预览。阶段 B（打磨单张）只改那一个 sidecar 再 build + audit。
 
 可跳过 html.md 的唯一条件：analyze **零**「建议降级」，且不写任何 sidecar。
 
@@ -36,8 +38,11 @@ description: >-
 | 「先看一眼生成页再改」 | audit 看摘要；不要把 HTML 灌进对话 |
 | 「卡片结构我记得」 | 未 Read §3 不得写 `.layer` / `.customfig` |
 | 「简单图也做成卡片」 | 未触发降级则保留 Mermaid |
+| 「背景已是深色，滚动条无所谓」 | 侧栏/pre/.mermaid 仍会用系统白槽；须 `color-scheme` + scrollbar CSS |
+| 「audit 过了就能交」 | `audit_html` 会验暗色滚动条；缺则不得 `ok: true` |
 
-红旗：将写 `mermaid-N.html` 却还没打开 html.md §3。停下来先 Read。
+红旗：将写 `mermaid-N.html` 却还没打开 html.md §3。停下来先 Read。  
+红旗：**未 Read `html-dark-scrollbars` 就 `md2html build`**，或 `extra.css` 用 `scrollbar-*: unset` 盖掉模板。停下来先对齐该 skill。
 
 ```bash
 ~/.cursor/skills/markdown-to-html/bin/md2html analyze doc.md
@@ -50,7 +55,7 @@ python3 ~/.cursor/skills/markdown-to-html/scripts/audit_html.py doc.html --md do
 
 ## 1. 基本结构（格式）
 
-单文件、零依赖（CDN 除外）：深色 GitHub Dark、`#layout` + 左栏 `#sidebar`、`marked.js` + `mermaid.js`、`@media max-width:900px` 收起侧栏。骨架见 html.md §1。
+单文件、零依赖（CDN 除外）：深色 GitHub Dark、`#layout` + 左栏 `#sidebar`、`marked.js` + `mermaid.js`、`@media max-width:900px` 收起侧栏；**暗色滚动条见 `base.css` 尾部 + html.md §1.2**。骨架见 html.md §1。
 
 ### 1.1 GitHub slug
 
