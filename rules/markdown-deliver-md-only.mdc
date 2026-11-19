@@ -1,0 +1,33 @@
+---
+description: 用户只要 Markdown 时禁止自动 md2html；图文并茂指 md 内 Mermaid，不等于导出 HTML
+alwaysApply: true
+---
+
+# Markdown 交付：默认只要 .md
+
+## 触发（只交付 Markdown）
+
+用户消息含以下任一，且**未**明确要求 HTML / 网页 / md2html /「转 html」「导出 html」「生成 html」「浏览器打开」：
+
+- 生成 / 整理 / 撰写 / 导出 **md**、**Markdown 文档**
+- **图文并茂**、**暗彩色**（与 md 同句出现时，指 md 内深彩色 Mermaid + 表格）
+- 分析报告写成 md、整理成一份 md
+
+## 必须做
+
+1. 只 Write/更新 **`.md`** 文件；遵守 **`markdown-export`**（深彩色 Mermaid、`audit_mermaid.py` 通过）。
+2. 对话中只给 **md 相对路径**；不要附带 html 路径，除非用户随后要了 HTML。
+
+## 禁止做（无用户明示则一律不做）
+
+- 不得运行 **`md2html build`**、不得生成 **`.html`**、不得创建 **`*.figures/`** sidecar。
+- 不得为「方便预览」主动做 HTML；编辑器 / MPE 预览即足够。
+- 不得把 **`markdown-to-html`** 当作「图文并茂」的默认后续步骤。
+
+## 例外（须用户当轮或规则里写明）
+
+用户明确要：html、md2html、sidecar、独立网页、暗色 HTML 页、幻灯片 html 等 → 再 Read **`markdown-to-html`** 并走 build + `audit_html`。
+
+## 自检（落盘前）
+
+- 若本轮没有 HTML 相关用户词，磁盘上是否多了 `.html` 或 `.figures/`？有则删除或不要创建。
