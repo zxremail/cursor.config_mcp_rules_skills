@@ -1,36 +1,41 @@
 ---
 name: build-shell-script
 description: >-
-  任意新项目/仓库中 Bash 编译、构建、cmake/make 包装脚本的编写与改版规范（用户级 Skill，与具体
-  产品无关）。只要用户要求新建、改写「编译脚本」「构建脚本」「build_*.sh」「一键编译」、
-  本地构建入口，或给 --help 加颜色/分阶段日志，就必须先 Read 并遵守本 Skill。也覆盖：新建或改写
-  任意带终端着色的 Bash/shell 脚本（含工具脚本、固件脚本、帮助上颜色）。强制：彩色
-  help、编译过程分阶段彩色提示、帮助「示例」区每行命令带行尾 # 中文注释。即使用户未提颜色
-  也默认适用。无参数必须只打帮助、不执行编译。新建脚本禁止用深蓝（ANSI 34），蓝色一律用亮蓝
-  （ANSI 94）。Triggers: 编译脚本、构建脚本、build script、cmake 包装、make 一键、彩色 help、
-  logStep、无参 help、新项目构建脚本、新建脚本、帮助上颜色、终端颜色、ANSI、亮蓝。
+  用户级 Skill：Agent 新建或改写的任意脚本都必须先 Read 并遵守（不限编译）。覆盖 Bash / POSIX
+  sh、以及同仓库里同类入口（.py 若当 CLI 且有 --help 也适用帮助/着色约定）。强制：彩色
+  usage/--help、无参数只打帮助不执行危险/主操作、示例区每行命令带行尾 # 中文注释、蓝色一律
+  亮蓝 ANSI 94。多步骤主路径用分阶段彩色 logStep。编译/cmake/make 只是其中一类，不是唯一
+  触发条件。即使用户未提颜色也默认适用。Triggers: 新建脚本、写脚本、改脚本、shell 脚本、
+  bash、.sh、帮助上颜色、彩色 help、logStep、无参 help、编译脚本、构建脚本、build script、
+  cmake、make 一键、固件脚本、bios-update、工具脚本、终端颜色、ANSI、亮蓝。
 ---
 
-# Bash 编译脚本终端规范（通用）
+# 任意新脚本终端与帮助规范
 
-Skill 路径：`~/.cursor/skills/build-shell-script/SKILL.md`（用户级，适用各新项目，不进业务主仓 `.cursor/skills`）。
+Skill 路径：`~/.cursor/skills/build-shell-script/SKILL.md`（用户级，适用各仓库，不进业务主仓 `.cursor/skills`）。
+
+**目录名 `build-shell-script` 是历史命名，范围不是「只针对编译脚本」。**  
+真正意图：**凡 Agent 生成或改写的新脚本都适用**（工具、固件升级、串口、备份、包装器、安装、同步、以及编译/构建）。编译只是子集，额外遵守下文「编译类追加」。
 
 ## 何时必须用本 Skill
 
-- 在任意仓库新增/修改 **编译、配置、打包前的构建** 类 Bash 脚本（`scripts/build_*.sh`、`tools/build.sh`、工作区 `ai.cursor/` 下的构建脚本等）
-- 在任意仓库 **新建或改写带终端着色的 Bash/shell 脚本**（帮助、logStep、状态输出等），不限于编译脚本
-- 用户提到 **一键编译**、**彩色 help**、**分阶段编译提示**、**构建脚本示例要带注释**、**帮助上颜色**
-- **建议**：把「同步仓库 / 拉代码 / 装依赖」与「纯编译」**拆成不同入口**，避免一个脚本承担无关职责（各项目自有命名，如 `sync.sh` vs `build_*.sh`）
+Agent 一旦要 **新建** 或 **改写** 脚本，就必须先读本文件再写，包括但不限于：
 
-## 三条硬性要求
+- `*.sh`、仓库根 `x.sh`、`scripts/*.sh`、`tools/*.sh`、`ai.cursor/` 下脚本
+- 用户说「写个脚本」「帮我写脚本」「升级脚本」「包装命令」「加 --help / 上颜色」
+- 编译/构建类：`build_*.sh`、cmake/make 包装、「一键编译」
+
+用户未提颜色、未提 help，**仍然适用**（默认彩色帮助 + 无参不干活）。
+
+## 对所有脚本的硬性要求
 
 | # | 要求 | 违反即不合格 |
 |---|------|----------------|
-| 1 | `usage()` / `--help` **必须彩色** | 禁止纯 `cat <<EOF` 无 ANSI |
-| 2 | 编译主路径 **分阶段彩色日志**（至少「配置」「编译」两步） | 禁止全程无步骤提示 |
-| 3 | 帮助 **示例** 区 **每一行一条命令 + 行尾 `# 中文说明`** | 禁止无注释的裸命令行 |
-| 4 | **无参数** 仅输出彩色 `usage()` 并 **exit 0**，不触发编译 | 禁止无参悄悄开编 |
-| 5 | 脚本输出需要蓝色时用 **亮蓝 ANSI 94** | 禁止深蓝 ANSI **34**（含 `\033[0;34m`、`\033[1;34m`） |
+| 1 | `usage()` / `--help` **必须彩色**（`echo -e` 分段） | 禁止纯 `cat <<EOF` 无 ANSI |
+| 2 | 帮助 **示例** 区 **每一行一条命令 + 行尾 `# 中文说明`** | 禁止无注释的裸命令行 |
+| 3 | **无参数**（`$# -eq 0`）仅输出彩色 `usage()` 并 **exit 0** | 禁止无参直接刷写、编译、删除、安装、联网 |
+| 4 | 需要蓝色时用 **亮蓝 ANSI 94** | 禁止深蓝 ANSI **34**（含 `\033[0;34m`、`\033[1;34m`） |
+| 5 | 主路径若有 **≥2 个阶段**，用彩色 `logStep` | 禁止全程无步骤提示（单步小工具可只 `logInfo`/`logOk`） |
 
 ## 颜色与 TTY
 
@@ -38,96 +43,89 @@ Skill 路径：`~/.cursor/skills/build-shell-script/SKILL.md`（用户级，适�
 
 | 变量 | 用途 |
 |------|------|
-| `C_BLUE` | 标签、`[build-xxx]`、示例中的命令路径。**值必须是亮蓝 `\033[0;94m`**（见下条硬规则） |
+| `C_BLUE` | 标签、脚本路径、示例中的命令路径。**值必须是亮蓝 `\033[0;94m`** |
 | `C_CYAN` | 路径、步骤序号、技术文件名 |
-| `C_GREEN` | 选项名、成功、关键开关 ON |
-| `C_YELLOW` | 章节标题「选项」「示例」、步骤括号内参数 |
-| `C_BRIGHT_BLACK` | **仅**示例区行尾 `# 中文注释`（ANSI **90** 亮黑，多数终端呈深灰，与命令区分） |
-| `C_MAGENTA` | 目标名、版本号、工具子命令 |
-| `C_RED` | 错误、OFF、禁止 |
+| `C_GREEN` | 选项名、子命令、成功、关键开关 ON |
+| `C_YELLOW` | 章节标题「用法」「选项」「示例」、步骤括号内参数 |
+| `C_BRIGHT_BLACK` | **仅**示例区行尾 `# 中文注释`（ANSI **90**） |
+| `C_MAGENTA` | 目标名、版本号、ROM/产物名 |
+| `C_RED` | 错误、OFF、风险注意 |
 | `C_RESET` | 复位 |
 
-初始化示例：`C_BRIGHT_BLACK='\033[0;90m'`　`C_BLUE='\033[0;94m'`
+初始化：`C_BLUE='\033[0;94m'`　`C_BRIGHT_BLACK='\033[0;90m'`
 
-### 蓝色一律用亮蓝（新建脚本硬规则）
+### 蓝色一律用亮蓝
 
-**凡新建或改写脚本的任何终端输出**（help、logStep、logInfo、错误提示、表格、横幅），需要蓝色时 **只用亮蓝**，**禁止深蓝**。
+**任何终端输出**（help、logStep、logInfo、错误、表格、横幅）需要蓝色时 **只用 94**，**禁止 34**。
 
 | 禁止 | 必须 |
 |------|------|
-| `\033[0;34m`、`\033[34m`、`\033[0;34;`、SGR **34** | `\033[0;94m`（ANSI **94** 亮蓝，与亮黑 90 同一组） |
-| 变量名叫 `C_BLUE` 却赋值为 34 | 变量可仍叫 `C_BLUE`，赋值必须是 **94** |
+| `\033[0;34m`、`\033[34m`、`\033[1;34m`、SGR **34** | `\033[0;94m`（与亮黑 90 同一组） |
+| `C_BLUE` 赋值为 34 | 变量可仍叫 `C_BLUE`，赋值必须是 **94** |
 
-暗色终端里 34 对比度差、发闷；94 才是可读的亮蓝。不要用 `\033[1;34m`（加粗深蓝）顶替 94。其它色（绿/黄/红/青/品红/亮黑）不在此条范围内。
+暗色终端里 34 发闷；不要用加粗深蓝 `\033[1;34m` 顶替 94。绿/黄/红/青/品红/亮黑不在此条范围内。
 
-帮助用 **`echo -e`** 分段打印，禁止无着色的整页 heredoc help。
+## 日志 API
 
-## 日志 API（编译过程）
-
-至少实现：`logInfo`、`logOk`、`logWarn`（stderr）、`logError`（stderr）、`logStep`（`步骤 n/m` + 标题 + 可选黄字参数）。
+至少实现：`logInfo`、`logOk`、`logWarn`（stderr）、`logError`（stderr）。多步骤再加 `logStep`（`步骤 n/m` + 标题 + 可选黄字参数）。
 
 ```bash
-logStep "1/2" "CMake 配置" "${CMAKE_BUILD_TYPE}, ..."
-# cmake / make configure / cargo build --config 等
-logStep "2/2" "增量编译" "-j${s32Jobs}"
-# cmake --build / make / ninja 等
-logOk "编译完成: ${TARGET_BIN}"
+logStep "1/2" "准备" "检查工具与输入"
+logStep "2/2" "执行" "${CMD}"
+logOk "完成"
 ```
-
-**configure + build**（或等价两阶段）必须有彩色步骤；子模块、clean、环境检查可额外 `logStep`/`logInfo`。
 
 ## `usage()` 结构（彩色）
 
-顺序：**用法**（写明无参=帮助）→ **说明** → **选项**（黄标题）→ **系统依赖**（apt 一行一注释）→ **示例**（每行带 `#`）→ **产物/输出路径**。可选子命令 **`check-deps`**：只检查并打印 apt，不编译。CMake 失败时追加与选项相关的 apt 提示。
+顺序：**用法**（写明无参=帮助）→ **说明** → **选项/子命令**（黄标题）→ 如有依赖则 **系统依赖** → **示例**（每行带 `#`）→ 如有则 **产物/日志路径**。
 
-无参行为在 **用法** 下用一行亮黑 `# 无参数：…` 写清。实际编译用显式子命令（如 `build`）或至少一个构建选项；示例里分别展示「无参→帮助」与「build / 带选项→编译」。
+无参行为在用法下用一行亮黑 `# 无参数：…` 写清。真正干活必须有 **显式子命令或选项**。示例里分别展示「无参→帮助」与「带子命令→执行」。
+
+编译类可额外提供 `check-deps`；CMake 失败时追加 apt 提示。非编译脚本不要硬套 cmake/apt。
 
 ## 示例区格式（强制）
 
 ```bash
 echo -e "${C_YELLOW}示例:${C_RESET}"
-echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET}  ${C_BRIGHT_BLACK}# 无参：显示帮助${C_RESET}"
-echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET} ${C_GREEN}build${C_RESET}  ${C_BRIGHT_BLACK}# Debug 一键编译${C_RESET}"
-echo -e "  ${C_BLUE}./scripts/build.sh${C_RESET} ${C_GREEN}-c -j8${C_RESET}  ${C_BRIGHT_BLACK}# 全量重编 + 8 并行${C_RESET}"
+echo -e "  ${C_BLUE}./scripts/foo.sh${C_RESET}  ${C_BRIGHT_BLACK}# 无参：显示帮助${C_RESET}"
+echo -e "  ${C_BLUE}./scripts/foo.sh${C_RESET} ${C_GREEN}status${C_RESET}  ${C_BRIGHT_BLACK}# 只读查看${C_RESET}"
+echo -e "  sudo ${C_BLUE}./scripts/foo.sh${C_RESET} ${C_GREEN}run${C_RESET}  ${C_BRIGHT_BLACK}# 执行主操作${C_RESET}"
 ```
 
-**禁止**用 `C_YELLOW` 渲染示例行尾 `#` 注释（易与章节标题混淆）；统一 **`C_BRIGHT_BLACK`**。
-
-一行一条命令；`#` 后 **中文** 短说明。README 里示例同样遵守「每行命令后有 `#` 注释」。
-
-## 工程根目录解析（通用）
-
-脚本若放在 **嵌套目录或独立 git 子仓**（如 `ai.cursor/`），**不要只信** `git -C "$SCRIPT_DIR" rev-parse --show-toplevel`。
-
-应 **向上遍历** 直到找到项目约定的根标记，例如：
-
-- `src/CMakeLists.txt`、根目录 `CMakeLists.txt`
-- `package.json` + 构建配置、`Cargo.toml`、`meson.build` 等
-
-将解析逻辑封装为函数，找不到则 `logError` 退出。
+**禁止**用 `C_YELLOW` 渲染示例行尾 `#` 注释；统一 **`C_BRIGHT_BLACK`**。一行一条命令；`#` 后 **中文** 短说明。README 里示例同样带 `#` 注释。
 
 ## 脚本基础
 
-- `set -euo pipefail`
+- `set -euo pipefail`（Bash）
 - 复杂函数建议中文块注释（名称、功能、参数、返回值）；团队无要求时可从简
+- 危险操作（刷固件、rm、dd、覆盖系统配置）默认确认；`--yes` 才跳过
+
+## 工程根目录解析
+
+脚本若放在 **嵌套目录或独立 git 子仓**，**不要只信** `git -C "$SCRIPT_DIR" rev-parse --show-toplevel`。向上遍历直到项目约定根标记（`x.sh`、`CMakeLists.txt`、`package.json`、本仓库约定的知识库 `_INDEX_.md` 等）。封装成函数，找不到则 `logError` 退出。非工程类单文件脚本可用 `HERE="$(cd "$(dirname "$0")" && pwd)"`。
 
 ## 工作目录（`cd -`）
 
-- **禁止**在调用方 shell 里随意 `cd` 后又不恢复；`cmake -S/-B`、`git -C`、绝对路径优先。
-- **`./build.sh` 子进程执行**：全程不改调用方 `pwd`；若脚本内误 `cd`，用 `EXIT` trap 恢复到启动时 `pwd -P`。
-- **`source build.sh`**：若需进入工程根再编，只 `cd` **一次**到根目录且**不要在 EXIT 时 back**（保留 `OLDPWD`），编完后调用方执行 **`cd -`** 应能回到 source 前的目录。
-- 帮助里可用一行亮黑注释说明 `./` vs `source` 行为差异。
+- **禁止**在调用方 shell 里随意 `cd` 后又不恢复；优先绝对路径、`git -C`。
+- **`./script.sh` 子进程**：全程不改调用方 `pwd`；若脚本内误 `cd`，用 `EXIT` trap 恢复到启动时 `pwd -P`。
+- **`source script.sh`**：若必须进工程根，只 `cd` **一次**且**不要在 EXIT 时 back**（保留 `OLDPWD`），调用方 `cd -` 应能回去。
+- 帮助里可用一行亮黑说明 `./` vs `source`。
 
-## 参考实现（可选 Read）
+## 编译类追加（仅当脚本确实是构建入口）
 
-若当前工作区存在 **`ai.cursor/build_scope.sh`**，可作为彩色 help / `logStep` / 示例注释的 **样例对照**；其它项目无此文件时，**以本 Skill 为准** 新建脚本，照抄 API 与配色表即可。
+- 建议把「同步仓库 / 拉代码 / 装依赖」与「纯编译」拆成不同入口。
+- 主路径至少两步彩色 `logStep`（配置 + 编译，或等价）。
+- 无参只打帮助，**不触发编译**。
+- `usage` 可含 apt 依赖与 `check-deps`。
+- 可选对照：工作区若有 `ai.cursor/build_scope.sh`，可作彩色 help / `logStep` 样例。
 
 ## Agent 自检清单
 
-- [ ] `--help` 在终端有颜色
-- [ ] 蓝色为 **`C_BLUE='\033[0;94m'`**，全文无 `\033[0;34m` / SGR 34
-- [ ] 示例 **每行** 有 `C_BRIGHT_BLACK`（亮黑 90）行尾 `# ...` 注释
-- [ ] 至少 2 个分阶段 `logStep`（或等价）
+- [ ] 本文件在写脚本 **之前** 已 Read（任何新脚本，不限编译）
+- [ ] `--help` / 无参在终端有颜色
+- [ ] 蓝色为 **`C_BLUE='\033[0;94m'`**，全文无 SGR 34
+- [ ] 示例 **每行** 有 `C_BRIGHT_BLACK` 行尾 `# ...`
 - [ ] `NO_COLOR` / 非 TTY 不乱码
-- [ ] 编译脚本与无关职责（如同步仓库）未混在同一入口（除非用户明确要求）
-- [ ] **`$# -eq 0`** 只打彩色 help，不编译
+- [ ] **`$# -eq 0`** 只打彩色 help，不执行主操作
+- [ ] 多步骤有 `logStep`（编译类至少配置+编译两步）
+- [ ] 未把无关职责硬塞进同一入口（除非用户明确要求）
