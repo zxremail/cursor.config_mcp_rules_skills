@@ -4,11 +4,11 @@ description: >-
   用户级 Skill：Agent 新建或改写的任意脚本都必须先 Read 并遵守（不限编译）。覆盖 Bash / POSIX
   sh、以及同仓库里同类入口（.py 若当 CLI 且有 --help 也适用帮助/着色约定）。强制：彩色
   usage/--help、无参数只打帮助不执行危险/主操作、示例区每行命令带行尾 # 中文注释且注释颜色
-  必须是亮黑 ANSI 90、蓝色一律亮蓝 ANSI 94。多步骤主路径用分阶段彩色 logStep。编译/cmake/make
-  只是其中一类，不是唯一触发条件。即使用户未提颜色也默认适用。Triggers: 新建脚本、写脚本、
-  改脚本、shell 脚本、bash、.sh、帮助上颜色、彩色 help、示例注释、亮黑、logStep、无参 help、
-  编译脚本、构建脚本、build script、cmake、make 一键、固件脚本、bios-update、工具脚本、
-  终端颜色、ANSI、亮蓝。
+  必须是亮黑 ANSI 90、蓝色一律亮蓝 ANSI 94。多步骤主路径用分阶段彩色 logStep。运行时分段
+  横幅用黄字 logSection。编译/cmake/make 只是其中一类，不是唯一触发条件。即使用户未提
+  颜色也默认适用。Triggers: 新建脚本、写脚本、改脚本、shell 脚本、bash、.sh、帮助上颜色、
+  彩色 help、示例注释、亮黑、logStep、logSection、分段横幅、无参 help、编译脚本、构建脚本、
+  build script、cmake、make 一键、固件脚本、bios-update、工具脚本、终端颜色、ANSI、亮蓝。
 ---
 
 # 任意新脚本终端与帮助规范
@@ -38,6 +38,7 @@ Agent 一旦要 **新建** 或 **改写** 脚本，就必须先读本文件再�
 | 4 | **无参数**（`$# -eq 0`）仅输出彩色 `usage()` 并 **exit 0** | 禁止无参直接刷写、编译、删除、安装、联网 |
 | 5 | 需要蓝色时用 **亮蓝 ANSI 94** | 禁止深蓝 ANSI **34**（含 `\033[0;34m`、`\033[1;34m`） |
 | 6 | 主路径若有 **≥2 个阶段**，用彩色 `logStep` | 禁止全程无步骤提示（单步小工具可只 `logInfo`/`logOk`） |
+| 7 | 运行时**已有**分段横幅时必须用 **`${C_YELLOW}`** | 禁止无色 `=== … ===` / `---` 横幅；无分段则不必硬造 |
 
 ## 颜色与 TTY
 
@@ -48,7 +49,7 @@ Agent 一旦要 **新建** 或 **改写** 脚本，就必须先读本文件再�
 | `C_BLUE` | 标签、脚本路径、示例中的命令路径。**值必须是亮蓝 `\033[0;94m`** |
 | `C_CYAN` | 路径、步骤序号、技术文件名 |
 | `C_GREEN` | 选项名、子命令、成功、关键开关 ON |
-| `C_YELLOW` | 章节标题「用法」「选项」「示例」、步骤括号内参数 |
+| `C_YELLOW` | 章节标题「用法」「选项」「示例」；运行时 **分段提示**；步骤括号内参数 |
 | `C_BRIGHT_BLACK` | **命令行右侧说明**（强制）：用法区无 `#` 的中文释义、示例区 `# 中文注释`，ANSI **90** 亮黑 |
 | `C_MAGENTA` | 目标名、版本号、ROM/产物名 |
 | `C_RED` | 错误、OFF、风险注意 |
@@ -86,9 +87,26 @@ echo -e "  sudo ${C_BLUE}\$0${C_RESET} ${C_GREEN}status${C_RESET}  ${C_BRIGHT_BL
 
 章节标题「用法:」「示例:」仍用 `${C_YELLOW}`。子命令、路径、ROM 名不要涂成 90，只涂 **释义/注释**。
 
+### 分隔提示一律着色
+
+运行时分段横幅与帮助里的章节标题同级，**必须用 `${C_YELLOW}`**，不要默认白。  
+硬性要求是**着色**，不是某种装饰符：`=== … ===`、`--- … ---`、`*** … ***`、或只有标题都行。
+
+```bash
+logSection() { echo -e "${C_YELLOW}$*${C_RESET}"; }
+logSection "=== 当前 BIOS（dmidecode）==="
+logSection "--- 系统依赖 ---"
+```
+
+| 禁止 | 必须 |
+|------|------|
+| `echo "=== 当前 BIOS（dmidecode）==="` 无 ANSI | `${C_YELLOW}…${C_RESET}`（装饰写进参数，不要把 `===` 写死进规范） |
+| 分隔符用深蓝 34 | 黄标题；路径仍用青、成功用绿 |
+| 单步小工具为过清单硬插一条横幅 | 有分段才 `logSection`；没有分段只 `logInfo`/`logOk` |
+
 ## 日志 API
 
-至少实现：`logInfo`、`logOk`、`logWarn`（stderr）、`logError`（stderr）。多步骤再加 `logStep`（`步骤 n/m` + 标题 + 可选黄字参数）。
+至少实现：`logInfo`、`logOk`、`logWarn`（stderr）、`logError`（stderr）。有分段输出再加 **`logSection`**（黄字标题）。多步骤再加 `logStep`（`步骤 n/m` + 标题 + 可选黄字参数）。
 
 ```bash
 logStep "1/2" "准备" "检查工具与输入"
@@ -148,5 +166,6 @@ echo -e "  sudo ${C_BLUE}./scripts/foo.sh${C_RESET} ${C_GREEN}run${C_RESET}  ${C
 - [ ] 用法区右侧中文说明（如「查看当前 BIOS 与 update/ 内 ROM」）与示例区 `# …` 均为 **`C_BRIGHT_BLACK='\033[0;90m'`**，无默认白注释
 - [ ] `NO_COLOR` / 非 TTY 不乱码
 - [ ] **`$# -eq 0`** 只打彩色 help，不执行主操作
+- [ ] 若有分段横幅：用 **`${C_YELLOW}`**（`logSection`），无默认白；无分段则不硬造
 - [ ] 多步骤有 `logStep`（编译类至少配置+编译两步）
 - [ ] 未把无关职责硬塞进同一入口（除非用户明确要求）
