@@ -4,11 +4,12 @@ description: >-
   用户级 Skill：Agent 新建或改写的任意脚本都必须先 Read 并遵守（不限编译）。覆盖 Bash / POSIX
   sh、以及同仓库里同类入口（.py 若当 CLI 且有 --help 也适用帮助/着色约定）。强制：彩色
   usage/--help、无参数只打帮助不执行危险/主操作、示例区每行命令带行尾 # 中文注释且注释颜色
-  必须是亮黑 ANSI 90、蓝色一律亮蓝 ANSI 94。多步骤主路径用分阶段彩色 logStep。运行时分段
-  横幅用黄字 logSection。编译/cmake/make 只是其中一类，不是唯一触发条件。即使用户未提
-  颜色也默认适用。Triggers: 新建脚本、写脚本、改脚本、shell 脚本、bash、.sh、帮助上颜色、
-  彩色 help、示例注释、亮黑、logStep、logSection、分段横幅、无参 help、编译脚本、构建脚本、
-  build script、cmake、make 一键、固件脚本、bios-update、工具脚本、终端颜色、ANSI、亮蓝。
+  必须是亮黑 ANSI 90、蓝色一律亮蓝 ANSI 94。先后依赖的干活工序才用 logStep；运行时分段
+  横幅用黄字 logSection。list/status 等分组展示不要写「步骤」。编译/cmake/make 只是其中
+  一类，不是唯一触发条件。即使用户未提颜色也默认适用。Triggers: 新建脚本、写脚本、改脚本、
+  shell 脚本、bash、.sh、帮助上颜色、彩色 help、示例注释、亮黑、logStep、logSection、
+  分段横幅、步骤字样、分组展示、无参 help、编译脚本、构建脚本、build script、cmake、
+  make 一键、固件脚本、bios-update、工具脚本、终端颜色、ANSI、亮蓝。
 ---
 
 # 任意新脚本终端与帮助规范
@@ -37,7 +38,7 @@ Agent 一旦要 **新建** 或 **改写** 脚本，就必须先读本文件再�
 | 3 | **用法/示例** 命令行右侧说明必须是 **亮黑 ANSI 90**（有无 `#` 都一样） | 禁止默认白/黄/绿渲染「查看当前 BIOS…」这类注释 |
 | 4 | **无参数**（`$# -eq 0`）仅输出彩色 `usage()` 并 **exit 0** | 禁止无参直接刷写、编译、删除、安装、联网 |
 | 5 | 需要蓝色时用 **亮蓝 ANSI 94** | 禁止深蓝 ANSI **34**（含 `\033[0;34m`、`\033[1;34m`） |
-| 6 | 主路径若有 **≥2 个阶段**，用彩色 `logStep` | 禁止全程无步骤提示（单步小工具可只 `logInfo`/`logOk`） |
+| 6 | 干活主路径若有 **≥2 个先后依赖的工序**，用彩色 `logStep` | 禁止把 list/status 等**分组展示**写成「步骤 n/m」；无工序则不要 `logStep`（单步可只 `logInfo`/`logOk`） |
 | 7 | 运行时**已有**分段横幅时必须用 **`${C_YELLOW}`** | 禁止无色 `=== … ===` / `---` 横幅；无分段则不必硬造 |
 
 ## 颜色与 TTY
@@ -103,15 +104,24 @@ logSection "--- 系统依赖 ---"
 | `echo "=== 当前 BIOS（dmidecode）==="` 无 ANSI | `${C_YELLOW}…${C_RESET}`（装饰写进参数，不要把 `===` 写死进规范） |
 | 分隔符用深蓝 34 | 黄标题；路径仍用青、成功用绿 |
 | 单步小工具为过清单硬插一条横幅 | 有分段才 `logSection`；没有分段只 `logInfo`/`logOk` |
+| `status`/`list` 打 `[步骤 1/2]` | 分组展示用 `logSection`，文案不要「步骤」 |
 
 ## 日志 API
 
-至少实现：`logInfo`、`logOk`、`logWarn`（stderr）、`logError`（stderr）。有分段输出再加 **`logSection`**（黄字标题）。多步骤再加 `logStep`（`步骤 n/m` + 标题 + 可选黄字参数）。
+至少实现：`logInfo`、`logOk`、`logWarn`（stderr）、`logError`（stderr）。
+
+- **`logSection`**（黄字标题）：list、status、按系统/用户分组打印。**分组展示 ≠ 分步执行**，禁止写「步骤 n/m」。
+- **`logStep`**：仅当后一步依赖前一步的干活路径（准备→执行、配置→编译）。文案可以带「步骤 n/m」。无此工序则不要定义或调用 `logStep`，不要为过清单硬加。
 
 ```bash
+# 工序：才用 logStep
 logStep "1/2" "准备" "检查工具与输入"
 logStep "2/2" "执行" "${CMD}"
 logOk "完成"
+
+# 分组展示：只用 logSection
+logSection "=== 系统单元 ==="
+logSection "=== 用户单元 ==="
 ```
 
 ## `usage()` 结构（彩色）
@@ -167,5 +177,5 @@ echo -e "  sudo ${C_BLUE}./scripts/foo.sh${C_RESET} ${C_GREEN}run${C_RESET}  ${C
 - [ ] `NO_COLOR` / 非 TTY 不乱码
 - [ ] **`$# -eq 0`** 只打彩色 help，不执行主操作
 - [ ] 若有分段横幅：用 **`${C_YELLOW}`**（`logSection`），无默认白；无分段则不硬造
-- [ ] 多步骤有 `logStep`（编译类至少配置+编译两步）
+- [ ] 确有先后工序才 `logStep`（编译类：配置+编译）；仅分组输出只用 `logSection`，不要为过清单硬加「步骤」字样
 - [ ] 未把无关职责硬塞进同一入口（除非用户明确要求）
