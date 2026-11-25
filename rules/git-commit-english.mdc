@@ -1,0 +1,12 @@
+---
+description: Git commit message 默认英文；仅当用户显式要求时用中文。代为 commit 前必读 git-commit Skill。
+alwaysApply: true
+---
+
+# Git commit message 语言
+
+1. Agent 起草或执行的 **`git commit` 标题与正文默认使用英文**。
+2. 仅当用户**显式**说明 commit / 提交说明用中文（例如「commit 用中文」「提交信息中文」）时，才用简体中文写 message。
+3. 「帮忙 commit」「提交一下」不视为要求中文。
+4. 代为 commit 前须 Read `~/.cursor/skills/git-commit/SKILL.md` 并遵守其中流程与安全约定。
+5. 与用户聊天仍用简体中文（`chinese-response`）；本条只约束写入 Git 的 commit 文本。

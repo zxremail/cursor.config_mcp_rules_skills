@@ -18,7 +18,7 @@ description: >-
 1. **源码使用 Git 管理**：还原产物落在独立 Git 根（用户指定路径；未指定则在分析目标旁建 `<artifact>-recon/` 并 `git init`）。禁止只堆在临时目录却不初始化仓库。
 2. **自动持续修改优化 `.gitignore`**：每发现新的可再生/超大/引擎私有产物，在同一工作批次内更新 `.gitignore` 并 **单独 commit**（或与紧邻的 ignore 理由绑在同一 commit 的第二段 `-m`）。见 [reference.md](reference.md) § `.gitignore`。
 3. **每次修改自动 commit，禁止 push**：完成一个逻辑批次后 `git add` → `git commit`。**不得** `git push`、`git push --force`、`gh` 推送远程，除非用户**当场**写明 push/推送。
-4. **Commit message 必须体现意义**：说明「还原了什么 / 为何改 ignore / 模块边界变化」。**禁止**仅用时间戳、`update`、`wip`、`auto commit` 作标题。
+4. **Commit message 必须体现意义**：说明「还原了什么 / 为何改 ignore / 模块边界变化」。**禁止**仅用时间戳、`update`、`wip`、`auto commit` 作标题。语言遵守 **`git-commit` Skill**：默认英文；用户显式要求中文提交说明时再用简体中文。
 5. **生成的源码要有模块化思维**：按子系统分目录与命名空间；模块间依赖单向、可测试边界清晰。见 [reference.md](reference.md) § 模块布局。
 
 **Git 安全（与仓库惯例一致）：** 禁止 `git config`；禁止 amend 已 push 的提交；hook 失败则修问题后 **新 commit**，不要 amend 失败提交。

@@ -64,6 +64,7 @@ description: >-
    `config/hooks` 常被 `.gitignore`；**已跟踪文件**用 `git add -f`。`git add` 因 ignored 失败时不要以为已经 stage。
 
 6. **提交；默认到此结束**  
+   Commit 标题/正文语言遵守 **`git-commit` Skill**：默认**英文**；用户显式「commit 用中文」时才用中文。  
    远端有 `commit-msg` hook，会加 `Change-Id`。经 SSH 提交用两条 `-m`，**禁止** SSH 里再套一层 HEREDOC（会被截断、提交失败仍显示 add 成功）。
 
    ```bash
